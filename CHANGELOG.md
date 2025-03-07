@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1] - 2024-03-02
+### Fixed
+- Fixed auto-populate functionality for unlinked tokens
+  - Improved item filtering to properly include passive feats
+  - Fixed data structure initialization for new token hotbars
+  - Removed unnecessary UI creation that could cause issues
+  - Added proper container size limits to prevent overflow
+
 ## [1.0.0] - 02/03/2025
 - Initial release
 

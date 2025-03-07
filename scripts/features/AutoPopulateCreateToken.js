@@ -90,17 +90,10 @@ export class AutoPopulateCreateToken {
             const container1Setting = game.settings.get(CONFIG.MODULE_NAME, 'container1AutoPopulate');
             const container2Setting = game.settings.get(CONFIG.MODULE_NAME, 'container2AutoPopulate');
             const container3Setting = game.settings.get(CONFIG.MODULE_NAME, 'container3AutoPopulate');
-            const overflowOption = game.settings.get(CONFIG.MODULE_NAME, 'autoPopulateOverflow');
-            const fillDirection = game.settings.get(CONFIG.MODULE_NAME, 'autoPopulateFillDirection');
 
             // Create a temporary hotbar manager for this token
             const tempManager = new HotbarManager();
             tempManager.currentTokenId = token.id;
-            
-            // Initialize the UI for the temporary manager
-            tempManager.ui = new HotbarUI(tempManager);
-            
-            // Load any existing token data
             await tempManager._loadTokenData();
 
             // Initialize containers with correct structure
@@ -111,8 +104,12 @@ export class AutoPopulateCreateToken {
                     cols: 5,
                     rows: 3,
                     items: {},
-                    ui: tempManager.ui,
-                    render: () => {}
+                    data: {
+                        index: i,
+                        cols: 5,
+                        rows: 3,
+                        items: {}
+                    }
                 };
             }
 
@@ -126,10 +123,6 @@ export class AutoPopulateCreateToken {
             // Save the changes
             await tempManager.persist();
 
-            // Clean up the temporary UI
-            if (tempManager.ui) {
-                tempManager.ui.destroy();
-            }
         } catch (error) {
             console.error("BG3 Inspired Hotbar | Error auto-populating unlinked token hotbar:", error);
         }
@@ -151,24 +144,28 @@ export class AutoPopulateCreateToken {
                 if (!itemTypes.includes(item.type)) continue;
                 
                 // Check if the item has activities or is usable
-                const hasActivities = item.system?.activities?.length > 0 || 
-                                    (item.system?.activation?.type && item.system?.activation?.type !== "none") ||
+                const hasActivities = item.system?.activation?.type || // Has activation
                                     item.type === "consumable" || // Always include consumables
-                                    item.type === "spell"; // Always include spells
+                                    item.type === "spell" || // Always include spells
+                                    (item.type === "feat" && !item.system?.activation?.type); // Include passive feats
                 
                 if (hasActivities) {
-                    itemsWithActivities.push({
+                    const itemData = {
                         uuid: item.uuid,
                         name: item.name,
                         icon: item.img,
                         type: item.type,
-                        activation: item.system?.activation?.type || "action",
+                        activation: item.system?.activation?.type || "passive",
                         sortData: {
                             spellLevel: item.type === "spell" ? item.system?.level ?? 99 : 99,
                             featureType: item.type === "feat" ? item.system?.type?.value ?? "" : "",
                             name: item.name
                         }
-                    });
+                    };
+
+                    itemsWithActivities.push(itemData);
+                    // Also add to container's data structure
+                    container.data.items[`${itemsWithActivities.length - 1}-0`] = itemData;
                 }
             }
             
@@ -180,12 +177,16 @@ export class AutoPopulateCreateToken {
             // Place items in grid format (rows first: left to right, then down)
             let x = 0;
             let y = 0;
-            let itemCount = 0;
+
+            container.items = {};
+            container.data.items = {};
 
             for (const item of itemsWithActivities) {
+                if (y >= container.rows) break; // Stop if we exceed container rows
+
                 const gridKey = `${x}-${y}`;
                 container.items[gridKey] = item;
-                itemCount++;
+                container.data.items[gridKey] = item;
 
                 // Move right first, then down (rows first)
                 x++;

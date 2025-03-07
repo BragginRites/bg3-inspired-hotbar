@@ -2,6 +2,9 @@
 
 A Foundry VTT module that reimagines the hotbar interface, drawing inspiration from Baldur's Gate 3's elegant design. This module provides a persistent, token-specific interface for managing abilities, spells, and effects with modern UI/UX principles.
 
+![image](https://github.com/user-attachments/assets/5ea7fe57-8be4-4016-83cd-939eb5857531)
+
+
 ## Installation
 
 1. Open Foundry VTT and navigate to **Add-on Modules**

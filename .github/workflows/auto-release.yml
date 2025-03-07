@@ -1,0 +1,51 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Extract Version from module.json
+        id: get_version
+        run: |
+          # Using jq to parse the version field
+          VERSION=$(jq -r '.version' bg3-inspired-hotbar/module.json)
+          echo "Found version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Create Git Tag
+        id: tag
+        run: |
+          TAG="v${{ env.VERSION }}"
+          echo "Creating tag: $TAG"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "::set-output name=tag::$TAG"
+
+      - name: Create Module ZIP
+        run: |
+          zip -r bg3-inspired-hotbar.zip bg3-inspired-hotbar -x "*.git*" "*.github*" "*.vscode*"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          files: |
+            bg3-inspired-hotbar.zip
+            bg3-inspired-hotbar/module.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

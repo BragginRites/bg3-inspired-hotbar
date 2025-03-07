@@ -8,6 +8,11 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
+    # 👇 This grants the workflow write access to push tags
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -15,7 +20,7 @@ jobs:
       - name: Extract Version from module.json
         id: get_version
         run: |
-          # Using jq to parse the version field
+          # Using jq to parse the version field from module.json at repo root
           VERSION=$(jq -r '.version' module.json)
           echo "Found version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -37,8 +42,11 @@ jobs:
 
       - name: Create Module ZIP
         run: |
-          zip -r bg3-inspired-hotbar.zip . -x "*.git*" ".github*" "*.vscode*"
-
+          # Zip everything in the repo except hidden folders/files we don't need
+          zip -r bg3-inspired-hotbar.zip . \
+            -x "*.git*" \
+               ".github*" \
+               "*.vscode*"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -47,6 +55,6 @@ jobs:
           name: Release ${{ steps.tag.outputs.tag }}
           files: |
             bg3-inspired-hotbar.zip
-            bg3-inspired-hotbar/module.json
+            module.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -16,7 +16,7 @@ jobs:
         id: get_version
         run: |
           # Using jq to parse the version field
-          VERSION=$(jq -r '.version' bg3-inspired-hotbar/module.json)
+          VERSION=$(jq -r '.version' module.json)
           echo "Found version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=version::$VERSION"
@@ -37,7 +37,8 @@ jobs:
 
       - name: Create Module ZIP
         run: |
-          zip -r bg3-inspired-hotbar.zip bg3-inspired-hotbar -x "*.git*" "*.github*" "*.vscode*"
+          zip -r bg3-inspired-hotbar.zip . -x "*.git*" ".github*" "*.vscode*"
+
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

@@ -11,3 +11,85 @@
 @import './components/utilities.css';
 @import './components/filter.css';
 @import './components/effects.css';
+
+/* Death Saves Container */
+.death-saves-container {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 1;
+}
+
+.death-saves-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.death-save-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #666;
+    border-radius: 4px;
+    background-color: rgba(80, 80, 80, 0.3);
+    transition: all 0.2s ease;
+}
+
+.death-save-box.clickable {
+    cursor: pointer;
+}
+
+.death-save-box.clickable:hover {
+    transform: scale(1.1);
+    border-color: #888;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.death-save-box.success.marked {
+    background-color: rgba(0, 255, 0, 0.3);
+    border-color: #00ff00;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.death-save-box.success.clickable:hover {
+    border-color: #00ff00;
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+}
+
+.death-save-box.failure.marked {
+    background-color: rgba(255, 0, 0, 0.3);
+    border-color: #ff0000;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.death-save-box.failure.clickable:hover {
+    border-color: #ff0000;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
+}
+
+.death-saves-skull {
+    color: #666;
+    font-size: 1.2em;
+    margin: 4px 0;
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.death-saves-skull.clickable {
+    cursor: pointer;
+}
+
+.death-saves-skull.clickable:hover {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+.death-saves-skull.clickable:active {
+    transform: scale(0.95);
+}

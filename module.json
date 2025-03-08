@@ -2,7 +2,7 @@
   "id": "bg3-inspired-hotbar",
   "title": "BG3 Inspired Hotbar",
   "description": "A custom, persistent, token-specific HUD inspired by Baldur's Gate 3's interface. Provides an intuitive and modern way to manage abilities, spells, and effects for your tokens.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "authors": [
     {
       "name": "BragginRites",

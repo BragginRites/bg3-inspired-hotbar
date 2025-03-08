@@ -128,7 +128,7 @@ export class BG3Hotbar {
             scope: 'world',
             config: true,
             type: Boolean,
-            default: false
+            default: true
         });
 
         // Container 1 auto-populate settings

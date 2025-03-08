@@ -2,6 +2,8 @@
 
 A Foundry VTT module that reimagines the hotbar interface, drawing inspiration from Baldur's Gate 3's elegant design. This module provides a persistent, token-specific interface for managing abilities, spells, and effects with modern UI/UX principles.
 
+**Please check the Settings menu in FoundryVTT for more options for this module such as Auto-Popluating actions for unlinked tokens or changing your opacity and fade out settings.**
+
 ![image](https://github.com/user-attachments/assets/373cfafb-377a-46dc-a619-a91e6b6f4e89)
 
 ## Installation
@@ -16,6 +18,28 @@ A Foundry VTT module that reimagines the hotbar interface, drawing inspiration f
 5. Enable the module in your world settings
 
 ## Core Interface
+
+### Keybinds and Events
+- **Mouse Controls**
+  - Middle-click: Pin/unpin tooltips
+  
+  - Right-click on passive features: Open passive features selection menu
+
+  - Left-click on active effects: Toggle effect on/off
+  - Right-click on active effects: Remove effect
+
+  - Right-click on grid container: Open context menu for that space/container
+
+  - Left-click on lock button: Lock/Unlock all options of the HUD
+  - Right-click on lock button: Open context menu for separate locking options
+
+  - Left-click on settings button: Open context menu
+
+  - Right-click on portrait card: Open context menu to choose between token image or character portrait
+  
+  - Left-click on death save boxes: Increment success/failure count up to the number you chose
+  - Left-click on skull icon: Roll death saving throw
+  - Right-click on skull icon: Remove all death saving throws
 
 ### Main Hotbar
 The primary interface consists of a customizable grid system that persists between sessions.
@@ -57,7 +81,10 @@ The primary interface consists of a customizable grid system that persists betwe
 ### Portrait Integration
 
 #### Portrait Card
-- Character image display
+- Character/token image display with right-click menu to switch between them
+  - Token image (default)
+  - Character portrait
+  - Per-actor preference that persists between sessions
 - Current / max hp display
 - Temp hp display
 - Health status overlay

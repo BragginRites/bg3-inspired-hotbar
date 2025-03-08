@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0] - 2025-03-08
+### Added
+- Added death saving throws UI to the left of portrait cards for player characters
+  - Vertical column with 3 success boxes, skull icon, and 3 failure boxes
+  - Click skull icon to roll death saving throw
+  - Visual feedback with green/red highlighting for successes/failures
+  - Only appears for player characters at 0 HP or below
+  - Automatically updates character sheet when death saves change or HP changes
+  - Success boxes remain visible for 5 seconds after stabilization for visual feedback
+  - Failure boxes remain visible until character is healed (for resurrection cases)
+- Added portrait image selection feature
+  - Right-click on portrait to choose between token image or character portrait
+  - Token image is the default option
+  - Selection persists per-actor between sessions
+  - Visual indicator shows current selection in context menu
+
+### Fixed
+- Changed the setting for Autopopulating unlinked NPC tokens to true by default
+
 ## [1.1.0] - 2025-03-08
 ### Fixed
 #### Hotbar Visibility

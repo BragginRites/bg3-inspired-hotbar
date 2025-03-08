@@ -7,13 +7,15 @@ Hooks.once('init', () => {
     BG3Hotbar._registerSettings();
 });
 
-Hooks.once('ready', () => {
-    // Initialize the module
-    BG3Hotbar.init();
+Hooks.once('ready', async () => {
+    // Only initialize if UI is enabled
+    if (game.settings.get(CONFIG.MODULE_NAME, 'enableUI')) {
+        await BG3Hotbar.init();
+    }
 });
 
-// Handle module disable/uninstall
-Hooks.once('closeSettings', (settingsApp) => {
+// Handle settings menu close
+Hooks.on('closeSettings', async (settingsApp) => {
     const module = game.modules.get(CONFIG.MODULE_NAME);
     if (!module?.active) {
         cleanup();

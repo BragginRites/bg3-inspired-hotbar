@@ -11,12 +11,12 @@
     align-items: center;
     padding: 2px 4px;
     box-sizing: border-box;
-    z-index: var(--bg3-z-ability-card);
+    z-index: var(--bg3-z-base);
     cursor: pointer;
     flex-wrap: wrap;
     gap: 2px;
     flex-direction: row-reverse;
-    margin-bottom: 0; /* Add some space between the effects and the hotbar */
+    margin-bottom: 0; /* Add some space between the container and the hotbar */
 }
 
 .active-effect-icon {

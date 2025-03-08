@@ -16,24 +16,6 @@ export class PassivesContainer {
     _createContainer() {
         this.element = document.createElement("div");
         this.element.classList.add("passives-container");
-        Object.assign(this.element.style, {
-            position: "absolute",
-            top: "-24px",
-            left: "0",
-            minWidth: "20px",
-            maxWidth: "300px",
-            background: CONFIG.COLORS.BACKGROUND,
-            border: `1px solid ${CONFIG.COLORS.BORDER}`,
-            borderRadius: "3px",
-            display: "flex",
-            alignItems: "center",
-            padding: "2px 4px",
-            boxSizing: "border-box",
-            zIndex: CONFIG.Z_INDEX.OVERLAY.ABILITY_CARD - 1,
-            cursor: "pointer",
-            flexWrap: "wrap",
-            gap: "2px"
-        });
         // Show tooltip on hover
         this.element.title = "Right-click to configure passive features";
         // Right-click opens configuration dialog
@@ -43,33 +25,11 @@ export class PassivesContainer {
     _createFeatureIcon(feature) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("passive-feature-icon");
-        Object.assign(wrapper.style, {
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2px",
-            borderRadius: "2px"
-        });
         // Store feature reference for later use if needed
         wrapper.dataset.uuid = feature.uuid;
         const img = document.createElement("img");
         img.src = feature.img;
-        Object.assign(img.style, {
-            width: "16px",
-            height: "16px",
-            display: "block",
-            cursor: "pointer"
-        });
-        // Optional: Add hover effects for the icon
-        wrapper.addEventListener("mouseenter", () => {
-            img.style.filter = "brightness(1.2)";
-            wrapper.style.background = CONFIG.COLORS.BACKGROUND_HIGHLIGHT;
-        });
-        wrapper.addEventListener("mouseleave", () => {
-            img.style.filter = "none";
-            wrapper.style.background = "transparent";
-        });
+
         // Clicking the icon uses the feature if defined
         wrapper.addEventListener("click", async () => {
             if (feature.use) await feature.use();
@@ -180,17 +140,11 @@ export class PassivesContainer {
         // If no passives are selected to show, display minimal container
         if (featuresToShow.length === 0) {
             this.element.style.display = 'flex';
-            this.element.style.minWidth = '20px';
-            this.element.style.width = '20px';
-            this.element.style.height = '20px';
             return;
         }
 
         // Show container normally with selected passives
         this.element.style.display = 'flex';
-        this.element.style.minWidth = '20px';
-        this.element.style.width = 'auto';
-        this.element.style.height = 'auto';
         
         featuresToShow.forEach(feature => {
             const iconEl = this._createFeatureIcon(feature);
@@ -199,7 +153,7 @@ export class PassivesContainer {
     }
 
     // Show dialog to configure passives
-    _showPassivesDialog(event) {
+    async _showPassivesDialog(event) {
         event.preventDefault();
         
         let actor = null;
@@ -221,33 +175,21 @@ export class PassivesContainer {
         if (!actor) return;
         
         // Get all available passive features from the actor
-        const availableFeatures = actor.items.filter(item =>
-            item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive")
-        );
-        
-        // Build HTML content using a template string:
-        let contentHTML = `<div style="padding: 8px; width: 400px;">
-            <p>Select which passive features should be displayed in the passives bar.</p>
-            <div id="passives-list" style="display: flex; flex-direction: column; gap: 8px;">`;
-        
-        availableFeatures.forEach(feature => {
-            // Each row gets a data-feature attribute with its UUID.
-            contentHTML += `
-                <div class="passives-row" style="display: flex; align-items: center; gap: 8px; padding: 4px; cursor: pointer; border-radius: 3px;"
-                     data-feature="${feature.uuid}">
-                    <input type="checkbox" class="passives-checkbox" value="${feature.uuid}" style="cursor: pointer;" 
-                        ${this.selectedPassives.has(feature.uuid) ? "checked" : ""}>
-                    <img src="${feature.img}" style="width: 16px; height: 16px; display: block;" alt="${feature.name}">
-                    <span>${feature.name}</span>
-                </div>`;
-        });
-        
-        contentHTML += `</div></div>`;
-        
-        // Create and show dialog using the HTML string:
+        const availableFeatures = actor.items
+            .filter(item => item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive"))
+            .map(item => ({
+                uuid: item.uuid,
+                name: item.name,
+                img: item.img,
+                selected: this.selectedPassives.has(item.uuid)
+            }));
+
+        // Create and show dialog using the template
         const dialog = new Dialog({
             title: "Configure Passive Features",
-            content: contentHTML,
+            content: await renderTemplate("modules/bg3-inspired-hotbar/templates/passives-dialog.html", {
+                features: availableFeatures
+            }),
             buttons: {
                 save: {
                     icon: '<i class="fas fa-save"></i>',
@@ -276,8 +218,7 @@ export class PassivesContainer {
             default: "save"
         }, {
             classes: ["configure-passives"],
-            width: 400,
-            resizable: true
+            resizable: false
         });
         
         dialog.render(true);

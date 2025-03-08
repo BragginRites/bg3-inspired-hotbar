@@ -16,7 +16,7 @@ export class ActiveEffectsContainer {
     this.element.classList.add("effects-container");
     Object.assign(this.element.style, {
       position: "absolute",
-      top: "-24px",
+      top: "-26px",
       right: "0", // Right aligned
       minWidth: "20px",
       maxWidth: "300px",

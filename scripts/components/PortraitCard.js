@@ -646,15 +646,21 @@ export class PortraitCard {
         const token = canvas.tokens.get(this.gridContainer.ui.manager.currentTokenId);
         if (!token?.actor) return;
 
+        // First check for actor-specific saved preference
         const saved = await token.actor.getFlag(CONFIG.MODULE_NAME, "useTokenImage");
-        // If there's a saved preference, use it. Otherwise, default is already true (token image)
+        
         if (saved !== undefined) {
             this.useTokenImage = saved;
-            // Update the image immediately if we have one
-            const portraitImg = this.element.querySelector('.portrait-image');
-            if (portraitImg) {
-                portraitImg.src = this.useTokenImage ? token.document.texture.src : token.actor.img;
-            }
+        } else {
+            // If no actor-specific preference, use the default setting
+            const defaultPref = game.settings.get(CONFIG.MODULE_NAME, 'defaultPortraitPreferences');
+            this.useTokenImage = defaultPref === 'token';
+        }
+
+        // Update the image immediately if we have one
+        const portraitImg = this.element.querySelector('.portrait-image');
+        if (portraitImg) {
+            portraitImg.src = this.useTokenImage ? token.document.texture.src : token.actor.img;
         }
     }
 

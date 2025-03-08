@@ -39,6 +39,57 @@ export class BG3Hotbar {
     }
 
     static _registerSettings() {
+        // Add enable UI setting at the top
+        game.settings.register(CONFIG.MODULE_NAME, 'enableUI', {
+            name: 'BG3.Settings.EnableUI.Name',
+            hint: 'BG3.Settings.EnableUI.Hint',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: true,
+            onChange: async value => {
+                // Always clean up existing UI first
+                if (this.manager?.ui) {
+                    this.manager.ui.destroy();
+                    this.manager.ui = null;
+                }
+
+                // If enabling UI
+                if (value) {
+                    // If we don't have a manager, initialize one
+                    if (!this.manager) {
+                        await this.init();
+                    }
+                    
+                    // Force an update for the current token if one is selected
+                    const controlled = canvas.tokens.controlled[0];
+                    if (controlled && this.manager) {
+                        await this.manager.updateHotbarForControlledToken(true);
+                    }
+                }
+            }
+        });
+
+        // Add portrait display defaults setting
+        game.settings.register(CONFIG.MODULE_NAME, 'defaultPortraitPreferences', {
+            name: 'BG3.Settings.DefaultPortraitPreferences.Name',
+            hint: 'BG3.Settings.DefaultPortraitPreferences.Hint',
+            scope: 'client',
+            config: true,
+            type: String,
+            choices: {
+                'token': 'BG3.Settings.DefaultPortraitPreferences.Token',
+                'portrait': 'BG3.Settings.DefaultPortraitPreferences.Portrait'
+            },
+            default: 'token',
+            onChange: () => {
+                // Refresh UI if it exists
+                if (this.manager?.ui?.portraitCard) {
+                    this.manager.ui.portraitCard.loadImagePreference();
+                }
+            }
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'collapseFoundryMacrobar', {
             name: 'BG3.Settings.CollapseFoundryMacrobar.Name',
             hint: 'BG3.Settings.CollapseFoundryMacrobar.Hint',

@@ -30,7 +30,7 @@ export class HotbarManager {
         }
     }
 
-    async updateHotbarForControlledToken() {
+    async updateHotbarForControlledToken(forceUpdate = false) {
         // Get currently controlled token
         const controlled = canvas.tokens.controlled[0];
         
@@ -54,12 +54,12 @@ export class HotbarManager {
             return;
         }
 
-        // Case 2: Same token selected - do nothing
-        if (this.currentTokenId === controlled.id) {
+        // Case 2: Same token selected - only proceed if forcing update
+        if (this.currentTokenId === controlled.id && !forceUpdate) {
             return;
         }
 
-        // Case 3: New token selected - always create new UI
+        // Case 3: New token selected or force update - create new UI
         
         // Save current config if we have one
         if (this.currentTokenId) {
@@ -76,7 +76,7 @@ export class HotbarManager {
             });
         }
 
-        // Always destroy old UI for new token
+        // Always destroy old UI for new token or force update
         if (this.ui) {
             this._isLocked = this.ui._isLocked; // Save lock state before destroying
             this.ui.destroy();

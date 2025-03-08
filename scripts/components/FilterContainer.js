@@ -388,9 +388,9 @@ export class FilterContainer {
         const actionContainer = document.createElement("div");
         actionContainer.classList.add("action-container");
 
-        const actionButton = this._createActionTypeButton("action", '<i class="fas fa-circle"></i>');
-        const bonusButton = this._createActionTypeButton("bonus", '<i class="fas fa-triangle"></i>');
-        const reactionButton = this._createActionTypeButton("reaction", '<i class="fas fa-diamond"></i>');
+        const actionButton = this._createActionTypeButton("action", '<i class="fas fa-circle" style="border-radius: 0;"></i>');
+        const bonusButton = this._createActionTypeButton("bonus", '<i class="fas fa-triangle" style="border-radius: 0;"></i>');
+        const reactionButton = this._createActionTypeButton("reaction", '<i class="fas fa-sparkle" style="border-radius: 0;"></i>');
         const featureButton = this._createFeatureButton();
 
         actionContainer.appendChild(actionButton);

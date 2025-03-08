@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.3.0] - 2025-03-08
+### Added
+- Added global default setting for portrait display preferences
+  - Choose between token image or character portrait as default
+  - Setting can still be overridden per-token via right-click menu
+  - Accessible through module settings
+
+### Fixed
+- Improved passive features dialog UI and CSS organization
+  - Added scrollbar for long lists of passive features with custom styling
+  - Added blue border hover effect for better visual feedback
+  - Moved all inline CSS to dedicated file @passives.css
+  - Moved dialog template to dedicated file @passives-dialog.html
+  - Fixed dialog width and made it non-resizable
+  - Improved empty state handling for passive features container
+  - Added consistent styling for dialog scrollbars
+
 ## [1.2.0] - 2025-03-08
 ### Added
 - Added death saving throws UI to the left of portrait cards for player characters
@@ -15,6 +32,10 @@
   - Token image is the default option
   - Selection persists per-actor between sessions
   - Visual indicator shows current selection in context menu
+- Added client-side setting to enable/disable the module's UI
+  - Allows individual players to choose whether to use the BG3-style hotbar
+  - Persists between sessions
+  - Accessible through module settings
 
 ### Fixed
 - Changed the setting for Autopopulating unlinked NPC tokens to true by default

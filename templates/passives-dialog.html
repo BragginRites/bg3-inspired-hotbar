@@ -1,0 +1,12 @@
+<div class="dialog-content">
+    <p>Select which passive features should be displayed in the passives bar.</p>
+    <div id="passives-list" class="passives-list">
+        {{#each features}}
+        <div class="passives-row" data-feature="{{this.uuid}}">
+            <input type="checkbox" class="passives-checkbox" value="{{this.uuid}}" {{#if this.selected}}checked{{/if}}>
+            <img src="{{this.img}}" alt="{{this.name}}">
+            <span>{{this.name}}</span>
+        </div>
+        {{/each}}
+    </div>
+</div> 

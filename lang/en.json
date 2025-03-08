@@ -24,6 +24,10 @@
         }
     },
     "BG3.Settings": {
+        "EnableUI": {
+            "Name": "Enable BG3 Hotbar UI",
+            "Hint": "Enable or disable the BG3-style hotbar interface. Disable this if you prefer to use a different hotbar module or the default Foundry hotbar."
+        },
         "CollapseFoundryMacrobar": {
             "Name": "Start Foundry Macrobar Collapsed",
             "Hint": "Automatically collapse the default Foundry macrobar when loading"
@@ -99,6 +103,12 @@
             "Hint": "Choose how items are highlighted when filtered",
             "Bottom": "Bottom Border",
             "Border": "Full Border"
+        },
+        "DefaultPortraitPreferences": {
+            "Name": "Default Portrait Display",
+            "Hint": "Choose whether to display token images or character portraits by default. This can be overridden per token. For the first time you enable this setting, it will apply to all tokens that do not have a portrait set.",
+            "Token": "Always Use Token Image",
+            "Portrait": "Always Use Character Portrait"
         }
     }
 } 

@@ -1,0 +1,120 @@
+.passives-container {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    min-width: 20px;
+    max-width: 300px;
+    background: var(--bg3-background);
+    border: 1px solid var(--bg3-border);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    z-index: var(--bg3-z-base);
+    cursor: pointer;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-bottom: 0; /* Add some space between the container and the hotbar */
+}
+
+/* Empty container state */
+.passives-container:empty {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+}
+
+/* Populated container state */
+.passives-container:not(:empty) {
+    width: auto;
+    height: auto;
+    min-width: 20px;
+}
+
+.passive-feature-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 2px;
+}
+
+.passive-feature-icon img {
+    width: 16px;
+    height: 16px;
+    display: block;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.passive-feature-icon:hover img {
+    filter: brightness(1.2);
+}
+
+.passive-feature-icon:hover {
+    background: var(--bg3-background-highlight);
+}
+
+.passive-feature-icon:not(:hover) {
+    background: transparent;
+}
+
+/* Dialog styles */
+.configure-passives {
+    min-width: 500px !important;
+}
+
+.passives-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.passives-row img {
+    width: 48px;
+    height: 48px;
+    display: block;
+}
+
+.passives-row:hover {
+    border-color: #3498db;
+}
+
+.configure-passives .passives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 800px;
+    overflow-y: auto;
+    padding-right: 8px; /* Add padding for the scrollbar */
+}
+
+.configure-passives .dialog-content {
+    padding: 8px;
+}
+
+/* Scrollbar styling */
+.configure-passives .passives-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.configure-passives .passives-list::-webkit-scrollbar-track {
+    background: var(--bg3-background);
+    border-radius: 6px;
+}
+
+.configure-passives .passives-list::-webkit-scrollbar-thumb {
+    background: var(--bg3-border);
+    border-radius: 4px;
+}
+
+.configure-passives .passives-list::-webkit-scrollbar-thumb:hover {
+    background: var(--bg3-background-highlight);
+} 

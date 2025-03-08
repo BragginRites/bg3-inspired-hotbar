@@ -5,6 +5,7 @@ export class PassivesContainer {
     constructor(hotbarUI) {
         this.hotbarUI = hotbarUI;
         this.element = null;
+        this.lastKnownActorId = null;
         // This set will hold the UUIDs of features to be displayed
         this.selectedPassives = new Set();
         this._createContainer();
@@ -91,16 +92,31 @@ export class PassivesContainer {
 
     // Loads the saved flag; if none, default to all available passive features.
     async loadSelectedPassives() {
-        const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
-        if (!token?.actor) return;
+        let actor = null;
+
+        // Try to get the actor from lastKnownActorId
+        if (this.lastKnownActorId) {
+            actor = game.actors.get(this.lastKnownActorId);
+        }
+
+        // If not, then get it from the current token
+        if (!actor) {
+            const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
+            if (token?.actor) {
+                actor = game.actors.get(token.actor.id);
+                this.lastKnownActorId = actor.id;
+            }
+        }
+
+        if (!actor) return;
         
         // Get all available passive features from the actor
-        const availablePassives = token.actor.items
+        const availablePassives = actor.items
             .filter(item => item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive"))
             .map(item => item.uuid);
         
         // Try to get saved configuration
-        const saved = token.actor.getFlag(CONFIG.MODULE_NAME, "selectedPassives");
+        const saved = actor.getFlag(CONFIG.MODULE_NAME, "selectedPassives");
         
         if (saved && Array.isArray(saved)) {
             this.selectedPassives = new Set(saved);
@@ -108,7 +124,7 @@ export class PassivesContainer {
             // Default: show all features
             this.selectedPassives = new Set(availablePassives);
             // Save default selection for future loads
-            await token.actor.setFlag(CONFIG.MODULE_NAME, "selectedPassives", availablePassives);
+            await actor.setFlag(CONFIG.MODULE_NAME, "selectedPassives", availablePassives);
         }
         
         this._updatePassiveDisplay();
@@ -123,13 +139,58 @@ export class PassivesContainer {
 
     // Update the container display: show icons for passives that are selected
     _updatePassiveDisplay() {
+        let actor = null;
+
+        // Try to get the actor from lastKnownActorId
+        if (this.lastKnownActorId) {
+            actor = game.actors.get(this.lastKnownActorId);
+        }
+
+        // If not, then get it from the current token
+        if (!actor) {
+            const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
+            if (token?.actor) {
+                actor = game.actors.get(token.actor.id);
+                this.lastKnownActorId = actor.id;
+            }
+        }
+
+        if (!actor) {
+            this.element.style.display = 'none';
+            return;
+        }
+        
+        // Get all available passive features from the actor
+        const availablePassives = actor.items.filter(item => 
+            item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive")
+        );
+
+        // If there are no passives at all, hide the container completely
+        if (availablePassives.length === 0) {
+            this.element.style.display = 'none';
+            return;
+        }
+
         // Clear current icons
         this.element.innerHTML = "";
-        const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
-        if (!token?.actor) return;
         
         // Filter actor items to only include those passives marked as selected
-        const featuresToShow = token.actor.items.filter(item => this.selectedPassives.has(item.uuid));
+        const featuresToShow = availablePassives.filter(item => this.selectedPassives.has(item.uuid));
+        
+        // If no passives are selected to show, display minimal container
+        if (featuresToShow.length === 0) {
+            this.element.style.display = 'flex';
+            this.element.style.minWidth = '20px';
+            this.element.style.width = '20px';
+            this.element.style.height = '20px';
+            return;
+        }
+
+        // Show container normally with selected passives
+        this.element.style.display = 'flex';
+        this.element.style.minWidth = '20px';
+        this.element.style.width = 'auto';
+        this.element.style.height = 'auto';
         
         featuresToShow.forEach(feature => {
             const iconEl = this._createFeatureIcon(feature);
@@ -140,11 +201,27 @@ export class PassivesContainer {
     // Show dialog to configure passives
     _showPassivesDialog(event) {
         event.preventDefault();
-        const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
-        if (!token?.actor) return;
+        
+        let actor = null;
+
+        // Try to get the actor from lastKnownActorId
+        if (this.lastKnownActorId) {
+            actor = game.actors.get(this.lastKnownActorId);
+        }
+
+        // If not, then get it from the current token
+        if (!actor) {
+            const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
+            if (token?.actor) {
+                actor = game.actors.get(token.actor.id);
+                this.lastKnownActorId = actor.id;
+            }
+        }
+
+        if (!actor) return;
         
         // Get all available passive features from the actor
-        const availableFeatures = token.actor.items.filter(item =>
+        const availableFeatures = actor.items.filter(item =>
             item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive")
         );
         

@@ -316,15 +316,32 @@ export class BG3Hotbar {
         Hooks.on("deleteToken", async (scene, tokenData) => {
             if (!this.manager) return;
 
-            // Only clean up if it's an unlinked token or it's the current token
             const token = canvas.tokens.get(tokenData._id);
-            if (!token?.actorLink || tokenData._id === this.manager.currentTokenId) {
+            const isPlayerCharacter = token?.actor?.hasPlayerOwner;
+            const isCurrentToken = tokenData._id === this.manager.currentTokenId;
+            const isLocked = this.manager.ui?._isLocked;
+
+            // Only clean up data if:
+            // 1. It's an unlinked token, OR
+            // 2. It's the current token AND either:
+            //    - It's not a player character, OR
+            //    - It's not locked
+            if (!token?.actorLink || (isCurrentToken && (!isPlayerCharacter || !isLocked))) {
                 await this.manager.cleanupTokenData(tokenData._id);
             }
 
-            // If this was the current token, update the UI
-            if (tokenData._id === this.manager.currentTokenId) {
-                this.manager.currentTokenId = null;
+            // Handle UI cleanup based on token type and current status
+            if (isCurrentToken) {
+                // Only clear currentTokenId if it's not a locked player character
+                if (!isPlayerCharacter || !isLocked) {
+                    this.manager.currentTokenId = null;
+                    
+                    if (this.manager.ui) {
+                        this.manager.ui.destroy();
+                        this.manager.ui = null;
+                    }
+                    await this.manager.updateHotbarForControlledToken();
+                }
             }
         });
 

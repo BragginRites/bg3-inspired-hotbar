@@ -13,6 +13,7 @@ class GridContainer {
         this.element = null;
         this.items = new Map();
         this.portraitCard = null;
+        this.lastKnownActorId = null;
         
         this._createContainer();
         if (this.index === 0) {
@@ -376,7 +377,25 @@ class GridContainer {
                     ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.UnableToRetrieve"));
                     return;
                 }
-                
+
+                // Get actor from lastKnownActorId first, then fallback to token
+                let actor = null;
+                if (this.lastKnownActorId) {
+                    actor = game.actors.get(this.lastKnownActorId);
+                }
+                if (!actor) {
+                    const token = canvas.tokens.get(this.ui.manager.currentTokenId);
+                    if (token?.actor) {
+                        actor = token.actor;
+                        this.lastKnownActorId = actor.id;
+                    }
+                }
+
+                if (!actor) {
+                    ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoActor"));
+                    return;
+                }
+
                 // Create options object with advantage/disadvantage based on modifier keys
                 const options = {
                     configureDialog: false,

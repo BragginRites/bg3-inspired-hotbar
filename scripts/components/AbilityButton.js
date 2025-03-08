@@ -1,6 +1,38 @@
 import { CONFIG } from '../utils/config.js';
 
 class AbilityCard {
+    // Static configuration for DnD5e system skill mappings
+    static SKILL_MAP = {
+        "Athletics": "ath",
+        "Acrobatics": "acr",
+        "Sleight of Hand": "slt",
+        "Stealth": "ste",
+        "Arcana": "arc",
+        "History": "his",
+        "Investigation": "inv",
+        "Nature": "nat",
+        "Religion": "rel",
+        "Animal Handling": "ani",
+        "Insight": "ins",
+        "Medicine": "med",
+        "Perception": "prc",
+        "Survival": "sur",
+        "Deception": "dec",
+        "Intimidation": "itm",
+        "Performance": "prf",
+        "Persuasion": "per"
+    };
+
+    // Static configuration for ability scores
+    static ABILITY_CONFIG = {
+        str: { label: "Strength", skills: ["Athletics"] },
+        dex: { label: "Dexterity", skills: ["Acrobatics", "Sleight of Hand", "Stealth"] },
+        con: { label: "Constitution", skills: [] },
+        int: { label: "Intelligence", skills: ["Arcana", "History", "Investigation", "Nature", "Religion"] },
+        wis: { label: "Wisdom", skills: ["Animal Handling", "Insight", "Medicine", "Perception", "Survival"] },
+        cha: { label: "Charisma", skills: ["Deception", "Intimidation", "Performance", "Persuasion"] }
+    };
+
     constructor(portraitContainer) {
         this.portraitContainer = portraitContainer;
         this.gridContainer = portraitContainer.gridContainer;
@@ -9,28 +41,6 @@ class AbilityCard {
         this.expandedAbility = null;
         this._createCard();
         this._setupClickOutside();
-        
-        // Skill mapping for DnD5e system
-        this.skillMap = {
-          "Athletics": "ath",
-          "Acrobatics": "acr",
-          "Sleight of Hand": "slt",
-          "Stealth": "ste",
-          "Arcana": "arc",
-          "History": "his",
-          "Investigation": "inv",
-          "Nature": "nat",
-          "Religion": "rel",
-          "Animal Handling": "ani",
-          "Insight": "ins",
-          "Medicine": "med",
-          "Perception": "per",
-          "Survival": "sur",
-          "Deception": "dec",
-          "Intimidation": "int",
-          "Performance": "perf",
-          "Persuasion": "pers"
-        };
     }
 
     _createCard() {
@@ -46,29 +56,31 @@ class AbilityCard {
     }
 
     _createAbilityScores() {
-        // Get the token either from gridContainer or directly from canvas
-        const token = this.gridContainer?.ui?.manager?.currentTokenId ? 
-            canvas.tokens.get(this.gridContainer.ui.manager.currentTokenId) :
-            canvas.tokens.controlled[0];
+        let actor = null;
+
+        // Try to get the actor from lastKnownActorId
+        if (this.portraitContainer?.lastKnownActorId) {
+            actor = game.actors.get(this.portraitContainer.lastKnownActorId);
+        }
+
+        // If not, then get it from the current token
+        if (!actor) {
+            const token = canvas.tokens.get(this.gridContainer?.ui?.manager?.currentTokenId);
+            if (token?.actor) {
+                actor = game.actors.get(token.actor.id);
+                this.portraitContainer.lastKnownActorId = actor.id;
+            }
+        }
             
-        if (!token?.actor) return;
+        if (!actor) return;
 
-        const ABILITIES = {
-            str: { label: "Strength", skills: ["Athletics"] },
-            dex: { label: "Dexterity", skills: ["Acrobatics", "Sleight of Hand", "Stealth"] },
-            con: { label: "Constitution", skills: [] },
-            int: { label: "Intelligence", skills: ["Arcana", "History", "Investigation", "Nature", "Religion"] },
-            wis: { label: "Wisdom", skills: ["Animal Handling", "Insight", "Medicine", "Perception", "Survival"] },
-            cha: { label: "Charisma", skills: ["Deception", "Intimidation", "Performance", "Persuasion"] }
-        };
-
-        Object.entries(ABILITIES).forEach(([key, data]) => {
+        Object.entries(AbilityCard.ABILITY_CONFIG).forEach(([key, data]) => {
             const abilityRow = document.createElement("div");
             abilityRow.classList.add("menu-item", "ability-row");
             // Add default border to prevent layout shift
             abilityRow.style.border = "1px solid transparent";
 
-            const abilityScore = token.actor.system.abilities?.[key] || { value: 10, proficient: false };
+            const abilityScore = actor.system.abilities?.[key] || { value: 10, proficient: false };
             const mod = Math.floor((abilityScore.value - 10) / 2);
             const modString = mod >= 0 ? `+${mod}` : mod.toString();
 
@@ -104,13 +116,13 @@ class AbilityCard {
 
             // Create skills popup if ability has associated skills
             if (data.skills.length > 0) {
-                const skillsPopup = this._createSkillsPopup(token.actor, key, data.skills, mod);
+                const skillsPopup = this._createSkillsPopup(actor, key, data.skills, mod);
                 skillsPopup.classList.add("skills");
                 popupsContainer.appendChild(skillsPopup);
             }
 
             // Create saving throw popup
-            const savePopup = this._createSavePopup(token.actor, key, mod, abilityScore.proficient);
+            const savePopup = this._createSavePopup(actor, key, mod, abilityScore.proficient);
             savePopup.classList.add("saves");
             popupsContainer.appendChild(savePopup);
 
@@ -163,8 +175,15 @@ class AbilityCard {
         popup.classList.add("popup-panel");
 
         skills.forEach(skillName => {
-            const skillKey = skillName.toLowerCase().replace(/\s+/g, "");
-            const skill = actor.system.skills?.[skillKey] || { proficient: false };
+            // Get the system skill key from our mapping
+            const systemSkillKey = AbilityCard.SKILL_MAP[skillName];
+            if (!systemSkillKey) {
+                console.warn(`BG3 Hotbar - No system key mapping found for skill: ${skillName}`);
+                return;
+            }
+
+            // Get the skill data using the system key
+            const skill = actor.system.skills?.[systemSkillKey] || { proficient: false };
             const profBonus = actor.system.attributes?.prof || 0;
             const totalMod = abilityMod + (skill.proficient ? profBonus : 0);
             const modStr = totalMod >= 0 ? `+${totalMod}` : totalMod.toString();
@@ -202,15 +221,8 @@ class AbilityCard {
             skillRow.addEventListener("click", (e) => {
                 e.stopPropagation();
                 
-                const mappedKey = this.skillMap[skillName];
-                if (!mappedKey) {
-                    console.error(`No mapping found for ${skillName}`);
-                    ui.notifications.error(`No mapping found for ${skillName} skill.`);
-                    return;
-                }
-                
                 try {
-                    actor.rollSkill(mappedKey);
+                    actor.rollSkill(systemSkillKey);
                 } catch (error) {
                     console.error("BG3 Hotbar - Error rolling skill:", error);
                     ui.notifications.error(`Error rolling ${skillName} skill. See console for details.`);

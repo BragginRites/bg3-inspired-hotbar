@@ -157,6 +157,15 @@ export class PortraitCard {
     update(actor) {
         if (!actor) return;
         
+        // Store the actor ID for locked state persistence
+        this.lastKnownActorId = actor.id;
+
+        // Update portrait image
+        const portraitImg = this.element.querySelector('.portrait-image');
+        if (portraitImg) {
+            portraitImg.src = actor.img;
+        }
+
         const token = canvas.tokens.get(this.gridContainer.ui.manager.currentTokenId);
         if (!token?.actor) return;
 

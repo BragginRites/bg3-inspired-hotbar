@@ -22,9 +22,21 @@ class HotbarUI {
     this._isLocked = isLocked;
     // Load lock settings from game settings
     this._lockSettings = game.settings.get(CONFIG.MODULE_NAME, 'lockSettings');
-    this._handleKeyDown = this._handleKeyDown.bind(this);
     this._fadeTimeout = null;
-    this._handleMouseMove = this._handleMouseMove.bind(this);
+
+    // Initialize bound methods as class properties
+    this._handleMouseMove = (event) => {
+      if (!this.element || !this.element.isConnected || this._lockSettings.opacity) return;
+      // Check if mouse is over any element from our module
+      const isOverModule = event.target?.closest('#bg3-hotbar-container') !== null;
+      this._updateFadeState(!isOverModule);
+    };
+
+    this._handleKeyDown = (event) => {
+      // Stub for keyboard event handling
+      // Implementation can be added later if needed
+    };
+    
     this._createUI();
     this._initializeFadeOut();
   }
@@ -365,11 +377,6 @@ class HotbarUI {
     linkElement.click();
   }
 
-  _handleKeyDown(e) {
-    // Implement keyboard shortcuts here if needed
-    // For now, just a stub to prevent errors
-  }
-
   async update(token) {
     if (!token) return;
     
@@ -378,6 +385,7 @@ class HotbarUI {
     
     // Update all components with the new actor
     for (const container of this.gridContainers) {
+      container.lastKnownActorId = actor.id;
       container.render();
     }
     
@@ -390,71 +398,50 @@ class HotbarUI {
     // Add mousemove listener to document
     document.addEventListener('mousemove', this._handleMouseMove);
     
-    // Initial fade state and opacity
-    this.updateOpacity();
-    this.updateFadeState();
+    // Set initial state
+    this._updateFadeState(false);
   }
 
-  _handleMouseMove(event) {
-    if (!this.element || !this.element.isConnected || this._lockSettings.opacity) return;
-
-    // Check if mouse is over any element from our module
-    const isOverModule = event.target?.closest('#bg3-hotbar-container') !== null;
-
+  _updateFadeState(shouldFade) {
     // Clear any existing timeout
     if (this._fadeTimeout) {
-        clearTimeout(this._fadeTimeout);
-        this._fadeTimeout = null;
+      clearTimeout(this._fadeTimeout);
+      this._fadeTimeout = null;
     }
 
-    // Remove faded class immediately when mouse is over any module element
-    if (isOverModule) {
-        this.element.classList.remove('faded');
-        this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
-    } else {
-        // Set timeout to add faded class
-        const delay = game.settings.get(CONFIG.MODULE_NAME, 'fadeOutDelay') * 1000;
-        this._fadeTimeout = setTimeout(() => {
-            if (this.element?.isConnected) {
-                this.element.classList.add('faded');
-                this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'fadedOpacity');
-            }
-        }, delay);
+    // If opacity is locked, always use normal opacity
+    if (this._lockSettings.opacity) {
+      this.element.classList.remove('faded');
+      this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
+      return;
     }
+
+    // If we shouldn't fade or mouse is over module
+    if (!shouldFade) {
+      this.element.classList.remove('faded');
+      this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
+      return;
+    }
+
+    // Set timeout to fade
+    const delay = game.settings.get(CONFIG.MODULE_NAME, 'fadeOutDelay') * 1000;
+    this._fadeTimeout = setTimeout(() => {
+      if (this.element?.isConnected) {
+        this.element.classList.add('faded');
+        this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'fadedOpacity');
+      }
+    }, delay);
   }
 
-  updateFadeState() {
-    if (this.element) {
-        // Reset to normal opacity initially
-        this.element.classList.remove('faded');
-        this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
-        if (this._fadeTimeout) {
-            clearTimeout(this._fadeTimeout);
-            this._fadeTimeout = null;
-        }
-        // Trigger initial fade if mouse is outside
-        this._handleMouseMove({ clientX: -1, clientY: -1 });
-    }
-  }
-
+  // Update methods that other components can call
   updateOpacity() {
-    if (!this.element || this._lockSettings.opacity) return;
-    
-    const isFaded = this.element.classList.contains('faded');
-    const opacity = isFaded ? 
-        game.settings.get(CONFIG.MODULE_NAME, 'fadedOpacity') : 
-        game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
-    
-    this.element.style.opacity = opacity;
+    const isFaded = this.element?.classList.contains('faded');
+    this._updateFadeState(isFaded);
   }
 
   updateFadeDelay() {
-    // Reset the fade state to apply new delay
-    if (this._fadeTimeout) {
-        clearTimeout(this._fadeTimeout);
-        this._fadeTimeout = null;
-    }
-    this._handleMouseMove({ clientX: -1, clientY: -1 }); // Trigger fade with mouse outside hotbar
+    const isFaded = this.element?.classList.contains('faded');
+    this._updateFadeState(isFaded);
   }
 }
 

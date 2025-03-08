@@ -72,6 +72,74 @@ export class ItemUpdateManager {
         const token = canvas.tokens.get(this.manager.currentTokenId);
         if (!token || token.actor?.items.get(item.id) !== item) return;
         
+        // Check if this is a spell and its preparation state changed
+        if (item.type === "spell" && changes.system?.preparation !== undefined) {
+            const prep = item.system.preparation;
+            // Remove if unprepared and not at-will/innate/etc
+            if (!prep.prepared && prep.mode === "prepared") {
+                let removed = false;
+                for (const container of this.manager.containers) {
+                    for (const [slotKey, slotItem] of Object.entries(container.items)) {
+                        const itemId = slotItem?.uuid?.split('.').pop();
+                        if (itemId === item.id) {
+                            delete container.items[slotKey];
+                            removed = true;
+                        }
+                    }
+                }
+                if (removed) {
+                    await this.manager.persist();
+                    if (this.manager.ui) {
+                        this.manager.ui.render();
+                    }
+                    ui.notifications.info(`Removed ${item.name} from hotbar as it is no longer prepared.`);
+                }
+                return;
+            }
+            // Add if newly prepared or has other valid casting mode
+            else if (prep.prepared || ["pact", "atwill", "innate"].includes(prep.mode)) {
+                // Check if it's already in any container
+                let exists = false;
+                for (const container of this.manager.containers) {
+                    if (Object.values(container.items).some(i => i.uuid === item.uuid)) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    // Find the appropriate container (likely container 2 for spells)
+                    const containerIndex = this._findAppropriateContainer(item);
+                    const container = this.manager.containers[containerIndex];
+                    
+                    // Find an available slot
+                    const slotKey = this._findNextAvailableSlot(container);
+                    
+                    if (slotKey) {
+                        // Add the spell to the hotbar
+                        container.items[slotKey] = {
+                            uuid: item.uuid,
+                            name: item.name,
+                            icon: item.img,
+                            type: item.type,
+                            activation: item.system.activation?.type || "action",
+                            sortData: {
+                                spellLevel: item.system.level,
+                                featureType: ""
+                            }
+                        };
+                        
+                        await this.manager.persist();
+                        if (this.manager.ui) {
+                            this.manager.ui.render();
+                        }
+                        ui.notifications.info(`Added ${item.name} to hotbar as it is now prepared.`);
+                        return;
+                    }
+                }
+            }
+        }
+        
         // Check all containers for the item
         let updated = false;
         
@@ -85,6 +153,16 @@ export class ItemUpdateManager {
                     // Get the latest item data
                     const updatedItemData = await fromUuid(slotItem.uuid);
                     if (!updatedItemData) continue;
+
+                    // For spells, check if it's prepared or has valid casting mode
+                    if (updatedItemData.type === "spell") {
+                        const prep = updatedItemData.system?.preparation;
+                        if (!prep?.prepared && prep?.mode === "prepared") {
+                            delete container.items[slotKey];
+                            updated = true;
+                            continue;
+                        }
+                    }
 
                     // Update all properties from the source item
                     container.items[slotKey] = {

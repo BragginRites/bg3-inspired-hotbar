@@ -9,6 +9,7 @@ export class FilterContainer {
         this.selectedActionType = null;
         this.selectedSpellLevel = { level: null, isPact: false };
         this.featuresEnabled = false;
+        this.lastKnownActorId = null;
         this._createContainer();
         this._setupHotbarListeners();
     }
@@ -400,10 +401,25 @@ export class FilterContainer {
         const spellContainer = document.createElement("div");
         spellContainer.classList.add("spell-container");
 
-        const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
-        if (token?.actor) {
+        let actor = null;
+
+        // Try to get the actor from lastKnownActorId
+        if (this.lastKnownActorId) {
+            actor = game.actors.get(this.lastKnownActorId);
+        }
+
+        // If not, then get it from the current token
+        if (!actor) {
+            const token = canvas.tokens.get(this.hotbarUI.manager.currentTokenId);
+            if (token?.actor) {
+                actor = game.actors.get(token.actor.id);
+                this.lastKnownActorId = actor.id;
+            }
+        }
+
+        if (actor) {
             // Add pact magic first if it exists
-            const pactMagic = token.actor.system.spells?.pact;
+            const pactMagic = actor.system.spells?.pact;
             if (pactMagic?.max > 0) {
                 const pactButton = this._createSpellLevelButton(pactMagic.level, pactMagic, true);
                 spellContainer.appendChild(pactButton);
@@ -412,7 +428,7 @@ export class FilterContainer {
             // Then add regular spell levels
             for (let level = 1; level <= 9; level++) {
                 const spellLevelKey = `spell${level}`;
-                const spellLevel = token.actor.system.spells?.[spellLevelKey];
+                const spellLevel = actor.system.spells?.[spellLevelKey];
                 
                 if (spellLevel?.max > 0) {
                     const levelButton = this._createSpellLevelButton(level, spellLevel);
@@ -456,5 +472,6 @@ export class FilterContainer {
         
         this.hotbarUI = null;
         this.element = null;
+        this.lastKnownActorId = null;
     }
 } 

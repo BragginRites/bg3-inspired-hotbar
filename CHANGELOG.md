@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0] - 2025-03-09
+### Fixed
+- Complete refactor of the tooltips for improved performance and maintainability
+- Improved text enrichment in tooltips for better compatibility
+  - Added consistent enrichment options across all tooltip types
+  - Added proper context resolution for lookups and inline rolls
+  - Added support for links and entity references
+  - Added roll data support for dynamic values
+  - Fixed enrichment in effect tooltips
+  - Fixed enrichment in weapon tooltips
+  - Fixed enrichment in feature tooltips
+  - Fixed enrichment in spell tooltips
+
 ## [1.3.1] - 2025-03-08
 ### Fixed
 - Fixed ability card positioning to properly display above portrait

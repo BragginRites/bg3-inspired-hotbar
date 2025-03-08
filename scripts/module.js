@@ -1,6 +1,7 @@
 // Module Lifecycle Management
 import { BG3Hotbar } from './bg3-hotbar.js';
 import { CONFIG } from './utils/config.js';
+import { TooltipFactory } from './tooltip/TooltipFactory.js';
 
 Hooks.once('init', () => {
     // Register module settings

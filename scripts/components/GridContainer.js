@@ -2,7 +2,7 @@
 
 import { CONFIG } from '../utils/config.js';
 import { PortraitCard } from './PortraitCard.js';
-import { Tooltip } from './Tooltip.js';
+import { TooltipFactory } from '../tooltip/TooltipFactory.js';
 import { fromUuid } from '../utils/foundryUtils.js';
 
 class GridContainer {
@@ -157,7 +157,7 @@ class GridContainer {
             if (!item) return;
 
             // Set global dragging state
-            Tooltip.isDragging = true;
+            document.body.classList.add('dragging-active');
 
             // Clear any pending tooltip timeout and data
             if (cell._tooltipTimeout) {
@@ -169,6 +169,7 @@ class GridContainer {
             // Remove any tooltip
             if (cell._hotbarTooltip) {
                 cell._hotbarTooltip.remove();
+                cell._hotbarTooltip = null;
             }
 
             e.dataTransfer.effectAllowed = "move";
@@ -215,7 +216,7 @@ class GridContainer {
             if (!cell._dragData) return;
 
             // Reset global dragging state
-            Tooltip.isDragging = false;
+            document.body.classList.remove('dragging-active');
 
             // Remove dragging class
             cell.classList.remove("dragging");
@@ -331,6 +332,17 @@ class GridContainer {
                 activation: itemData.system?.activation?.type
             };
 
+            // Handle activities from DnD5e v4+
+            if (itemData.system?.activities) {
+                // If this is a specific activity being dropped
+                if (parsed.activityId && itemData.system.activities[parsed.activityId]) {
+                    // Store reference to both parent and activity
+                    newItem.activityId = parsed.activityId;
+                    // Store the parent UUID - we'll use this to fetch the full item later
+                    newItem.uuid = parsed.uuid; // This is the parent item's UUID
+                }
+            }
+
             // Store the current item in the target slot (if any) for potential swapping
             const existingItem = this.data.items[slotKey];
 
@@ -431,12 +443,12 @@ class GridContainer {
             this.ui.contextMenu.show(e, this, slotKey);
         });
 
-        // Add tooltip events - using our new Tooltip component
-        cell.addEventListener("mouseenter", (e) => {
+        // Add tooltip events - using the new TooltipFactory
+        cell.addEventListener("mouseenter", async (e) => {
             const item = this.data.items[slotKey];
-            // Only proceed if we have an item and we're not currently dragging anything
-            if (item && !Tooltip.isDragging) {
-                if (cell._hotbarTooltip && cell._hotbarTooltip._pinned) {
+            // Only proceed if we have an item and we're not currently dragging
+            if (item && !document.body.classList.contains('dragging-active')) {
+                if (cell._hotbarTooltip?._pinned) {
                     cell._hotbarTooltip.highlight(true);
                 } else if (!cell._hotbarTooltip) {
                     // Get the tooltip delay from settings, or use the default
@@ -448,26 +460,68 @@ class GridContainer {
                     }
                     
                     // Only set up new tooltip if we're not dragging
-                    if (!Tooltip.isDragging) {
+                    if (!document.body.classList.contains('dragging-active')) {
                         // Store event data for delayed tooltip creation
                         cell._tooltipEventData = { cell, item, event: e };
                         
                         // If delay is 0, show tooltip immediately
                         if (tooltipDelay === 0) {
                             // Double check we're still not dragging
-                            if (!Tooltip.isDragging) {
-                                const tooltip = new Tooltip();
-                                tooltip.attach(cell, item, e);
+                            if (!document.body.classList.contains('dragging-active')) {
+                                // Get the full item data first
+                                const fullItemData = await fromUuid(item.uuid);
+                                if (!fullItemData) {
+                                    console.warn("Could not fetch full item data for tooltip");
+                                    return;
+                                }
+
+                                // If this is an activity, get the parent item and enhance it with activity data
+                                if (item.activityId && fullItemData.system?.activities?.[item.activityId]) {
+                                    const activity = fullItemData.system.activities[item.activityId];
+                                    // Clone the parent item data so we don't modify the original
+                                    const enhancedItem = foundry.utils.deepClone(fullItemData);
+                                    // Add activity-specific data
+                                    enhancedItem.selectedActivity = {
+                                        id: item.activityId,
+                                        data: activity
+                                    };
+                                    const tooltip = await TooltipFactory.create(enhancedItem);
+                                    if (tooltip) tooltip.attach(cell, e);
+                                } else {
+                                    const tooltip = await TooltipFactory.create(fullItemData);
+                                    if (tooltip) tooltip.attach(cell, e);
+                                }
                             }
                             return;
                         }
                         
                         // Set a timeout to show the tooltip after the delay
-                        cell._tooltipTimeout = setTimeout(() => {
+                        cell._tooltipTimeout = setTimeout(async () => {
                             // Only create tooltip if we're still hovering and not dragging
-                            if (cell._tooltipEventData && !Tooltip.isDragging) {
-                                const tooltip = new Tooltip();
-                                tooltip.attach(cell, item, e);
+                            if (cell._tooltipEventData && !document.body.classList.contains('dragging-active')) {
+                                // Get the full item data first
+                                const fullItemData = await fromUuid(item.uuid);
+                                if (!fullItemData) {
+                                    console.warn("Could not fetch full item data for tooltip");
+                                    return;
+                                }
+
+                                // If this is an activity, get the parent item and enhance it with activity data
+                                if (item.activityId && fullItemData.system?.activities?.[item.activityId]) {
+                                    const activity = fullItemData.system.activities[item.activityId];
+                                    // Clone the parent item data so we don't modify the original
+                                    const enhancedItem = foundry.utils.deepClone(fullItemData);
+                                    // Add activity-specific data
+                                    enhancedItem.selectedActivity = {
+                                        id: item.activityId,
+                                        data: activity
+                                    };
+                                    const tooltip = await TooltipFactory.create(enhancedItem);
+                                    if (tooltip) tooltip.attach(cell, e);
+                                } else {
+                                    const tooltip = await TooltipFactory.create(fullItemData);
+                                    if (tooltip) tooltip.attach(cell, e);
+                                }
                                 cell._tooltipEventData = null;
                             }
                         }, tooltipDelay);

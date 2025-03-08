@@ -7,6 +7,7 @@ import { FilterContainer } from './FilterContainer.js';
 import { SettingsMenu } from './SettingsMenu.js';
 import { PassivesContainer } from './PassivesContainer.js';
 import { ActiveEffectsContainer } from './ActiveEffectsContainer.js';
+import { TooltipFactory } from '../tooltip/TooltipFactory.js';
 
 class HotbarUI {
   constructor(manager, isLocked = false) {

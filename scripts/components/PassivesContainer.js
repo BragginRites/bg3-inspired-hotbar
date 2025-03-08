@@ -1,5 +1,9 @@
 import { CONFIG } from '../utils/config.js';
-import { Tooltip } from './Tooltip.js';
+import { TooltipFactory } from '../tooltip/TooltipFactory.js';
+import { BaseTooltip } from '../tooltip/BaseTooltip.js';
+
+// Add tooltip delay constant
+const TOOLTIP_DELAY = 500; // 500ms delay before showing tooltip
 
 export class PassivesContainer {
     constructor(hotbarUI) {
@@ -34,18 +38,51 @@ export class PassivesContainer {
         wrapper.addEventListener("click", async () => {
             if (feature.use) await feature.use();
         });
+        
         // Attach a tooltip if needed
         wrapper.addEventListener("mouseenter", (evt) => {
-            const tooltip = new Tooltip();
-            tooltip.attach(wrapper, { uuid: feature.uuid, name: feature.name, icon: feature.img }, evt);
-            wrapper._hotbarTooltip = tooltip;
+            // Check for existing pinned tooltip first - do this immediately
+            const existingTooltip = BaseTooltip.getPinnedTooltip(feature);
+            if (existingTooltip) {
+                existingTooltip.highlight(true);
+                wrapper._hotbarTooltip = existingTooltip;
+                return;
+            }
+
+            // For new tooltips, use the delay
+            this._tooltipEventData = evt;
+            this._tooltipTimeout = setTimeout(async () => {
+                // Only create tooltip if we're still hovering and not dragging
+                if (this._tooltipEventData && !document.body.classList.contains('dragging-active')) {
+                    const tooltip = await TooltipFactory.create(feature);
+                    if (tooltip) {
+                        tooltip.attach(wrapper, evt);
+                        wrapper._hotbarTooltip = tooltip;
+                    }
+                    this._tooltipEventData = null;
+                }
+            }, TOOLTIP_DELAY);
         });
+        
         wrapper.addEventListener("mouseleave", () => {
-            if (wrapper._hotbarTooltip && !wrapper._hotbarTooltip._pinned) {
-                wrapper._hotbarTooltip.remove();
+            // Clear the timeout if it exists
+            if (this._tooltipTimeout) {
+                clearTimeout(this._tooltipTimeout);
+                this._tooltipTimeout = null;
+            }
+            // Clear the event data
+            this._tooltipEventData = null;
+            // Handle tooltip
+            if (wrapper._hotbarTooltip) {
+                if (wrapper._hotbarTooltip._pinned) {
+                    wrapper._hotbarTooltip.highlight(false);
+                } else {
+                    wrapper._hotbarTooltip.remove();
+                }
                 wrapper._hotbarTooltip = null;
             }
         });
+        
         wrapper.appendChild(img);
         return wrapper;
     }

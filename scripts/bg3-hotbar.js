@@ -5,6 +5,7 @@ import { HotbarUI } from './components/HotbarUI.js';
 import { CONFIG } from './utils/config.js';
 import { AutoPopulateCreateToken, AutoPopulateDefaults } from './features/AutoPopulateCreateToken.js';
 import { AutoPopulateContainer } from './features/AutoPopulateContainer.js';
+import { TooltipFactory } from './tooltip/TooltipFactory.js';
 
 export class BG3Hotbar {
     static manager = null;

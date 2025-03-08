@@ -20,26 +20,40 @@ A Foundry VTT module that reimagines the hotbar interface, drawing inspiration f
 ## Core Interface
 
 ### Keybinds and Events
-- **Mouse Controls**
-  - Middle-click: Pin/unpin tooltips
+
+#### Portrait Controls
+- **Portrait Image**
+  - `Right-click` on portrait: Choose between token image or character portrait
+
+- **Death Saving Throws** (Player Characters)
+  - `Left-click` on success/failure boxes: Set the number of saves
+  - `Left-click` on skull icon: Roll death saving throw
+  - `Right-click` on skull icon: Reset all death saves
   
-  - Right-click on passive features: Open passive features selection menu
+- **Ability Card**
+  - `Left-click` on d20 button: Toggle ability card
+  - `Left-click` on ability score: Show skills and saves
+  - `Left-click` on skill/save: Roll check
 
-  - Left-click on active effects: Toggle effect on/off
-  - Right-click on active effects: Remove effect
+#### Container Controls
+- **Grid Containers**
+  - `Right-click` on container: Open context menu for that space
+  - `Middle-click` on tooltips: Pin/unpin
 
-  - Right-click on grid container: Open context menu for that space/container
+- **Passive Features**
+  - `Right-click` on passive icon: Open features selection menu
 
-  - Left-click on lock button: Lock/Unlock all options of the HUD
-  - Right-click on lock button: Open context menu for separate locking options
+- **Active Effects**
+  - `Left-click` on effect: Toggle effect on/off
+  - `Right-click` on effect: Remove effect
 
-  - Left-click on settings button: Open context menu
+#### HUD Controls
+- **Lock Button**
+  - `Left-click`: Lock/Unlock all HUD options
+  - `Right-click`: Open menu for separate locking options
 
-  - Right-click on portrait card: Open context menu to choose between token image or character portrait
-  
-  - Left-click on death save boxes: Increment success/failure count up to the number you chose
-  - Left-click on skull icon: Roll death saving throw
-  - Right-click on skull icon: Remove all death saving throws
+- **Settings Button**
+  - `Left-click`: Open settings menu
 
 ### Main Hotbar
 The primary interface consists of a customizable grid system that persists between sessions.

@@ -44,10 +44,12 @@
    Ability Card
    ========================================================================== */
 
+.portrait-container {
+  position: relative;  /* Add positioning context */
+}
+
 .ability-card {
-  position: absolute;
-  left: 50%;
-  top: -20px;
+  position: fixed;  /* Change to fixed positioning since we're in document.body */
   transform: translateX(-50%) translateY(-100%);
   width: 200px;
   background: rgba(34, 34, 34, 0.95);
@@ -57,7 +59,7 @@
   display: none;
   flex-direction: column;
   gap: 4px;
-  z-index: 75;
+  z-index: 1000;  /* Keep high z-index to ensure it's above other UI elements */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 

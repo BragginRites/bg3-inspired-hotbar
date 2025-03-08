@@ -370,6 +370,11 @@ class AbilityCard {
         if (this.isVisible) {
             this.render();
             this.element.classList.add("visible");
+            
+            // Calculate position relative to the portrait container
+            const portraitRect = this.portraitContainer.element.getBoundingClientRect();
+            this.element.style.left = `${portraitRect.left + portraitRect.width / 2}px`;
+            this.element.style.top = `${portraitRect.top - 20}px`;  // 20px offset from top
         } else {
             this.hide();
         }
@@ -455,9 +460,9 @@ export class AbilityButton {
         // Create the ability card
         this.abilityCard = new AbilityCard(this.portraitContainer);
         
-        // Add the button and card to the portrait container
+        // Add the button to the portrait container but the card to document.body
         this.portraitContainer.element.appendChild(this.element);
-        this.portraitContainer.element.appendChild(this.abilityCard.element);
+        document.body.appendChild(this.abilityCard.element);
     }
 
     updateButtonState(isActive) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1] - 2025-03-08
+### Fixed
+- Fixed ability card positioning to properly display above portrait
+  - Moved ability card element to document body for better stacking context
+  - Updated positioning logic to correctly calculate location relative to portrait
+  - Improved z-index handling to ensure proper layering
+
 ## [1.3.0] - 2025-03-08
 ### Added
 - Added global default setting for portrait display preferences

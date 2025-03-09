@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1] - 2025-03-09
+### Added
+- Added setting to bypass spell preparation checks when auto-populating hotbar
+- Improved lock button functionality
+  - Right-click menu now selects which options to control
+  - Left-click toggles only the selected options
+  - Unselected options remain unchanged when toggling lock state
+
 ## [1.5.0] - 2025-03-09
 ### Fixed
 - Fixed issue where drag and drop only worked from cell borders

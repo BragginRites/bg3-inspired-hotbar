@@ -31,6 +31,10 @@
             "Name": "Enable BG3 Hotbar UI",
             "Hint": "Enable or disable the BG3-style hotbar interface. Disable this if you prefer to use a different hotbar module or the default Foundry hotbar."
         },
+        "BypassSpellPreparationCheck": {
+            "Name": "Include Unprepared Spells",
+            "Hint": "When enabled, all spells will be included in the hotbar regardless of their preparation state"
+        },
         "CollapseFoundryMacrobar": {
             "Name": "Start Foundry Macrobar Collapsed",
             "Hint": "Automatically collapse the default Foundry macrobar when loading"

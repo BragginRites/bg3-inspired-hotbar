@@ -175,8 +175,8 @@ export class AutoPopulateDialog extends Dialog {
         // Skip if item type is not in the selected types
         if (selectedTypes.length > 0 && !selectedTypes.includes(item.type)) continue;
         
-        // For spells, check preparation state
-        if (item.type === "spell") {
+        // For spells, check preparation state unless bypassed by setting
+        if (item.type === "spell" && !game.settings.get(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheck')) {
           const prep = item.system?.preparation;
           // Skip if it's an unprepared "prepared" spell
           if (!prep?.prepared && prep?.mode === "prepared") continue;

@@ -108,22 +108,23 @@ export class SettingsMenu {
             menuItem.classList.add('menu-item');
             menuItem.title = item.hint;
             
-            const isChecked = this.ui._lockSettings[item.key];
+            const isSelected = this.ui._lockSettings[item.key];
             menuItem.innerHTML = `
                 <i class="fas ${item.icon} menu-item-icon"></i>
                 <span class="menu-item-label">${item.name}</span>
-                <div class="menu-item-checkbox ${isChecked ? 'checked' : ''}">
-                    ${isChecked ? '<i class="fas fa-check"></i>' : ''}
+                <div class="menu-item-checkbox ${isSelected ? 'checked' : ''}">
+                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
                 </div>
             `;
 
             menuItem.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Toggle selection state without applying the lock
                 this.ui._lockSettings[item.key] = !this.ui._lockSettings[item.key];
                 
                 // Update checkbox display
                 const checkbox = menuItem.querySelector('.menu-item-checkbox');
-                
                 if (this.ui._lockSettings[item.key]) {
                     checkbox.classList.add('checked');
                     checkbox.innerHTML = '<i class="fas fa-check"></i>';
@@ -135,30 +136,12 @@ export class SettingsMenu {
                 // Save settings
                 game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
 
-                // Update lock button state based on any lock being active
-                const anyLocked = Object.values(this.ui._lockSettings).some(v => v);
-                if (anyLocked) {
-                    lockButton.classList.add('locked');
-                    lockButton.innerHTML = '<i class="fas fa-lock"></i>';
-                    this.ui._isLocked = true;
-                    this.ui.manager._isLocked = true;
+                // Update lock button appearance based on if any options are selected
+                const anySelected = Object.values(this.ui._lockSettings).some(v => v);
+                if (anySelected) {
+                    lockButton.classList.add('has-selection');
                 } else {
-                    lockButton.classList.remove('locked');
-                    lockButton.innerHTML = '<i class="fas fa-unlock"></i>';
-                    this.ui._isLocked = false;
-                    this.ui.manager._isLocked = false;
-
-                    // If no token is selected and deselect lock is off, hide the hotbar
-                    if (!canvas.tokens.controlled.length && !this.ui._lockSettings.deselect) {
-                        this.ui.destroy();
-                        this.ui.manager.currentTokenId = null;
-                    }
-                }
-
-                // Specific actions for each setting
-                if (item.key === 'opacity') {
-                    this.ui.updateOpacity();
-                    this.ui.updateFadeState();
+                    lockButton.classList.remove('has-selection');
                 }
             });
 
@@ -179,23 +162,33 @@ export class SettingsMenu {
     }
 
     _handleLockClick(lockButton) {
-        this.ui._isLocked = !this.ui._isLocked;
+        // Get current lock state
+        const isLocked = this.ui._isLocked;
+        
+        // Toggle only the selected lock settings
+        Object.keys(this.ui._lockSettings).forEach(key => {
+            // Only modify settings that are selected (true)
+            if (this.ui._lockSettings[key]) {
+                this.ui._lockSettings[key] = !isLocked;
+            }
+        });
+        
+        // Update UI lock state based on if any settings are true
+        this.ui._isLocked = Object.values(this.ui._lockSettings).some(v => v);
         this.ui.manager._isLocked = this.ui._isLocked;
         
-        const newState = this.ui._isLocked;
-        this.ui._lockSettings.deselect = newState;
-        this.ui._lockSettings.opacity = newState;
-        this.ui._lockSettings.dragDrop = newState;
-        
+        // Save the settings
         game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
         
-        if (newState) {
+        // Update button appearance
+        if (this.ui._isLocked) {
             lockButton.innerHTML = '<i class="fas fa-lock"></i>';
             lockButton.classList.add('locked');
         } else {
             lockButton.innerHTML = '<i class="fas fa-unlock"></i>';
             lockButton.classList.remove('locked');
             
+            // If no token is selected and deselect lock is off, hide the hotbar
             if (!canvas.tokens.controlled.length && !this.ui._lockSettings.deselect) {
                 this.ui.destroy();
                 this.ui.manager.currentTokenId = null;

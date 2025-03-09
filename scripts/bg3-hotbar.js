@@ -150,6 +150,21 @@ export class BG3Hotbar {
                 }
             }
         });
+
+        // Add bypass spell preparation check setting
+        game.settings.register(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheck', {
+            name: 'BG3.Settings.BypassSpellPreparationCheck.Name',
+            hint: 'BG3.Settings.BypassSpellPreparationCheck.Hint',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: false,
+            onChange: () => {
+                if (this.manager?.ui) {
+                    this.manager.ui.render();
+                }
+            }
+        });
         
         // Add lock settings
         game.settings.register(CONFIG.MODULE_NAME, 'lockSettings', {

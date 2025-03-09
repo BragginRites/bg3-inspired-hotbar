@@ -162,23 +162,17 @@ export class SettingsMenu {
     }
 
     _handleLockClick(lockButton) {
-        // Get current lock state
-        const isLocked = this.ui._isLocked;
+        // Check if any lock settings are selected
+        const hasSelectedOptions = Object.values(this.ui._lockSettings).some(v => v);
         
-        // Toggle only the selected lock settings
-        Object.keys(this.ui._lockSettings).forEach(key => {
-            // Only modify settings that are selected (true)
-            if (this.ui._lockSettings[key]) {
-                this.ui._lockSettings[key] = !isLocked;
-            }
-        });
-        
-        // Update UI lock state based on if any settings are true
-        this.ui._isLocked = Object.values(this.ui._lockSettings).some(v => v);
+        if (!hasSelectedOptions && !this.ui._isLocked) {
+            ui.notifications.warn("Please right-click the lock button to select which settings to lock.");
+            return;
+        }
+
+        // Toggle the overall lock state
+        this.ui._isLocked = !this.ui._isLocked;
         this.ui.manager._isLocked = this.ui._isLocked;
-        
-        // Save the settings
-        game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
         
         // Update button appearance
         if (this.ui._isLocked) {
@@ -194,6 +188,9 @@ export class SettingsMenu {
                 this.ui.manager.currentTokenId = null;
             }
         }
+        
+        // Save the settings
+        game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
     }
 
     _showSettingsMenu(button) {

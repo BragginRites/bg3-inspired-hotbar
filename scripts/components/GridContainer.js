@@ -26,7 +26,7 @@ class GridContainer {
 
   _createContainer() {
     this.element = document.createElement("div");
-    this.element.classList.add("hotbar-subcontainer");
+    this.element.classList.add("hotbar-subcontainer", "drag-cursor");
     this.element.setAttribute("data-container-index", this.index);
     
     // Set initial grid template via CSS variables.
@@ -81,7 +81,7 @@ class GridContainer {
 
   _createCell(col, row) {
     const cell = document.createElement("div");
-    cell.classList.add("hotbar-cell");
+    cell.classList.add("hotbar-cell", "drag-cursor");
     const slotKey = `${col}-${row}`;
     cell.setAttribute("data-slot", slotKey);
 
@@ -190,6 +190,7 @@ class GridContainer {
       }
 
       document.body.classList.add('dragging-active');
+      document.body.classList.add('drag-cursor');
       cell.classList.add("dragging");
 
       // Clear any tooltips
@@ -247,16 +248,18 @@ class GridContainer {
       }
 
       // Handle internal moves (between slots/containers)
-      // Place the dropped item in the target slot
-      this.data.items[slotKey] = dragData.item;
-
-      // Swap the source slot: if there was an item in the target, move it back; otherwise, remove the source
+      // First, store the item that's currently in the target slot (if any)
       const targetItem = this.data.items[slotKey];
       const sourceContainer = this.ui.gridContainers[dragData.containerIndex];
-      
+
+      // Move the dragged item to the target slot
+      this.data.items[slotKey] = dragData.item;
+
+      // If there was an item in the target slot, move it to the source slot
       if (targetItem && sourceContainer) {
         sourceContainer.data.items[dragData.slotKey] = targetItem;
       } else if (sourceContainer) {
+        // If there was no item in the target slot, clear the source slot
         delete sourceContainer.data.items[dragData.slotKey];
       }
 
@@ -284,6 +287,7 @@ class GridContainer {
     // Add dragend to clean up
     cell.addEventListener("dragend", (e) => {
       document.body.classList.remove('dragging-active');
+      document.body.classList.remove('drag-cursor');
       cell.classList.remove("dragging");
       cell.classList.remove("dragover");
     });

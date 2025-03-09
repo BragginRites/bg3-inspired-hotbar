@@ -36,18 +36,23 @@ export class DragDropManager {
     }
 
     async handleDrop(dragData, container, slotKey) {
-        // Check for duplicates before proceeding
-        if (await this._isDuplicate(dragData)) {
-            ui.notifications.warn("This item is already on the hotbar.");
-            return;
-        }
-
         // Handle macro drops
         if (dragData.type === "Macro" || dragData.uuid?.startsWith("Macro.")) {
             return await this.handleMacroDrop(dragData, container, slotKey);
         }
 
-        // Handle item drops
+        // For internal moves (items already on the hotbar), let GridContainer handle it
+        if (dragData.containerIndex !== undefined && dragData.slotKey !== undefined) {
+            return;
+        }
+
+        // Check for duplicates before proceeding with external drops
+        if (await this._isDuplicate(dragData)) {
+            ui.notifications.warn("This item is already on the hotbar.");
+            return;
+        }
+
+        // Handle item drops from external sources
         try {
             // Get the item data, handling both direct items and UUID references
             let itemData = {

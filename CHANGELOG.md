@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.3] - 2025-03-09
+### Fixed
+#### Lock System
+- Fixed issue where lock settings would not persist after unlocking
+- Added warning notification when attempting to lock without selecting any options
+- Improved lock button UX by preserving selected options between lock/unlock cycles
+
+### Updated
+#### File Structure
+- Changed main CSS entry point from `hotbar.css` to `index.css` for better organization
+- Moved death saving throw UI to a 'portrait.css' file for better organization with its parent
+
 ## [1.5.2] - 2025-03-09
 ### Fixed
 - Fixed issue where multiple effect tooltips could stack if moving between effects during the tooltip delay timer

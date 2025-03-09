@@ -54,6 +54,21 @@
   z-index: 70;
 }
 
+/* Ensure cursor inheritance throughout the module */
+.hotbar-container,
+.hotbar-subcontainer,
+.hotbar-cell,
+.hotbar-item,
+.hotbar-item-name,
+.hotbar-item-uses {
+  cursor: inherit !important;
+}
+
+.drag-cursor,
+.drag-cursor * {
+  cursor: var(--cursor-drag) !important;
+}
+
 /* ==========================================================================
    Grid Layout
    ========================================================================== */
@@ -95,14 +110,6 @@
     user-select: none;
 }
 
-.hotbar-cell.has-item {
-    cursor: grab;
-}
-
-.hotbar-cell.has-item:active {
-    cursor: grabbing;
-}
-
 .hotbar-cell:hover {
     border-color: #666;
     background: var(--bg3-background-highlight);
@@ -115,7 +122,6 @@
 
 .hotbar-cell.dragging {
     opacity: 0.5;
-    cursor: grabbing;
 }
 
 /* ==========================================================================

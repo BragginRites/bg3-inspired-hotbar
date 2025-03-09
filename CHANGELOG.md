@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.2] - 2025-03-09
+### Fixed
+- Fixed issue where multiple effect tooltips could stack if moving between effects during the tooltip delay timer
+- Fixed issue where tooltips would duplicate when toggling effect states (enabled/disabled)
+- Fixed issue where some items could not be dragged onto the hotbar from character sheets and other sources
+- Added prevention of duplicate items being added to the hotbar
+- Improved drag and drop handling to better support various item data formats
+- Fixed tooltip system initialization errors
+  - Added missing imports for TooltipFactory
+  - Fixed module name reference in tooltip delay settings
+  - Improved tooltip creation reliability
+
+### Updated
+- Updated my github actions workflow as I was always giving the "latest" manifests from module.json regardless of version number
+- Pinned active effects tooltips should now correctly update their data if pinned
+
 ## [1.5.1] - 2025-03-09
 ### Added
 - Added setting to bypass spell preparation checks when auto-populating hotbar

@@ -3,18 +3,22 @@
 import { BaseTooltip } from "./BaseTooltip.js";
 
 export class EffectTooltip extends BaseTooltip {
+  constructor(item) {
+    // Call super first to ensure cleanup happens before any initialization
+    super(item);
+    this.tooltipType = "effect"; // Set the tooltip type for effects
+  }
+
   buildContent() {
     // Early return if no item data
     if (!this.item) {
-      console.warn("EffectTooltip: No item data provided");
       return;
     }
 
-    console.debug("EffectTooltip: Building content for effect:", {
-      item: this.item,
-      type: this.item.type,
-      documentName: this.item.documentName
-    });
+    // Ensure we have an element before proceeding
+    if (!this.element) {
+      return;
+    }
 
     // Set tooltip type
     this.element.dataset.type = "effect";

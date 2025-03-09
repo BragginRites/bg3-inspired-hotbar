@@ -1,9 +1,14 @@
 // BaseTooltip.js
 import { getItemDetails } from "../utils/tooltipUtils.js";
+import { CONFIG } from "../utils/config.js";
+import { TooltipFactory } from "./TooltipFactory.js";
 
 export class BaseTooltip {
   // Static map to track pinned tooltips by item ID/UUID
   static pinnedTooltips = new Map();
+  // Track current tooltips by type
+  static currentTooltips = new Map();
+  static pendingTooltipTimers = new Map();
 
   constructor(item) {
     this.item = item;
@@ -11,6 +16,75 @@ export class BaseTooltip {
     this._pinned = false;
     this._isHighlighted = false;
     this._isDragging = false;
+    this.tooltipType = "base"; // Subclasses should override this
+  }
+
+  static getTooltipDelay() {
+    return game.settings.get(CONFIG.MODULE_NAME, 'tooltipDelay') ?? CONFIG.TOOLTIP_DELAY;
+  }
+
+  static cleanup(tooltipType) {
+    // Clear pending tooltip timer for this type
+    if (this.pendingTooltipTimers.has(tooltipType)) {
+      clearTimeout(this.pendingTooltipTimers.get(tooltipType));
+      this.pendingTooltipTimers.delete(tooltipType);
+    }
+    
+    // Remove existing tooltip of this type
+    const existingTooltip = this.currentTooltips.get(tooltipType);
+    if (existingTooltip && !existingTooltip._pinned) {
+      existingTooltip.remove();
+      this.currentTooltips.delete(tooltipType);
+    }
+  }
+
+  // Static method to create and attach a tooltip with delay
+  static async createWithDelay(item, cell, event, isUpdating = false) {
+    // Don't create new tooltips while updating
+    if (isUpdating) return null;
+
+    // Check for existing pinned tooltip first
+    const existingTooltip = this.getPinnedTooltip(item);
+    if (existingTooltip) {
+      existingTooltip.highlight(true);
+      return existingTooltip;
+    }
+
+    // Clear any existing timer for this type
+    this.cleanup(item.type || "base");
+
+    // Get tooltip delay from settings
+    const tooltipDelay = this.getTooltipDelay();
+
+    // Create and attach tooltip immediately if delay is 0
+    if (tooltipDelay === 0) {
+      const tooltip = await TooltipFactory.create(item);
+      if (tooltip) {
+        tooltip.attach(cell, event);
+        return tooltip;
+      }
+      return null;
+    }
+
+    // Otherwise, create a delayed tooltip
+    return new Promise((resolve) => {
+      const timer = setTimeout(async () => {
+        if (!document.body.classList.contains('dragging-active')) {
+          const tooltip = await TooltipFactory.create(item);
+          if (tooltip) {
+            tooltip.attach(cell, event);
+            resolve(tooltip);
+          } else {
+            resolve(null);
+          }
+        } else {
+          resolve(null);
+        }
+        this.pendingTooltipTimers.delete(item.type || "base");
+      }, tooltipDelay);
+
+      this.pendingTooltipTimers.set(item.type || "base", timer);
+    });
   }
 
   // Static method to find existing pinned tooltip
@@ -33,23 +107,38 @@ export class BaseTooltip {
 
   attach(cell, event) {
     // Avoid showing tooltips during dragging operations
-    if (document.body.classList.contains("dragging-active")) return;
+    if (document.body.classList.contains("dragging-active")) {
+      return;
+    }
 
-    // Remove any existing tooltip on the cell
-    if (cell._hotbarTooltip) {
-      if (cell._hotbarTooltip._pinned) {
-        cell._hotbarTooltip.highlight(true);
+    // Clean up existing tooltip of the same type
+    BaseTooltip.cleanup(this.tooltipType);
+
+    // Remove any existing tooltip on the cell of the same type
+    if (cell._hotbarTooltips?.get(this.tooltipType)) {
+      const existingTooltip = cell._hotbarTooltips.get(this.tooltipType);
+      if (existingTooltip._pinned) {
+        existingTooltip.highlight(true);
         return;
       }
-      cell._hotbarTooltip.remove();
-      cell._hotbarTooltip = null;
+      existingTooltip.remove();
+      cell._hotbarTooltips.delete(this.tooltipType);
     }
+
+    // Store reference to this tooltip
+    BaseTooltip.currentTooltips.set(this.tooltipType, this);
 
     // Create the tooltip element
     this.element = document.createElement("div");
     this.element.classList.add("custom-tooltip");
+    this.element.dataset.type = this.tooltipType;
     this.element._tooltip = this;
     this._cell = cell;
+
+    // Initialize cell's tooltip map if needed
+    if (!cell._hotbarTooltips) {
+      cell._hotbarTooltips = new Map();
+    }
 
     // Build the content (subclasses override this method)
     this.buildContent();
@@ -62,7 +151,7 @@ export class BaseTooltip {
     this.positionTooltip(event);
 
     // Save reference to tooltip on cell
-    cell._hotbarTooltip = this;
+    cell._hotbarTooltips.set(this.tooltipType, this);
   }
 
   // Override this method in subclasses to add custom content.
@@ -176,29 +265,41 @@ export class BaseTooltip {
   }
 
   _setupEventListeners() {
-    // Mouse down: start dragging if pinned
-    this.element.addEventListener("mousedown", this.onMouseDown.bind(this));
-
-    // Middle-click on tooltip to pin/unpin
+    // Combined mouse down handler for both dragging and pin/unpin
     this.element.addEventListener("mousedown", (evt) => {
       if (evt.button === 1) { // Middle mouse button
         evt.preventDefault();
+        evt.stopPropagation();
         if (this._pinned) {
           this.unpin();
         } else {
           this.pin();
         }
+      } else if (evt.button === 0 && this._pinned) { // Left click on pinned tooltip
+        evt.preventDefault();
+        evt.stopPropagation();
+        this.onMouseDown(evt);
       }
     });
 
     // Follow cursor if not pinned
-    this._cell.addEventListener("mousemove", this.onCellMouseMove.bind(this));
-    this._cell.addEventListener("mouseleave", this.onCellMouseLeave.bind(this));
+    const onMouseMove = (evt) => {
+      if (!this.element || this._pinned || this._isDragging) return;
+      this.onCellMouseMove(evt);
+    };
+    this._cell.addEventListener("mousemove", onMouseMove);
+
+    const onMouseLeave = () => {
+      if (!this._pinned || this._isDragging) this.remove();
+      else this.highlight(false);
+    };
+    this._cell.addEventListener("mouseleave", onMouseLeave);
 
     // Middle-click on cell to pin/unpin
     this._cell.addEventListener("mousedown", (evt) => {
       if (evt.button === 1) { // Middle mouse button
         evt.preventDefault();
+        evt.stopPropagation();
         if (this._pinned) {
           this.unpin();
         } else {
@@ -206,6 +307,12 @@ export class BaseTooltip {
         }
       }
     });
+
+    // Store event handlers for cleanup
+    this._eventHandlers = {
+      onMouseMove,
+      onMouseLeave
+    };
   }
 
   onMouseDown(evt) {
@@ -274,6 +381,10 @@ export class BaseTooltip {
   }
 
   remove() {
+    // Clear this tooltip if it's the current one of its type
+    if (BaseTooltip.currentTooltips.get(this.tooltipType) === this) {
+      BaseTooltip.currentTooltips.delete(this.tooltipType);
+    }
     if (this._pinned) {
       BaseTooltip.unregisterPinnedTooltip(this.item);
     }
@@ -281,7 +392,16 @@ export class BaseTooltip {
       this.element.parentNode.removeChild(this.element);
     }
     if (this._cell) {
-      this._cell._hotbarTooltip = null;
+      // Remove event listeners
+      if (this._eventHandlers) {
+        this._cell.removeEventListener("mousemove", this._eventHandlers.onMouseMove);
+        this._cell.removeEventListener("mouseleave", this._eventHandlers.onMouseLeave);
+      }
+      
+      this._cell._hotbarTooltips?.delete(this.tooltipType);
+      if (this._cell._hotbarTooltips?.size === 0) {
+        delete this._cell._hotbarTooltips;
+      }
       this._cell = null;
     }
     this.element = null;

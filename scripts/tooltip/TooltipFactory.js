@@ -16,7 +16,6 @@ export class TooltipFactory {
       }
 
       if (!item) {
-        console.warn("TooltipFactory: No item provided");
         return null;
       }
 
@@ -27,37 +26,37 @@ export class TooltipFactory {
       if (item.uuid && !item.system) {
         itemData = await fromUuid(item.uuid);
         if (!itemData) {
-          console.warn(`TooltipFactory: Could not resolve item from UUID: ${item.uuid}`);
           return null;
         }
       }
 
       // Create the appropriate tooltip based on item type
+      let tooltip;
       switch (itemData.type) {
         case "weapon":
-          return new WeaponTooltip(itemData);
+          tooltip = new WeaponTooltip(itemData);
+          break;
         case "spell":
-          return new SpellTooltip(itemData);
+          tooltip = new SpellTooltip(itemData);
+          break;
         case "feat":
-          return new FeatureTooltip(itemData);
+          tooltip = new FeatureTooltip(itemData);
+          break;
         case "effect":
         case "activeEffect":  // Handle both possible effect type names
-          return new EffectTooltip(itemData);
+          tooltip = new EffectTooltip(itemData);
+          break;
         default:
           // Check if this is an ActiveEffect instance
           if (itemData instanceof ActiveEffect || itemData.documentName === "ActiveEffect") {
-            return new EffectTooltip(itemData);
+            tooltip = new EffectTooltip(itemData);
+          } else {
+            tooltip = new BaseTooltip(itemData);
           }
-          // Log what we're getting for debugging
-          console.debug("TooltipFactory: Using base tooltip for item:", {
-            type: itemData.type,
-            name: itemData.name,
-            system: itemData.system
-          });
-          return new BaseTooltip(itemData);
       }
+
+      return tooltip;
     } catch (error) {
-      console.error("TooltipFactory: Error creating tooltip:", error);
       return null;
     }
   }

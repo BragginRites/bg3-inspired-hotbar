@@ -58,8 +58,36 @@ export class ActiveEffectsContainer {
     this._updateEffectHandler = (effect) => {
       const actor = effect.parent;
       if (!actor) return;
+      
+      // Store existing tooltips before update
+      const existingTooltips = new Map();
+      this.element.querySelectorAll('.active-effect-icon').forEach(wrapper => {
+        if (wrapper.dataset.uuid === effect.uuid && wrapper._hotbarTooltip) {
+          existingTooltips.set(wrapper.dataset.uuid, wrapper._hotbarTooltip);
+        }
+      });
+      
       this.lastKnownActorId = actor.id;
       this.update();
+      
+      // After update, restore tooltips to new elements
+      if (existingTooltips.size > 0) {
+        requestAnimationFrame(() => {
+          this.element.querySelectorAll('.active-effect-icon').forEach(wrapper => {
+            const existingTooltip = existingTooltips.get(wrapper.dataset.uuid);
+            if (existingTooltip) {
+              wrapper._hotbarTooltip = existingTooltip;
+              existingTooltip._cell = wrapper;
+              // Update the tooltip's content with the new effect state
+              if (existingTooltip.element) {
+                existingTooltip.element.innerHTML = '';
+                existingTooltip.item = effect;
+                existingTooltip.buildContent();
+              }
+            }
+          });
+        });
+      }
     };
 
     // Register hooks with stored handlers
@@ -104,24 +132,40 @@ export class ActiveEffectsContainer {
       display: "block",
       cursor: "pointer"
     });
-    const updateVisualState = () => {
-      if (effect.disabled) {
-        wrapper.classList.add("disabled");
-      } else {
-        wrapper.classList.remove("disabled");
-      }
-    };
 
     // Toggle effect status on click.
     wrapper.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (wrapper._hotbarTooltip) {
-        wrapper._hotbarTooltip.remove();
-        wrapper._hotbarTooltip = null;
-      }
+      
+      // Clear any pending tooltip timer
+      BaseTooltip.cleanup(effect.type || "effect");
+
+      // Store the current tooltip before updating
+      const currentTooltip = wrapper._hotbarTooltip;
+      
+      // Set updating flag
+      wrapper._isUpdatingTooltip = true;
+      
+      // Update the effect's disabled status
       await effect.update({ disabled: !effect.disabled });
-      updateVisualState();
+      
+      // If there was a tooltip and it's not being dragged, update its content
+      if (currentTooltip && !currentTooltip._isDragging) {
+        // Clear the current content
+        if (currentTooltip.element) {
+          currentTooltip.element.innerHTML = '';
+          // Rebuild the content with the updated effect state
+          currentTooltip.item = effect;  // Update the item reference
+          currentTooltip.buildContent();
+        }
+      }
+      
+      // Clear updating flag after a short delay
+      const tooltipDelay = BaseTooltip.getTooltipDelay();
+      setTimeout(() => {
+        wrapper._isUpdatingTooltip = false;
+      }, tooltipDelay + 50); // Add 50ms buffer to the delay
     });
 
     // Right-click to delete with confirmation.
@@ -146,40 +190,19 @@ export class ActiveEffectsContainer {
       dialog.render(true);
     });
 
-    // Attach tooltip on hover.
-    wrapper.addEventListener("mouseenter", (evt) => {
-      // Check for existing pinned tooltip first - do this immediately
-      const existingTooltip = BaseTooltip.getPinnedTooltip(effect);
-      if (existingTooltip) {
-        existingTooltip.highlight(true);
-        wrapper._hotbarTooltip = existingTooltip;
-        return;
-      }
+    // Store updating flag on the wrapper element
+    wrapper._isUpdatingTooltip = false;
 
-      // For new tooltips, use the delay
-      this._tooltipEventData = evt;
-      this._tooltipTimeout = setTimeout(async () => {
-        // Only create tooltip if we're still hovering and not dragging
-        if (this._tooltipEventData && !document.body.classList.contains('dragging-active')) {
-          const tooltip = await TooltipFactory.create(effect);
-          if (tooltip) {
-            tooltip.attach(wrapper, evt);
-            wrapper._hotbarTooltip = tooltip;
-          }
-          this._tooltipEventData = null;
-        }
-      }, TOOLTIP_DELAY);
+    // Attach tooltip on hover.
+    wrapper.addEventListener("mouseenter", async (evt) => {
+      const tooltip = await BaseTooltip.createWithDelay(effect, wrapper, evt, wrapper._isUpdatingTooltip);
+      if (tooltip) {
+        wrapper._hotbarTooltip = tooltip;
+      }
     });
     
     wrapper.addEventListener("mouseleave", () => {
-      // Clear the timeout if it exists
-      if (this._tooltipTimeout) {
-        clearTimeout(this._tooltipTimeout);
-        this._tooltipTimeout = null;
-      }
-      // Clear the event data
-      this._tooltipEventData = null;
-      // Handle tooltip
+      // Handle tooltip cleanup
       if (wrapper._hotbarTooltip) {
         if (wrapper._hotbarTooltip._pinned) {
           wrapper._hotbarTooltip.highlight(false);
@@ -188,6 +211,8 @@ export class ActiveEffectsContainer {
         }
         wrapper._hotbarTooltip = null;
       }
+      // Ensure any pending tooltips are cleaned up
+      BaseTooltip.cleanup(effect.type || "effect");
     });
     
     wrapper.appendChild(img);
@@ -202,21 +227,18 @@ export class ActiveEffectsContainer {
     if (token?.actor) {
       actor = token.actor;
       this.lastKnownActorId = actor.id;
-      console.debug("ActiveEffects: Got actor from token:", actor.name);
     } else if (this.lastKnownActorId) {
       // Fall back to actor directory (will work for linked tokens)
       actor = game.actors.get(this.lastKnownActorId);
     }
 
     if (!actor) {
-      console.debug("ActiveEffects: No actor found, hiding container");
       this.element.style.display = 'none';
       return;
     }
 
     // Get active effects from the actor's sheet.
     const currentEffects = actor.effects?.contents || [];
-    console.debug("ActiveEffects: Found", currentEffects.length, "effects for actor:", actor.name);
 
     if (currentEffects.length === 0) {
       this.element.style.display = 'none';
@@ -232,7 +254,6 @@ export class ActiveEffectsContainer {
       const iconEl = this._createEffectIcon(effect);
       this.element.appendChild(iconEl);
     });
-    console.debug("ActiveEffects: Displayed effects for actor:", actor.name);
   }
 
   destroy() {

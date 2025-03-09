@@ -240,11 +240,7 @@ class GridContainer {
       // Do nothing if dropped in the same slot
       if (dragData.slotKey === slotKey && dragData.containerIndex === this.index) return;
 
-      // For a swap: save the target item (if any) then update slots
-      const targetItem = this.data.items[slotKey];
-      const sourceContainer = this.ui.gridContainers[dragData.containerIndex];
-
-      // If this is a macro drop from Foundry or an item drop from an actor sheet
+      // For a macro drop from Foundry or an item drop from an actor sheet
       if (dragData.type === "Macro" || dragData.uuid?.startsWith("Macro.") || dragData.uuid) {
         await this.ui.dragDropManager.handleDrop(dragData, this, slotKey);
         return;
@@ -255,6 +251,9 @@ class GridContainer {
       this.data.items[slotKey] = dragData.item;
 
       // Swap the source slot: if there was an item in the target, move it back; otherwise, remove the source
+      const targetItem = this.data.items[slotKey];
+      const sourceContainer = this.ui.gridContainers[dragData.containerIndex];
+      
       if (targetItem && sourceContainer) {
         sourceContainer.data.items[dragData.slotKey] = targetItem;
       } else if (sourceContainer) {

@@ -92,6 +92,15 @@
     transition: all 0.2s ease;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
+}
+
+.hotbar-cell.has-item {
+    cursor: grab;
+}
+
+.hotbar-cell.has-item:active {
+    cursor: grabbing;
 }
 
 .hotbar-cell:hover {
@@ -106,6 +115,7 @@
 
 .hotbar-cell.dragging {
     opacity: 0.5;
+    cursor: grabbing;
 }
 
 /* ==========================================================================
@@ -164,6 +174,7 @@
     padding: 0;
     border-radius: 2px;
     transition: filter 0.2s ease;
+    pointer-events: none;
 }
 
 .hotbar-item.depleted {
@@ -183,20 +194,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 10;
+    pointer-events: none;
 }
 
 .hotbar-item-uses {
     position: absolute;
     top: 2px;
     right: 2px;
-    /* background: rgba(0, 0, 0, 0.8); */
     color: #fff;
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 0.8em;
     font-weight: bold;
     z-index: 11;
-    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+    pointer-events: none;
 }
 
 .hotbar-item-uses.depleted {

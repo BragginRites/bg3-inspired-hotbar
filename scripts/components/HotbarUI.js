@@ -8,6 +8,7 @@ import { SettingsMenu } from './SettingsMenu.js';
 import { PassivesContainer } from './PassivesContainer.js';
 import { ActiveEffectsContainer } from './ActiveEffectsContainer.js';
 import { TooltipFactory } from '../tooltip/TooltipFactory.js';
+import { DragDropManager } from '../managers/DragDropManager.js';
 
 class HotbarUI {
   constructor(manager, isLocked = false) {
@@ -24,6 +25,7 @@ class HotbarUI {
     // Load lock settings from game settings
     this._lockSettings = game.settings.get(CONFIG.MODULE_NAME, 'lockSettings');
     this._fadeTimeout = null;
+    this.dragDropManager = new DragDropManager(this);
 
     // Initialize bound methods as class properties
     this._handleMouseMove = (event) => {

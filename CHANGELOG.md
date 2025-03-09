@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.5.0] - 2025-03-09
+
+### Added
+- Added better visual feedback during drag operations with grab/grabbing cursors
+- Prevented text selection and pointer event interference during drag operations
+
+### Fixed
+- Fixed issue where drag and drop only worked from cell borders
+- Fixed pointer events interfering with drag operations from item images and text
+- Fixed cursor feedback during drag operations
+- Fixed macro drag-and-drop support to properly handle Foundry's UUID format
+- Improved macro ID resolution to support both direct UUIDs and legacy formats
+- Fixed context menu error when trying to access null UI reference
+- Fixed items not being removed from hotbar when using context menu Remove option
+- Fixed UI not initially loading for players. Issue was on init, players auto-select tokens by default. My lazy way was to force unselection at startup.
+- Refactored drag and drop functionality to a manager and restored functionality
+
 ## [1.4.0] - 2025-03-09
 ### Fixed
 - Complete refactor of the tooltips for improved performance and maintainability

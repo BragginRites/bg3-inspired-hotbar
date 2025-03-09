@@ -45,12 +45,7 @@ export class HotbarManager {
                 }
                 return;
             }
-            // For no tokens selected, only destroy if not locked with deselect setting
-            if (this.ui && !(this._isLocked && this.ui._lockSettings?.deselect)) {
-                this.ui.destroy();
-                this.ui = null;
-                this.currentTokenId = null;
-            }
+            // For no tokens selected, just return as cleanup is handled in controlToken hook
             return;
         }
 

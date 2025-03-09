@@ -5,7 +5,10 @@
             "InvalidItem": "Invalid item data. Only items with a valid UUID can be placed on the hotbar.",
             "ItemNotFound": "Could not retrieve item from UUID. Not placing on hotbar.",
             "WrongToken": "You cannot drop items from a different token onto this hotbar.",
-            "UnableToRetrieve": "Unable to retrieve item data."
+            "UnableToRetrieve": "Unable to retrieve item data.",
+            "MacroNotFound": "Macro not found",
+            "NoActor": "No actor found",
+            "NoUIReference": "UI reference not found. Please try refreshing the page."
         },
         "ContextMenu": {
             "EditItem": "Edit Item",

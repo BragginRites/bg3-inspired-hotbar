@@ -128,14 +128,18 @@ export class ContextMenu {
         }
 
         // Auto-populate option
-        const token = canvas.tokens.get(this.ui.manager.currentTokenId);
+        const token = canvas.tokens.get(this.ui?.manager?.currentTokenId);
         if (token?.actor) {
             const autoPopulateOption = this._createMenuItem(
                 '<i class="fas fa-magic"></i>',
                 "Auto-Populate with Activities",
                 () => {
                     const targetContainer = this.currentContainer;
-                    // Ensure container has UI reference
+                    // Ensure container and UI references exist
+                    if (!this.ui) {
+                        ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
+                        return;
+                    }
                     targetContainer.ui = this.ui;
                     this.hide();
                     const dialog = new AutoPopulateDialog(token.actor, targetContainer);
@@ -150,7 +154,11 @@ export class ContextMenu {
                 "Sort Items",
                 async () => {
                     const targetContainer = this.currentContainer;
-                    // Ensure container has UI reference
+                    // Ensure container and UI references exist
+                    if (!this.ui) {
+                        ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
+                        return;
+                    }
                     targetContainer.ui = this.ui;
                     this.hide();
                     await AutoSort.sortContainer(targetContainer);
@@ -170,11 +178,25 @@ export class ContextMenu {
         const removeOption = this._createMenuItem(
             '<i class="fas fa-trash"></i>',
             game.i18n.localize("BG3.Hotbar.ContextMenu.Remove"),
-            () => {
+            async () => {
+                // Ensure we have valid references
+                if (!this.currentContainer || !this.currentSlot) {
+                    this.hide();
+                    return;
+                }
+
+                // Remove the item
                 delete this.currentContainer.data.items[this.currentSlot];
                 this.currentContainer.render();
+                
+                // Ensure we have UI and manager references before persisting
+                if (this.ui?.manager) {
+                    await this.ui.manager.persist();
+                } else if (this.currentContainer.ui?.manager) {
+                    await this.currentContainer.ui.manager.persist();
+                }
+                
                 this.hide();
-                this.currentContainer.ui.manager.persist();
             },
             true
         );

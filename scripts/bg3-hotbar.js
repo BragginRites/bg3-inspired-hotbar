@@ -11,6 +11,12 @@ export class BG3Hotbar {
     static manager = null;
 
     static async init() {
+        // Ensure we clean up any existing manager/UI
+        if (this.manager?.ui) {
+            this.manager.ui.destroy();
+            this.manager.ui = null;
+        }
+        
         // Initialize the hotbar manager
         this.manager = new HotbarManager();
         
@@ -22,6 +28,12 @@ export class BG3Hotbar {
 
         // Log initialization
         console.log(`${CONFIG.MODULE_NAME} | Initialized`);
+
+        // If a token is already selected, deselect it and let the hooks handle reselection
+        const controlled = canvas.tokens?.controlled[0];
+        if (controlled) {
+            controlled.release(); // This will trigger our controlToken hook properly
+        }
     }
     
     static _applyMacrobarCollapseSetting() {
@@ -306,16 +318,36 @@ export class BG3Hotbar {
 
     static _registerHooks() {
         // Canvas and token control hooks
-        Hooks.on("canvasReady", () => {
+        Hooks.on("canvasReady", async () => {
             if (this.manager) {
-                this.manager.updateHotbarForControlledToken();
+                // When canvas is ready, check for selected token
+                const controlled = canvas.tokens?.controlled[0];
+                if (controlled) {
+                    await this.manager.updateHotbarForControlledToken(true);
+                } else {
+                    // Clean up UI if no token is selected
+                    if (this.manager.ui) {
+                        this.manager.ui.destroy();
+                        this.manager.ui = null;
+                    }
+                }
             }
         });
 
-        Hooks.on("controlToken", () => {
-            if (this.manager) {
-                this.manager.updateHotbarForControlledToken();
+        Hooks.on("controlToken", async (token, controlled) => {
+            if (!this.manager) return;
+            
+            if (!controlled) {
+                // Token was deselected, clean up UI if not locked
+                if (this.manager.ui && !(this.manager.ui._isLocked && this.manager.ui._lockSettings?.deselect)) {
+                    this.manager.ui.destroy();
+                    this.manager.ui = null;
+                    this.manager.currentTokenId = null;
+                }
+                return;
             }
+            
+            await this.manager.updateHotbarForControlledToken();
         });
 
         // Token creation hook for auto-populating unlinked tokens
@@ -526,9 +558,54 @@ export class BG3Hotbar {
 
         await AutoPopulateContainer.populateContainer(actor, container, items.map(item => item.type));
     }
+
+    static _registerMacroDragDrop() {
+        // Add drag drop capability for macros
+        if (!game.macros.directory?.dragDrop) return;
+
+        game.macros.directory.dragDrop.push({
+            dragSelector: ".macro",
+            dropSelector: ".hotbar-cell",
+            permissions: {
+                dragstart: () => true,
+                drop: () => true
+            },
+            callbacks: {
+                dragstart: (event) => {
+                    const macro = game.macros.get(event.currentTarget.dataset.documentId);
+                    if (!macro) {
+                        console.warn("Could not find macro from element:", event.currentTarget);
+                        return;
+                    }
+                    event.dataTransfer.setData("text/plain", JSON.stringify({
+                        type: "Macro",
+                        uuid: macro.uuid,
+                        id: macro.id,
+                        data: {
+                            name: macro.name,
+                            img: macro.img
+                        }
+                    }));
+                },
+                drop: (event) => {
+                    try {
+                        const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+                        return data.type === "Macro" && (data.uuid?.startsWith("Macro.") || game.macros.has(data.id));
+                    } catch {
+                        return false;
+                    }
+                }
+            }
+        });
+    }
 }
 
 // Initialize the module when Foundry is ready
-Hooks.once('ready', () => {
-    BG3Hotbar.init();
+Hooks.once('ready', async () => {
+    // Wait for canvas and UI to be ready
+    if (!canvas || !canvas.ready) {
+        Hooks.once('canvasReady', () => BG3Hotbar.init());
+        return;
+    }
+    await BG3Hotbar.init();
 }); 

@@ -31,6 +31,18 @@
             "Name": "Enable BG3 Hotbar UI",
             "Hint": "Enable or disable the BG3-style hotbar interface. Disable this if you prefer to use a different hotbar module or the default Foundry hotbar."
         },
+        "BypassSpellPreparationCheck": {
+            "Name": "Include Unprepared Spells",
+            "Hint": "When enabled, all spells will be included in the hotbar regardless of their preparation state"
+        },
+        "BypassSpellPreparationCheckLinked": {
+            "Name": "Spell Preparation Check (Player Characters +Linked NPCs)",
+            "Hint": "When enabled, unprepared spells will be included in the hotbar for player characters and linked tokens. By default, only prepared spells are shown."
+        },
+        "BypassSpellPreparationCheckUnlinked": {
+            "Name": "Spell Preparation Check (Unlinked NPCs)",
+            "Hint": "When enabled, unprepared spells will be included in the hotbar for unlinked tokens (NPCs). By default, all spells are shown for NPCs."
+        },
         "CollapseFoundryMacrobar": {
             "Name": "Start Foundry Macrobar Collapsed",
             "Hint": "Automatically collapse the default Foundry macrobar when loading"

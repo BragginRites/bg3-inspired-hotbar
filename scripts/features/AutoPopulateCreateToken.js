@@ -143,6 +143,21 @@ export class AutoPopulateCreateToken {
                 // Skip if item type is not in the selected types
                 if (!itemTypes.includes(item.type)) continue;
                 
+                // For spells, check preparation state unless bypassed by setting
+                if (item.type === "spell") {
+                    const bypassSetting = token?.actorLink ? 
+                        game.settings.get(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheckLinked') :
+                        game.settings.get(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheckUnlinked');
+                        
+                    if (!bypassSetting) {
+                        const prep = item.system?.preparation;
+                        // Skip if it's an unprepared "prepared" spell
+                        if (!prep?.prepared && prep?.mode === "prepared") continue;
+                        // Include if it's prepared or has a valid casting mode
+                        if (!prep?.prepared && !["pact", "atwill", "innate"].includes(prep?.mode)) continue;
+                    }
+                }
+                
                 // Check if the item has activities or is usable
                 const hasActivities = item.system?.activation?.type || // Has activation
                                     item.type === "consumable" || // Always include consumables

@@ -30,8 +30,8 @@
     }
   ],
   "url": "https://github.com/BragginRites/bg3-inspired-hotbar",
-  "manifest": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/latest/download/module.json",
-  "download": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/latest/download/bg3-inspired-hotbar.zip",
+  "manifest": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/v1.5.2/module.json",
+  "download": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/v1.5.2/bg3-inspired-hotbar.zip",
   "readme": "README.md",
   "bugs": "https://github.com/BragginRites/bg3-inspired-hotbar/issues"
 }

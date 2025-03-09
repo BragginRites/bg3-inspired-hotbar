@@ -1,4 +1,4 @@
-# BG3 Inspired Hotbar
+# BG3 Inspired HUD
 
 A Foundry VTT module that reimagines the hotbar interface, drawing inspiration from Baldur's Gate 3's elegant design. This module provides a persistent, token-specific interface for managing abilities, spells, and effects with modern UI/UX principles.
 

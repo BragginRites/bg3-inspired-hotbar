@@ -1,11 +1,6 @@
 # Changelog
 
 ## [1.5.0] - 2025-03-09
-
-### Added
-- Added better visual feedback during drag operations with grab/grabbing cursors
-- Prevented text selection and pointer event interference during drag operations
-
 ### Fixed
 - Fixed issue where drag and drop only worked from cell borders
 - Fixed pointer events interfering with drag operations from item images and text

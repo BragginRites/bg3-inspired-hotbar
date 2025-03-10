@@ -28,7 +28,7 @@ export class PassivesContainer {
 
     _createFeatureIcon(feature) {
         const wrapper = document.createElement("div");
-        wrapper.classList.add("passive-feature-icon");
+        wrapper.classList.add("bg3-hud", "passive-feature-icon");
         // Store feature reference for later use if needed
         wrapper.dataset.uuid = feature.uuid;
         const img = document.createElement("img");

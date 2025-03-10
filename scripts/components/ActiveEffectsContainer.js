@@ -119,7 +119,7 @@ export class ActiveEffectsContainer {
 
   _createEffectIcon(effect) {
     const wrapper = document.createElement("div");
-    wrapper.classList.add("active-effect-icon");
+    wrapper.classList.add("bg3-hud", "active-effect-icon");
     if (effect.disabled) {
       wrapper.classList.add("disabled");
     }

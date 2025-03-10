@@ -3,6 +3,74 @@ import { getItemDetails } from "../utils/tooltipUtils.js";
 import { CONFIG } from "../utils/config.js";
 import { TooltipFactory } from "./TooltipFactory.js";
 
+function nukeBackgrounds(element) {
+  // Force remove ALL backgrounds with a more generic approach
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Target all enriched elements */
+    .tooltip-enriched-content [data-*],
+    .tooltip-enriched-content .inline-roll,
+    .tooltip-enriched-content .reference-link,
+    .tooltip-enriched-content .condition-reference,
+    .tooltip-enriched-content .effect-button,
+    .tooltip-enriched-content [data-reference],
+    .tooltip-enriched-content [data-condition],
+    .tooltip-enriched-content [data-effect] {
+      all: revert !important;
+      background: none !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      color: #cc3333 !important;
+      text-decoration: underline !important;
+      border: 1px solid rgba(204, 51, 51, 0.3) !important;
+      border-radius: 2px !important;
+      padding: 0 2px !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      font-family: inherit !important;
+      font-size: inherit !important;
+    }
+
+    /* Ensure buttons look clickable */
+    .tooltip-enriched-content .effect-button,
+    .tooltip-enriched-content [data-effect] {
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+    }
+
+    /* Remove any possible icons or backgrounds */
+    .tooltip-enriched-content [data-*]:before,
+    .tooltip-enriched-content [data-*]:after,
+    .tooltip-enriched-content .inline-roll:before,
+    .tooltip-enriched-content .inline-roll:after,
+    .tooltip-enriched-content .reference-link:before,
+    .tooltip-enriched-content .reference-link:after {
+      content: none !important;
+      display: none !important;
+    }
+  `;
+  element.appendChild(style);
+
+  // Also forcefully remove inline styles from any enriched elements
+  element.querySelectorAll('[data-*], .inline-roll, .reference-link, .condition-reference, .effect-button, [data-reference], [data-condition], [data-effect]').forEach(el => {
+    el.removeAttribute('style');
+    Object.assign(el.style, {
+      background: 'none',
+      backgroundColor: 'transparent',
+      backgroundImage: 'none',
+      boxShadow: 'none',
+      color: '#cc3333',
+      textDecoration: 'underline',
+      border: '1px solid rgba(204, 51, 51, 0.3)',
+      borderRadius: '2px',
+      padding: '0 2px',
+      margin: '0'
+    });
+  });
+}
+
 export class BaseTooltip {
   // Static map to track pinned tooltips by item ID/UUID
   static pinnedTooltips = new Map();
@@ -128,9 +196,18 @@ export class BaseTooltip {
     // Store reference to this tooltip
     BaseTooltip.currentTooltips.set(this.tooltipType, this);
 
+    // Create or get tooltip container
+    let tooltipContainer = document.getElementById('bg3-tooltip-container');
+    if (!tooltipContainer) {
+        tooltipContainer = document.createElement('div');
+        tooltipContainer.id = 'bg3-tooltip-container';
+        tooltipContainer.classList.add('bg3-hud');
+        document.body.appendChild(tooltipContainer);
+    }
+
     // Create the tooltip element
     this.element = document.createElement("div");
-    this.element.classList.add("custom-tooltip");
+    this.element.classList.add("bg3-hud", "custom-tooltip");
     this.element.dataset.type = this.tooltipType;
     this.element._tooltip = this;
     this._cell = cell;
@@ -146,8 +223,8 @@ export class BaseTooltip {
     // Set up event listeners now that we have an element
     this._setupEventListeners();
 
-    // Append and position
-    document.body.appendChild(this.element);
+    // Append to tooltip container instead of body
+    tooltipContainer.appendChild(this.element);
     this.positionTooltip(event);
 
     // Save reference to tooltip on cell
@@ -230,9 +307,27 @@ export class BaseTooltip {
         links: true,
         rolls: true,
         relativeTo: this.item,
-        activityId: this.item.selectedActivity?.id
+        activityId: this.item.selectedActivity?.id,
+        removeBackground: true
       }).then(enrichedDesc => {
         descEl.innerHTML = enrichedDesc || "No description available.";
+        // Nuke all backgrounds after enriching
+        nukeBackgrounds(descEl);
+        
+        // Set up mutation observer to catch any dynamic changes
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach(() => nukeBackgrounds(descEl));
+        });
+        
+        observer.observe(descEl, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class']
+        });
+        
+        // Store observer reference for cleanup
+        descEl._bgObserver = observer;
       });
       
       content.appendChild(descContainer);
@@ -381,6 +476,14 @@ export class BaseTooltip {
   }
 
   remove() {
+    // Clean up any observers
+    this.element?.querySelectorAll('*').forEach(el => {
+      if (el._bgObserver) {
+        el._bgObserver.disconnect();
+        delete el._bgObserver;
+      }
+    });
+    
     // Clear this tooltip if it's the current one of its type
     if (BaseTooltip.currentTooltips.get(this.tooltipType) === this) {
       BaseTooltip.currentTooltips.delete(this.tooltipType);
@@ -390,6 +493,12 @@ export class BaseTooltip {
     }
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
+      
+      // Clean up empty tooltip container
+      const container = document.getElementById('bg3-tooltip-container');
+      if (container && !container.hasChildNodes()) {
+          container.remove();
+      }
     }
     if (this._cell) {
       // Remove event listeners

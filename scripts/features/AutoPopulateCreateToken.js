@@ -145,7 +145,9 @@ export class AutoPopulateCreateToken {
                 
                 // For spells, check preparation state unless bypassed by setting
                 if (item.type === "spell") {
-                    const bypassSetting = token?.actorLink ? 
+                    // Get the token from the actor's token data
+                    const isLinked = actor.isToken ? false : true;
+                    const bypassSetting = isLinked ? 
                         game.settings.get(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheckLinked') :
                         game.settings.get(CONFIG.MODULE_NAME, 'bypassSpellPreparationCheckUnlinked');
                         
@@ -179,8 +181,6 @@ export class AutoPopulateCreateToken {
                     };
 
                     itemsWithActivities.push(itemData);
-                    // Also add to container's data structure
-                    container.data.items[`${itemsWithActivities.length - 1}-0`] = itemData;
                 }
             }
             

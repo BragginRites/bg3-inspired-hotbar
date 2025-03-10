@@ -24,6 +24,38 @@ jobs:
           echo "Found version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=version::$VERSION"
+          # Also extract package ID and compatibility
+          PACKAGE_ID=$(jq -r '.id' module.json)
+          MIN_CORE=$(jq -r '.compatibility.minimum' module.json)
+          VERIFIED_CORE=$(jq -r '.compatibility.verified' module.json)
+          MAX_CORE=$(jq -r '.compatibility.maximum // ""' module.json)
+          echo "PACKAGE_ID=$PACKAGE_ID" >> $GITHUB_ENV
+          echo "MIN_CORE=$MIN_CORE" >> $GITHUB_ENV
+          echo "VERIFIED_CORE=$VERIFIED_CORE" >> $GITHUB_ENV
+          echo "MAX_CORE=$MAX_CORE" >> $GITHUB_ENV
+
+      - name: Extract Latest Changelog Entry
+        id: get_changelog
+        run: |
+          # Extract the latest version entry from CHANGELOG.md
+          # This will match both ## [1.5.5] and ## [1.5.5] - DATE formats
+          CHANGELOG=$(awk '
+            /^## \[[0-9]+\.[0-9]+\.[0-9]+/ {
+              if (p) { exit }
+              p=1
+              print
+              next
+            }
+            p { print }
+          ' CHANGELOG.md)
+          
+          # Escape newlines for GitHub Actions
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Configure Git
         run: |
@@ -52,8 +84,42 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: Release ${{ steps.tag.outputs.tag }}
+          body: ${{ env.CHANGELOG }}
           files: |
             bg3-inspired-hotbar.zip
             module.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Foundry VTT
+        run: |
+          # Construct the manifest and notes URLs using the version
+          MANIFEST_URL="https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/module.json"
+          NOTES_URL="https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}"
+          
+          # Create the release payload
+          payload=$(cat <<EOF
+          {
+            "id": "${{ env.PACKAGE_ID }}",
+            "release": {
+              "version": "${{ env.VERSION }}",
+              "manifest": "$MANIFEST_URL",
+              "notes": "$NOTES_URL",
+              "compatibility": {
+                "minimum": "${{ env.MIN_CORE }}",
+                "verified": "${{ env.VERIFIED_CORE }}",
+                "maximum": "${{ env.MAX_CORE }}"
+              }
+            }
+          }
+          EOF
+          )
+          
+          # Send the release to Foundry VTT
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: ${{ secrets.FOUNDRY_API_KEY }}" \
+            -d "$payload" \
+            https://api.foundryvtt.com/_api/packages/release_version/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

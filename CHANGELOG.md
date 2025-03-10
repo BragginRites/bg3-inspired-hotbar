@@ -1,4 +1,12 @@
-# Changelog
+## [1.5.5] - 2025-03-11
+### Fixed
+#### Spell Population Logic
+- Fixed spell preparation check in `AutoPopulateCreateToken.js` to properly handle linked vs unlinked tokens
+- Added proper token linkage detection using actor data instead of undefined token reference
+
+#### Tooltip Enrichment
+- Changed enricher backgrounds and styling in tooltips for enricher types. Might still be some that slipped through. Why did they make them this way?
+
 
 ## [1.5.4] - 2025-03-10
 ### Fixed

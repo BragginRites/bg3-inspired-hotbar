@@ -3,12 +3,14 @@
 import { HotbarManager } from './managers/HotbarManager.js';
 import { HotbarUI } from './components/HotbarUI.js';
 import { CONFIG } from './utils/config.js';
+import { ControlsManager } from './managers/ControlsManager.js';
 import { AutoPopulateCreateToken, AutoPopulateDefaults } from './features/AutoPopulateCreateToken.js';
 import { AutoPopulateContainer } from './features/AutoPopulateContainer.js';
 import { TooltipFactory } from './tooltip/TooltipFactory.js';
 
 export class BG3Hotbar {
     static manager = null;
+    static controlsManager = null;
 
     static async init() {
         // Ensure we clean up any existing manager/UI
@@ -16,6 +18,9 @@ export class BG3Hotbar {
             this.manager.ui.destroy();
             this.manager.ui = null;
         }
+        
+        // Initialize the controls manager
+        this.controlsManager = new ControlsManager();
         
         // Initialize the hotbar manager
         this.manager = new HotbarManager();
@@ -194,6 +199,16 @@ export class BG3Hotbar {
             }
         });
         
+        // Add master lock state setting
+        game.settings.register(CONFIG.MODULE_NAME, 'masterLockEnabled', {
+            name: 'Master Lock State',
+            hint: 'Whether the master lock is enabled',
+            scope: 'client',
+            config: false,
+            type: Boolean,
+            default: false
+        });
+        
         // Add tooltip delay setting
         game.settings.register(CONFIG.MODULE_NAME, 'tooltipDelay', {
             name: 'BG3.Settings.TooltipDelay.Name',
@@ -368,7 +383,9 @@ export class BG3Hotbar {
             
             if (!controlled) {
                 // Token was deselected, clean up UI if not locked
-                if (this.manager.ui && !(this.manager.ui._isLocked && this.manager.ui._lockSettings?.deselect)) {
+                const isDeselectLocked = this.controlsManager.isLockSettingEnabled('deselect') && 
+                                        this.controlsManager.isMasterLockEnabled();
+                if (this.manager.ui && !isDeselectLocked) {
                     this.manager.ui.destroy();
                     this.manager.ui = null;
                     this.manager.currentTokenId = null;
@@ -432,7 +449,8 @@ export class BG3Hotbar {
             const token = canvas.tokens.get(tokenData._id);
             const isPlayerCharacter = token?.actor?.hasPlayerOwner;
             const isCurrentToken = tokenData._id === this.manager.currentTokenId;
-            const isLocked = this.manager.ui?._isLocked;
+            const isLocked = this.controlsManager.isLockSettingEnabled('deselect') && 
+                            this.controlsManager.isMasterLockEnabled();
 
             // Only clean up data if:
             // 1. It's an unlinked token, OR

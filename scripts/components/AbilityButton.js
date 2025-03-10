@@ -44,6 +44,11 @@ class AbilityCard {
     }
 
     _createCard() {
+        // Create the container with bg3-hud class
+        const container = document.createElement("div");
+        container.classList.add("bg3-hud");
+        
+        // Create the card element
         this.element = document.createElement("div");
         this.element.classList.add("ability-card", "menu-container");
         
@@ -52,7 +57,11 @@ class AbilityCard {
             this.element.setAttribute("data-container-index", this.gridContainer.index);
         }
         
+        // Add the card to the container
+        container.appendChild(this.element);
+        
         this.render();
+        return container;
     }
 
     _createAbilityScores() {
@@ -77,8 +86,6 @@ class AbilityCard {
         Object.entries(AbilityCard.ABILITY_CONFIG).forEach(([key, data]) => {
             const abilityRow = document.createElement("div");
             abilityRow.classList.add("menu-item", "ability-row");
-            // Add default border to prevent layout shift
-            abilityRow.style.border = "1px solid transparent";
 
             const abilityScore = actor.system.abilities?.[key] || { value: 10, proficient: false };
             const mod = Math.floor((abilityScore.value - 10) / 2);
@@ -94,14 +101,14 @@ class AbilityCard {
             const labelSpan = document.createElement("span");
             labelSpan.classList.add("ability-label");
             if (abilityScore.proficient) {
-                labelSpan.style.color = CONFIG.COLORS.SPELL_SLOT;
+                labelSpan.classList.add("proficient");
             }
             labelSpan.textContent = data.label;
 
             const modSpan = document.createElement("span");
             modSpan.classList.add("ability-value");
             if (abilityScore.proficient) {
-                modSpan.style.color = CONFIG.COLORS.SPELL_SLOT;
+                modSpan.classList.add("proficient");
             }
             modSpan.textContent = modString;
 
@@ -111,7 +118,6 @@ class AbilityCard {
             
             // Create popups container
             const popupsContainer = document.createElement("div");
-            popupsContainer.style.display = "none";
             popupsContainer.classList.add("popup-container");
 
             // Create skills popup if ability has associated skills
@@ -134,35 +140,32 @@ class AbilityCard {
 
                 // If clicking the same ability that's already expanded, just close it
                 if (this.expandedAbility === key) {
-                    popupsContainer.style.display = "none";
+                    popupsContainer.classList.remove("visible");
                     popupsContainer.querySelectorAll('.popup-panel').forEach(panel => {
-                        panel.style.display = "none";
+                        panel.classList.remove("visible");
                     });
-                    abilityRow.style.background = "#2a2a2a";
-                    abilityRow.style.borderColor = "transparent";
+                    abilityRow.classList.remove("expanded");
                     this.expandedAbility = null;
                     return;
                 }
 
                 // Close all popups and reset all ability rows
                 this.element.querySelectorAll(".popup-container").forEach(popup => {
-                    popup.style.display = "none";
+                    popup.classList.remove("visible");
                     popup.querySelectorAll('.popup-panel').forEach(panel => {
-                        panel.style.display = "none";
+                        panel.classList.remove("visible");
                     });
                 });
                 this.element.querySelectorAll(".ability-row").forEach(row => {
-                    row.style.background = "#2a2a2a";
-                    row.style.borderColor = "transparent";
+                    row.classList.remove("expanded");
                 });
 
                 // Open the clicked ability's popup
-                popupsContainer.style.display = "block";
+                popupsContainer.classList.add("visible");
                 popupsContainer.querySelectorAll('.popup-panel').forEach(panel => {
-                    panel.style.display = "flex";
+                    panel.classList.add("visible");
                 });
-                abilityRow.style.background = "#333";
-                abilityRow.style.borderColor = "#cc3333";
+                abilityRow.classList.add("expanded");
                 this.expandedAbility = key;
             });
 
@@ -191,7 +194,7 @@ class AbilityCard {
             const skillRow = document.createElement("div");
             skillRow.classList.add("menu-item", "skill-row");
             if (skill.proficient) {
-                skillRow.style.color = CONFIG.COLORS.SPELL_SLOT;
+                skillRow.classList.add("proficient");
             }
             
             // Add tooltip for skill roll
@@ -285,7 +288,7 @@ class AbilityCard {
         const saveRow = document.createElement("div");
         saveRow.classList.add("menu-item", "save-row");
         if (isProficient) {
-            saveRow.style.color = CONFIG.COLORS.SPELL_SLOT;
+            saveRow.classList.add("proficient");
         }
         
         // Add tooltip for saving throw
@@ -350,18 +353,16 @@ class AbilityCard {
     hide() {
         this.isVisible = false;
         this.element.classList.remove("visible");
-        this.element.style.display = "none";
         this.expandedAbility = null;
         
         // Close any open popups
         this.element.querySelectorAll(".popup-container").forEach(popup => {
-            popup.style.display = "none";
+            popup.classList.remove("visible");
         });
         
         // Reset any highlighted ability rows
         this.element.querySelectorAll(".ability-row").forEach(row => {
-            row.style.background = "#2a2a2a";
-            row.style.borderColor = "transparent";
+            row.classList.remove("expanded");
         });
     }
 
@@ -370,11 +371,6 @@ class AbilityCard {
         if (this.isVisible) {
             this.render();
             this.element.classList.add("visible");
-            
-            // Calculate position relative to the portrait container
-            const portraitRect = this.portraitContainer.element.getBoundingClientRect();
-            this.element.style.left = `${portraitRect.left + portraitRect.width / 2}px`;
-            this.element.style.top = `${portraitRect.top - 20}px`;  // 20px offset from top
         } else {
             this.hide();
         }
@@ -385,13 +381,14 @@ class AbilityCard {
             this.element.removeChild(this.element.firstChild);
         }
         this._createAbilityScores();
-        this.element.style.display = this.isVisible ? "flex" : "none";
+        this.element.classList.toggle("visible", this.isVisible);
     }
 
     destroy() {
-        // Remove the element from the DOM if it exists
-        if (this.element && this.element.parentNode) {
-            this.element.parentNode.removeChild(this.element);
+        // Remove the bg3-hud container from the DOM if it exists
+        const container = this.element?.parentNode;
+        if (container && container.parentNode) {
+            container.parentNode.removeChild(container);
         }
         
         // Clear references
@@ -413,66 +410,29 @@ export class AbilityButton {
     }
 
     _createButton() {
+        // Create the button element with bg3-hud class
         this.element = document.createElement("div");
-        this.element.classList.add("ability-button");
+        this.element.classList.add("bg3-hud", "ability-button");
         
-        // Style the button
-        Object.assign(this.element.style, {
-            position: "absolute",
-            top: "-16px",  // Position above portrait
-            left: "50%",
-            transform: "translateX(-50%)",  // Center horizontally
-            width: "32px",
-            height: "32px",
-            background: CONFIG.COLORS.BACKGROUND,
-            border: `1px solid ${CONFIG.COLORS.BORDER}`,
-            borderRadius: "50%",  // Make it circular
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: CONFIG.Z_INDEX.OVERLAY.ABILITY_CARD - 1,  // Just below the card
-            fontSize: "16px",  // Changed from 16px to 14px to match other icons
-            color: CONFIG.COLORS.TEXT.PRIMARY,
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-            transition: "all 0.2s ease"
-        });
-
-        // Add d20 icon or text
-        this.element.innerHTML = '<i class="fas fa-dice-d20"></i>';  // Using Font Awesome d20 dice icon
-        
-        // Add hover effect
-        this.element.addEventListener("mouseenter", () => {
-            this.element.style.background = CONFIG.COLORS.BACKGROUND_HIGHLIGHT;
-            this.element.style.borderColor = CONFIG.COLORS.SPELL_SLOT;
-        });
-
-        this.element.addEventListener("mouseleave", () => {
-            if (!this.abilityCard?.isVisible) {
-                this.element.style.background = CONFIG.COLORS.BACKGROUND;
-                this.element.style.borderColor = CONFIG.COLORS.BORDER;
-            }
-        });
+        // Add d20 icon
+        this.element.innerHTML = '<i class="fas fa-dice-d20"></i>';
 
         // Add click handler
         this.element.addEventListener("click", () => this._toggleAbilityCard());
 
-        // Create the ability card
+        // Create the ability card and get its container
         this.abilityCard = new AbilityCard(this.portraitContainer);
+        const cardContainer = this.abilityCard._createCard();
         
-        // Add the button to the portrait container but the card to document.body
+        // Add the card to the button
+        this.element.appendChild(cardContainer);
+        
+        // Add button to the portrait card
         this.portraitContainer.element.appendChild(this.element);
-        document.body.appendChild(this.abilityCard.element);
     }
 
     updateButtonState(isActive) {
-        if (isActive) {
-            this.element.style.background = CONFIG.COLORS.BACKGROUND_HIGHLIGHT;
-            this.element.style.borderColor = CONFIG.COLORS.SPELL_SLOT;
-        } else {
-            this.element.style.background = CONFIG.COLORS.BACKGROUND;
-            this.element.style.borderColor = CONFIG.COLORS.BORDER;
-        }
+        this.element.classList.toggle('active', isActive);
     }
 
     _toggleAbilityCard() {
@@ -488,15 +448,15 @@ export class AbilityButton {
         if (this.abilityCard.isVisible) {
             console.log("Ability card is now visible");
             this.updateButtonState(true);
-            this.abilityCard.element.style.display = "flex";
+            this.abilityCard.element.classList.add("visible");
         } else {
             console.log("Ability card is now hidden");
             this.updateButtonState(false);
-            this.abilityCard.element.style.display = "none";
+            this.abilityCard.element.classList.remove("visible");
             
             // Close any open popups
             this.abilityCard.element.querySelectorAll(".popup-container").forEach(popup => {
-                popup.style.display = "none";
+                popup.classList.remove("visible");
             });
             
             // Reset any expanded abilities
@@ -504,8 +464,7 @@ export class AbilityButton {
             
             // Reset any highlighted ability rows
             this.abilityCard.element.querySelectorAll(".ability-row").forEach(row => {
-                row.style.background = "#2a2a2a";
-                row.style.borderColor = "transparent";
+                row.classList.remove("expanded");
             });
         }
     }
@@ -516,8 +475,10 @@ export class AbilityButton {
             this.abilityCard = null;
         }
 
-        if (this.element && this.element.parentNode) {
-            this.element.parentNode.removeChild(this.element);
+        // Remove the bg3-hud container instead of just the element
+        const container = this.element.parentNode;
+        if (container && container.parentNode) {
+            container.parentNode.removeChild(container);
         }
 
         // Remove the reference from the portrait container

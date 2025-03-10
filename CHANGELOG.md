@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.5.4] - 2025-03-10
+### Fixed
+#### HUD Controls
+- Fixed opacity inheritance for ability button and card to properly fade with parent containers
+- Fixed ability card popup panels to be flush with card edges instead of overlapping
+- Removed custom opacity handling from AbilityButton.js to use CSS transitions
+- Standardized menu styling across all context menus
+- Moved all inline styles from AbilityButton.js to ability-card.css
+- Fixed settings menu to use common menu container styles for consistency
+
+### Updated
+#### CSS Organization
+- Improved CSS organization by centralizing styles in appropriate files: ability-card.css, menus.css, portrait.css, and added controls.css for controls menu
+- Removed redundant settings menu styles from menus.css
+- Added proper opacity inheritance through the component hierarchy:
+  - Hotbar → Portrait Card → Ability Button → Ability Card/Skills/Saves
+
 ## [1.5.3] - 2025-03-09
 ### Fixed
 #### Lock System

@@ -26,7 +26,7 @@ class GridContainer {
 
   _createContainer() {
     this.element = document.createElement("div");
-    this.element.classList.add("hotbar-subcontainer", "drag-cursor");
+    this.element.classList.add("bg3-hud", "hotbar-subcontainer", "drag-cursor");
     this.element.setAttribute("data-container-index", this.index);
     
     // Set initial grid template via CSS variables.
@@ -81,7 +81,7 @@ class GridContainer {
 
   _createCell(col, row) {
     const cell = document.createElement("div");
-    cell.classList.add("hotbar-cell", "drag-cursor");
+    cell.classList.add("bg3-hud", "hotbar-cell", "drag-cursor");
     const slotKey = `${col}-${row}`;
     cell.setAttribute("data-slot", slotKey);
 
@@ -103,17 +103,17 @@ class GridContainer {
     // Set draggable state.
     if (item) {
       cell.setAttribute("draggable", "true");
-      cell.classList.add("has-item");
+      cell.classList.add("bg3-hud", "has-item");
     } else {
       cell.setAttribute("draggable", "false");
-      cell.classList.remove("has-item");
+      cell.classList.remove("bg3-hud", "has-item");
     }
     
     if (item?.icon) {
       const img = document.createElement("img");
       img.src = item.icon;
       img.alt = item.name || "";
-      img.classList.add("hotbar-item");
+      img.classList.add("bg3-hud", "hotbar-item");
       img.style.borderRadius = '3px';
       // Make sure the image doesn't interfere with drag operations
       img.draggable = false;
@@ -131,15 +131,15 @@ class GridContainer {
             // Only show uses if max > 0.
             if (max > 0) {
               if (value <= 0) {
-                img.classList.add("depleted");
+                img.classList.add("bg3-hud", "depleted");
               }
               if (game.settings.get(CONFIG.MODULE_NAME, 'showItemUses')) {
                 const usesDiv = document.createElement("div");
-                usesDiv.classList.add("hotbar-item-uses");
+                usesDiv.classList.add("bg3-hud", "hotbar-item-uses");
                 usesDiv.textContent = `${value}/${max}`;
                 usesDiv.style.pointerEvents = "none"; // Prevent interference with drag
                 if (value <= 0) {
-                  usesDiv.classList.add("depleted");
+                  usesDiv.classList.add("bg3-hud", "depleted");
                 }
                 cell.appendChild(usesDiv);
               }
@@ -154,7 +154,7 @@ class GridContainer {
 
       if (item.name && game.settings.get(CONFIG.MODULE_NAME, 'showItemNames')) {
         const nameDiv = document.createElement("div");
-        nameDiv.classList.add("hotbar-item-name");
+        nameDiv.classList.add("bg3-hud", "hotbar-item-name");
         nameDiv.textContent = item.name;
         nameDiv.style.pointerEvents = "none"; // Prevent interference with drag
         cell.appendChild(nameDiv);
@@ -174,7 +174,7 @@ class GridContainer {
     // Set up draggable state
     const item = this.data.items[slotKey];
     cell.setAttribute("draggable", item ? "true" : "false");
-    cell.classList.toggle("has-item", !!item);
+    cell.classList.toggle("bg3-hud", "has-item", !!item);
 
     // Basic dragstart: set dataTransfer with a simple JSON object
     cell.addEventListener("dragstart", (e) => {

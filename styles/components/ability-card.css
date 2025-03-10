@@ -1,8 +1,63 @@
+/* Add transition for opacity changes */
+.bg3-hud {
+  transition: opacity 0.2s ease;
+}
+
 /* ==========================================================================
+   Ability Card
+   ========================================================================== */
+
+   .bg3-hud .ability-card {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
+    width: 200px;
+    background: rgba(34, 34, 34, 0.95);
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 75;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+  
+  .bg3-hud .ability-card.visible {
+    display: flex;
+  }
+  
+  /* Ensure all child elements inherit opacity */
+  .bg3-hud .ability-card *,
+  .bg3-hud .ability-button * {
+    opacity: inherit;
+  }
+  
+  .bg3-hud .ability-scores {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .bg3-hud .ability-box {
+    padding: 8px;
+    background: #333;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .bg3-hud .ability-box:hover {
+    background: #444;
+  }
+
+  /* ==========================================================================
    Ability Score Components
    ========================================================================== */
 
-.ability-score-display {
+.bg3-hud .ability-score-display {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,83 +71,62 @@
   width: 100%;
 }
 
-.ability-score-display:hover {
+.bg3-hud .ability-score-display:hover {
   background: #333;
   border-color: #cc3333;
 }
 
-.ability-label {
+.bg3-hud .ability-label {
   color: #dddddd;
   font-size: 14px;
   text-align: left;
 }
 
-.ability-value {
+.bg3-hud .ability-label.proficient,
+.bg3-hud .ability-value.proficient,
+.bg3-hud .skill-row.proficient,
+.bg3-hud .save-row.proficient {
+  color: #3498db;
+}
+
+.bg3-hud .ability-value {
   color: #dddddd;
   font-size: 14px;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-.menu-item.ability-row {
+.bg3-hud .menu-item.ability-row {
   padding: 0;
   gap: 0;
   position: relative;
+  border: 1px solid transparent;
+  background: #2a2a2a;
 }
 
-/* ==========================================================================
-   Ability Card
-   ========================================================================== */
-
-.ability-card {
-  position: absolute;
-  left: 50%;
-  top: -20px;
-  transform: translateX(-50%) translateY(-100%);
-  width: 200px;
-  background: rgba(34, 34, 34, 0.95);
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 8px;
-  display: none;
-  flex-direction: column;
-  gap: 4px;
-  z-index: 75;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-.ability-scores {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-  text-align: center;
-}
-
-.ability-box {
-  padding: 8px;
+.bg3-hud .menu-item.ability-row.expanded {
   background: #333;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.ability-box:hover {
-  background: #444;
+  border-color: #cc3333;
 }
 
 /* ==========================================================================
    Popup Panels
    ========================================================================== */
 
-.popup-container {
+.bg3-hud .popup-container {
   position: absolute;
   top: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  display: none;
 }
 
-.popup-panel {
+.bg3-hud .popup-container.visible {
+  display: block;
+}
+
+.bg3-hud .popup-panel {
   position: absolute;
   top: 0;
   background: #2a2a2a;
@@ -107,21 +141,25 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
+.bg3-hud .popup-panel.visible {
+  display: flex;
+}
+
 /* Skills popup (left side) */
-.popup-panel.skills {
-  right: 100%;
-  margin-right: 4px;
+.bg3-hud .popup-panel.skills {
+  right: calc(100% + 18px);
+  margin-right: 0;
 }
 
 /* Saves popup (right side) */
-.popup-panel.saves {
-  left: 100%;
-  margin-left: 4px;
+.bg3-hud .popup-panel.saves {
+  left: calc(100% + 2px);
+  margin-left: 0;
 }
 
 /* Skill and save row styles */
-.skill-row,
-.save-row {
+.bg3-hud .skill-row,
+.bg3-hud .save-row {
   padding: 4px 8px;
   display: flex;
   justify-content: space-between;
@@ -131,23 +169,23 @@
 }
 
 /* Left side with icon and label */
-.skill-row .menu-item-icon,
-.save-row .menu-item-icon {
+.bg3-hud .skill-row .menu-item-icon,
+.bg3-hud .save-row .menu-item-icon {
   margin-right: 8px;
   width: 16px;
   text-align: center;
 }
 
 /* Container for icon and label */
-.skill-row .left-group,
-.save-row .left-group {
+.bg3-hud .skill-row .left-group,
+.bg3-hud .save-row .left-group {
   display: flex;
   align-items: center;
 }
 
 /* Value on the right */
-.skill-row .menu-item-value,
-.save-row .menu-item-value {
+.bg3-hud .skill-row .menu-item-value,
+.bg3-hud .save-row .menu-item-value {
   color: #dddddd;
   font-size: 14px;
   text-align: right;
@@ -156,20 +194,23 @@
 }
 
 /* Ensure label text matches */
-.skill-row .menu-item-label,
-.save-row .menu-item-label {
+.bg3-hud .skill-row .menu-item-label,
+.bg3-hud .save-row .menu-item-label {
   color: #dddddd;
   font-size: 14px;
 }
 
-.skill-row:hover,
-.save-row:hover {
+.bg3-hud .skill-row:hover,
+.bg3-hud .save-row:hover {
   background: #333;
   border-color: #cc3333;
 }
 
-/* Ability Button */
-.ability-button {
+/* ==========================================================================
+   Ability Button
+   ========================================================================== */
+
+.bg3-hud .ability-button {
   position: absolute;
   top: -16px;
   left: 50%;
@@ -179,19 +220,19 @@
   background: rgba(34, 34, 34, 0.95);
   border: 1px solid #444;
   border-radius: 50%;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   z-index: 74;
+  font-size: 16px;
   color: #ddd;
-  font-size: 14px;
-  font-weight: normal;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   transition: all 0.2s ease;
 }
 
-.ability-button:hover {
+.bg3-hud .ability-button:hover,
+.bg3-hud .ability-button.active {
   background: rgba(44, 44, 44, 0.95);
   border-color: #cc3333;
 } 

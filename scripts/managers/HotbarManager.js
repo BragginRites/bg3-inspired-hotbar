@@ -13,7 +13,6 @@ export class HotbarManager {
         this.tokenConfigs = new Map(); // Store configurations per token
         this.portraitVisible = true;
         this.itemManager = new ItemUpdateManager(this);
-        this._isLocked = false; // Add lock state
         this._initializeContainers();
     }
 
@@ -73,7 +72,6 @@ export class HotbarManager {
 
         // Always destroy old UI for new token or force update
         if (this.ui) {
-            this._isLocked = this.ui._isLocked; // Save lock state before destroying
             this.ui.destroy();
             this.ui = null;
         }
@@ -94,8 +92,8 @@ export class HotbarManager {
             await this._loadTokenData();
         }
 
-        // Create new UI with current lock state
-        this.ui = new HotbarUI(this, this._isLocked);
+        // Create new UI
+        this.ui = new HotbarUI(this);
         console.log(`${CONFIG.MODULE_NAME} | Created UI for token: ${controlled.name}`);
     }
 

@@ -34,43 +34,55 @@ export class ContextMenu {
         this.currentContainer = container;
         this.currentSlot = slot;
 
+        // Remove any existing menus
+        const existingMenu = document.querySelector('.bg3-hud.menu-container');
+        if (existingMenu) existingMenu.remove();
+
         this.element = document.createElement("div");
         this.element.id = "hotbar-context-menu";
-        this.element.classList.add("menu-container");
-        document.body.appendChild(this.element);
+        this.element.classList.add("bg3-hud", "menu-container");
+        
+        // Add the menu to the BG3 HUD container instead of document.body
+        this.ui.element.appendChild(this.element);
 
         // Create menu items
         const menuItems = await this._createMenuItems();
         menuItems.forEach(item => this.element.appendChild(item));
 
-        // Position menu at cursor
-        const x = e.clientX;
-        const y = e.clientY;
+        // Get the position relative to the BG3 HUD container
+        const containerRect = this.ui.element.getBoundingClientRect();
+        const x = e.clientX - containerRect.left + 20;
+        const y = e.clientY - containerRect.top - 40;
         
         // Make menu visible to get its dimensions
         this.element.classList.add("visible");
         
-        // Adjust position to keep menu in viewport
+        // Position menu, ensuring it stays within the container bounds
         const rect = this.element.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+        const containerWidth = containerRect.width;
+        const containerHeight = containerRect.height;
         
-        // Position to the right and below cursor by default
         let left = x;
         let top = y;
         
         // If menu would go off right edge, position to left of cursor
-        if (left + rect.width > viewportWidth) {
-            left = x - rect.width;
+        if (left + rect.width > containerWidth) {
+            left = e.clientX - containerRect.left - rect.width - 20; // Position 20px to the left of cursor
         }
         
         // If menu would go off bottom edge, position above cursor
-        if (top + rect.height > viewportHeight) {
-            top = y - rect.height;
+        if (top + rect.height > containerHeight) {
+            top = e.clientY - containerRect.top - rect.height + 20; // Position 20px below cursor
         }
         
+        // Ensure menu doesn't go off the left or top edges
+        left = Math.max(0, left);
+        top = Math.max(0, top);
+        
+        this.element.style.position = 'absolute';
         this.element.style.left = `${left}px`;
         this.element.style.top = `${top}px`;
+        this.element.style.zIndex = '1000';
 
         // Add click handler
         document.addEventListener("click", this._documentClickHandler);

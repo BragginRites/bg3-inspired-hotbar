@@ -4,6 +4,7 @@
 
 @import './components/ability-card.css';
 @import './components/base.css';
+@import './components/controls.css';
 @import './components/dialogs.css';
 @import './components/effects.css';
 @import './components/filter.css';

@@ -1,0 +1,55 @@
+/* ==========================================================================
+   Hotbar Control Column
+   ========================================================================== */
+
+.bg3-hud .hotbar-control-column {
+  position: absolute;
+  bottom: 0;
+  left: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+/* ==========================================================================
+   Control Buttons
+   ========================================================================== */
+
+.bg3-hud .hotbar-control-button {
+  width: 24px;
+  height: 24px;
+  background: #2a2a2a;
+  border-radius: 4px;
+  color: #cc3333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  position: relative;  /* Add this to make it the positioning context for menus */
+}
+
+.bg3-hud .hotbar-control-button:hover {
+  background: #333;
+  border-color: #cc3333;
+}
+
+.bg3-hud .hotbar-control-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bg3-hud .hotbar-control-button.disabled:hover {
+  background: #2a2a2a;
+}
+
+.bg3-hud .hotbar-control-button i {
+  font-size: 14px;
+}
+
+.bg3-hud .hotbar-control-button.locked {
+  background: #cc3333;
+  color: #fff;
+}

@@ -4,32 +4,32 @@ import { GridContainer } from './GridContainer.js';
 import { ContextMenu } from './ContextMenu.js';
 import { PortraitCard } from './PortraitCard.js';
 import { FilterContainer } from './FilterContainer.js';
-import { SettingsMenu } from './SettingsMenu.js';
+import { ControlsContainer } from './ControlsContainer.js';
 import { PassivesContainer } from './PassivesContainer.js';
 import { ActiveEffectsContainer } from './ActiveEffectsContainer.js';
 import { TooltipFactory } from '../tooltip/TooltipFactory.js';
 import { DragDropManager } from '../managers/DragDropManager.js';
+import { BG3Hotbar } from '../bg3-hotbar.js';
 
 class HotbarUI {
-  constructor(manager, isLocked = false) {
+  constructor(manager) {
     this.manager = manager;
     this.element = null;
     this.gridContainers = [];
     this.contextMenu = null;
     this.portraitCard = null;
     this.filterContainer = null;
-    this.settingsMenu = null;
+    this.controlsContainer = null;
     this.passivesContainer = null;
     this.activeEffectsContainer = null;
-    this._isLocked = isLocked;
-    // Load lock settings from game settings
-    this._lockSettings = game.settings.get(CONFIG.MODULE_NAME, 'lockSettings');
     this._fadeTimeout = null;
     this.dragDropManager = new DragDropManager(this);
 
     // Initialize bound methods as class properties
     this._handleMouseMove = (event) => {
-      if (!this.element || !this.element.isConnected || this._lockSettings.opacity) return;
+      if (!this.element || !this.element.isConnected || 
+          (BG3Hotbar.controlsManager.isLockSettingEnabled('opacity') && 
+           BG3Hotbar.controlsManager.isMasterLockEnabled())) return;
       // Check if mouse is over any element from our module
       const isOverModule = event.target?.closest('#bg3-hotbar-container') !== null;
       this._updateFadeState(!isOverModule);
@@ -62,6 +62,7 @@ class HotbarUI {
     // Create main container with transition
     this.element = document.createElement("div");
     this.element.id = "bg3-hotbar-container";
+    this.element.classList.add("bg3-hud");
     this.element.style.transition = "opacity 0.3s ease-in-out";
     this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
     
@@ -103,7 +104,7 @@ class HotbarUI {
     }
 
     // Create settings menu with control column
-    this.settingsMenu = new SettingsMenu(this);
+    this.controlsContainer = new ControlsContainer(this);
 
     // Add keyboard event listener
     document.addEventListener('keydown', this._handleKeyDown);
@@ -300,6 +301,11 @@ class HotbarUI {
       this.filterContainer.destroy();
     }
     
+    // Clean up controls container
+    if (this.controlsContainer && typeof this.controlsContainer.destroy === 'function') {
+      this.controlsContainer.destroy();
+    }
+    
     // Clean up context menu
     if (this.contextMenu && typeof this.contextMenu.destroy === 'function') {
       this.contextMenu.destroy();
@@ -421,8 +427,9 @@ class HotbarUI {
       this._fadeTimeout = null;
     }
 
-    // If opacity is locked, always use normal opacity
-    if (this._lockSettings.opacity) {
+    // If opacity is locked and master lock is enabled, always use normal opacity
+    if (BG3Hotbar.controlsManager.isLockSettingEnabled('opacity') && 
+        BG3Hotbar.controlsManager.isMasterLockEnabled()) {
       this.element.classList.remove('faded');
       this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
       return;

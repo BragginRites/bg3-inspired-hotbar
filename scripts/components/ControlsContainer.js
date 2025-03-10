@@ -1,4 +1,5 @@
 import { CONFIG } from '../utils/config.js';
+import { BG3Hotbar } from '../bg3-hotbar.js';
 
 export class ControlsContainer {
     constructor(ui) {
@@ -12,33 +13,17 @@ export class ControlsContainer {
         this.element = document.createElement('div');
         this.element.classList.add('hotbar-control-column');
         
-        // Create all buttons in order
-        const buttons = [
-            this._createAddButton(),
-            this._createRemoveButton(),
-            this._createLockButton(),
-            this._createSettingsButton()
-        ];
-
-        // Add all buttons to the column
-        buttons.forEach(button => this.element.appendChild(button));
-
-        // Add the column to the document
-        document.body.appendChild(this.element);
-    }
-
-    _createAddButton() {
-        return this._createButton('fa-plus', 'Add Row', () => {
+        // Add Row button
+        const addRowButton = this._createButton('fa-plus', 'Add Row', () => {
             this.ui.gridContainers.forEach(container => {
                 container.data.rows++;
                 container.render();
             });
             this.ui.manager.persist();
         });
-    }
 
-    _createRemoveButton() {
-        const removeButton = this._createButton('fa-minus', 'Remove Row', () => {
+        // Remove Row button
+        const removeRowButton = this._createButton('fa-minus', 'Remove Row', () => {
             if (this.ui.gridContainers[0].data.rows > 1) {
                 this.ui.gridContainers.forEach(container => {
                     container.data.rows--;
@@ -46,222 +31,266 @@ export class ControlsContainer {
                 });
                 this.ui.manager.persist();
             } else {
-                removeButton.classList.add('disabled');
+                removeRowButton.classList.add('disabled');
             }
         });
-        return removeButton;
-    }
 
-    _createLockButton() {
-        const lockButton = this._createButton(
-            this.ui._isLocked ? 'fa-lock' : 'fa-unlock',
-            'Lock hotbar settings (Right-click for options)',
-            () => this._handleLockClick(lockButton)
-        );
+        // Lock button
+        const lockButton = this._createLockButton();
 
-        if (this.ui._isLocked) {
-            lockButton.classList.add('locked');
+        // Settings button
+        const settingsButton = this._createButton('fa-cog', 'Settings', () => {
+            this._showSettingsMenu(settingsButton);
+        });
+        
+        // Add click event to the settings icon as well
+        const settingsIcon = settingsButton.querySelector('i');
+        if (settingsIcon) {
+            settingsIcon.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent double triggering
+                this._showSettingsMenu(settingsButton);
+            });
         }
 
-        lockButton.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            this._showLockMenu(e, lockButton);
-        });
+        // Add buttons to column
+        this.element.appendChild(addRowButton);
+        this.element.appendChild(removeRowButton);
+        this.element.appendChild(lockButton);
+        this.element.appendChild(settingsButton);
 
-        return lockButton;
-    }
-
-    _createSettingsButton() {
-        return this._createButton('fa-cog', 'Settings', (e, button) => this._showSettingsMenu(button));
+        // Add the column to the hotbar container
+        this.ui.element.appendChild(this.element);
     }
 
     _createButton(iconClass, title, clickHandler) {
         const button = document.createElement('div');
         button.classList.add('hotbar-control-button');
-        button.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${iconClass}`;
+        button.appendChild(icon);
+        
         button.title = title;
-        button.addEventListener('click', (e) => clickHandler(e, button));
+        button.addEventListener('click', clickHandler);
+        
         return button;
     }
 
-    _handleLockClick(lockButton) {
-        this.ui._isLocked = !this.ui._isLocked;
-        this.ui.manager._isLocked = this.ui._isLocked;
-        
-        const newState = this.ui._isLocked;
-        this.ui._lockSettings.deselect = newState;
-        this.ui._lockSettings.opacity = newState;
-        this.ui._lockSettings.dragDrop = newState;
-        
-        game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
-        
-        if (newState) {
-            lockButton.innerHTML = '<i class="fas fa-lock"></i>';
-            lockButton.classList.add('locked');
-        } else {
-            lockButton.innerHTML = '<i class="fas fa-unlock"></i>';
-            lockButton.classList.remove('locked');
-            
-            if (!canvas.tokens.controlled.length && !this.ui._lockSettings.deselect) {
-                this.ui.destroy();
-                this.ui.manager.currentTokenId = null;
-            }
-        }
-    }
+    _createLockButton() {
+        const lockButton = this._createButton(
+            'fa-unlock', // Default to unlocked
+            'Lock hotbar settings (Right-click for options)',
+            () => this._handleLockClick(lockButton)
+        );
 
-    _showLockMenu(event, lockButton) {
-        event.preventDefault();
-        event.stopPropagation();
+        // Set initial state based on settings
+        this.refreshLockButton(lockButton);
 
-        // Remove any existing menus
-        this._removeExistingMenus();
-
-        // Create menu
-        const menu = document.createElement('div');
-        menu.classList.add('menu-container', 'lock-context-menu', 'visible');
-
-        const items = [
-            {
-                name: 'Lock When Deselecting Token',
-                key: 'deselect',
-                icon: 'fa-user-slash',
-                hint: 'Keep hotbar visible when no token is selected'
-            },
-            {
-                name: 'Lock Opacity',
-                key: 'opacity',
-                icon: 'fa-eye',
-                hint: 'Prevent opacity changes when mouse moves away'
-            },
-            {
-                name: 'Lock Drag & Drop',
-                key: 'dragDrop',
-                icon: 'fa-arrows-alt',
-                hint: 'Prevent moving items in the hotbar'
-            }
-        ];
-
-        items.forEach(item => {
-            const menuItem = document.createElement('div');
-            menuItem.classList.add('menu-item');
-            menuItem.title = item.hint;
-            
-            const isChecked = this.ui._lockSettings[item.key];
-            menuItem.innerHTML = `
-                <i class="fas ${item.icon} menu-item-icon"></i>
-                <span class="menu-item-label">${item.name}</span>
-                <div class="menu-item-checkbox ${isChecked ? 'checked' : ''}">
-                    ${isChecked ? '<i class="fas fa-check"></i>' : ''}
-                </div>
-            `;
-
-            menuItem.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this._handleLockOptionClick(item.key, menuItem, lockButton);
-            });
-
-            menu.appendChild(menuItem);
+        // Listen for master lock changes
+        BG3Hotbar.controlsManager.onMasterLockChanged((isEnabled) => {
+            this.refreshLockButton(lockButton);
         });
 
-        lockButton.appendChild(menu);
-        this._addMenuCloseHandler(menu, lockButton);
+        // Add context menu event to both the button and its icon
+        const handleContextMenu = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this._showLockContextMenu(lockButton);
+        };
+        
+        lockButton.addEventListener('contextmenu', handleContextMenu);
+        
+        // Also add the event to the icon when it's created or updated
+        const addIconEvent = () => {
+            const icon = lockButton.querySelector('i');
+            if (icon) {
+                icon.addEventListener('contextmenu', handleContextMenu);
+            }
+        };
+        
+        // Add event to the initial icon
+        addIconEvent();
+        
+        // Add event to any new icons created during refresh
+        BG3Hotbar.controlsManager.onMasterLockChanged(addIconEvent);
+
+        return lockButton;
+    }
+
+    _showLockContextMenu(lockButton) {
+        // Use the ControlsManager to toggle the menu
+        BG3Hotbar.controlsManager.toggleMenu(
+            'lockMenu', 
+            lockButton, 
+            () => {
+                // Create the menu
+                const menu = document.createElement('div');
+                menu.classList.add('bg3-hud', 'lock-context-menu', 'visible');
+                
+                // Position the menu relative to the lock button
+                const buttonRect = lockButton.getBoundingClientRect();
+                menu.style.position = 'absolute';
+                menu.style.left = `${buttonRect.width + 8}px`; // 8px gap
+                menu.style.bottom = '0';
+                menu.style.zIndex = '1000';
+                
+                // Get menu items from ControlsManager
+                const items = BG3Hotbar.controlsManager.getLockMenuItems();
+                
+                items.forEach(item => {
+                    const menuItem = document.createElement('div');
+                    menuItem.classList.add('bg3-hud', 'menu-item');
+                    menuItem.title = item.hint;
+                    
+                    // Create icon
+                    const icon = document.createElement('i');
+                    icon.className = `fas ${item.icon} menu-item-icon`;
+                    menuItem.appendChild(icon);
+                    
+                    // Create label
+                    const label = document.createElement('span');
+                    label.className = 'menu-item-label';
+                    label.textContent = item.name;
+                    menuItem.appendChild(label);
+                    
+                    // Create checkbox
+                    const isSelected = BG3Hotbar.controlsManager.isLockSettingEnabled(item.key);
+                    const checkbox = document.createElement('div');
+                    checkbox.className = `menu-item-checkbox ${isSelected ? 'checked' : ''}`;
+                    
+                    if (isSelected) {
+                        const checkIcon = document.createElement('i');
+                        checkIcon.className = 'fas fa-check';
+                        checkbox.appendChild(checkIcon);
+                    }
+                    
+                    menuItem.appendChild(checkbox);
+                    
+                    menuItem.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        
+                        // Toggle the setting
+                        const anySelected = BG3Hotbar.controlsManager.toggleLockSetting(item.key);
+                        
+                        // Update checkbox
+                        const isNowSelected = BG3Hotbar.controlsManager.isLockSettingEnabled(item.key);
+                        checkbox.classList.toggle('checked', isNowSelected);
+                        
+                        // Update checkbox icon
+                        checkbox.innerHTML = '';
+                        if (isNowSelected) {
+                            const checkIcon = document.createElement('i');
+                            checkIcon.className = 'fas fa-check';
+                            checkbox.appendChild(checkIcon);
+                        }
+                        
+                        // Refresh the lock button
+                        this.refreshLockButton(lockButton);
+                        
+                        // Handle specific settings
+                        if (item.key === 'opacity') {
+                            this.ui.updateOpacity();
+                        }
+                        if (item.key === 'deselect' && !BG3Hotbar.controlsManager.isLockSettingEnabled('deselect') && !canvas.tokens.controlled.length) {
+                            this.ui.destroy();
+                            this.ui.manager.currentTokenId = null;
+                        }
+                    });
+                    
+                    menu.appendChild(menuItem);
+                });
+                
+                return menu;
+            },
+            // Callback when menu is closed
+            () => {
+                // Refresh lock button state when menu closes
+                this.refreshLockButton(lockButton);
+            }
+        );
+    }
+
+    _handleLockClick(lockButton) {
+        // If no options are selected, show warning
+        const hasSelectedOptions = BG3Hotbar.controlsManager.hasAnyLockSettings();
+        if (!hasSelectedOptions) {
+            ui.notifications.warn("Please right-click the lock button to select which settings to lock.");
+            return;
+        }
+
+        // Toggle the master lock
+        BG3Hotbar.controlsManager.toggleMasterLock();
+        
+        // Button appearance is updated via the master lock change callback
+    }
+
+    /**
+     * Refresh the lock button state based on current settings
+     * @param {HTMLElement} lockButton - The lock button element to refresh
+     */
+    refreshLockButton(lockButton) {
+        const anySelected = BG3Hotbar.controlsManager.hasAnyLockSettings();
+        const isMasterLockEnabled = BG3Hotbar.controlsManager.isMasterLockEnabled();
+        
+        // Update icon - show lock icon if master lock is enabled
+        lockButton.querySelector('i').className = `fas ${isMasterLockEnabled ? 'fa-lock' : 'fa-unlock'}`;
+        
+        // Update class - add 'locked' class if master lock is enabled
+        lockButton.classList.toggle('locked', isMasterLockEnabled);
     }
 
     _showSettingsMenu(button) {
-        // Remove any existing menus
-        this._removeExistingMenus();
-
-        const menu = document.createElement('div');
-        menu.classList.add('settings-menu', 'visible');
-
-        const menuItems = [
-            { label: game.i18n.localize("BG3.Hotbar.SettingsMenu.ResetLayout"), action: () => this.ui.resetLayout(), icon: 'fa-rotate' },
-            { label: game.i18n.localize("BG3.Hotbar.SettingsMenu.ClearAllItems"), action: () => this.ui.clearAllItems(), icon: 'fa-trash' },
-            { type: 'divider' },
-            { label: game.i18n.localize("BG3.Hotbar.SettingsMenu.ImportLayout"), action: () => this.ui.importLayout(), icon: 'fa-file-import' },
-            { label: game.i18n.localize("BG3.Hotbar.SettingsMenu.ExportLayout"), action: () => this.ui.exportLayout(), icon: 'fa-file-export' }
-        ];
-
-        menuItems.forEach(item => {
-            if (item.type === 'divider') {
-                const divider = document.createElement('div');
-                divider.classList.add('settings-menu-divider');
-                menu.appendChild(divider);
-                return;
-            }
-
-            const menuItem = document.createElement('div');
-            menuItem.classList.add('settings-menu-item');
-            menuItem.innerHTML = `
-                <i class="fas ${item.icon} settings-menu-item-icon"></i>
-                <span class="settings-menu-item-label">${item.label}</span>
-            `;
-            menuItem.addEventListener('click', () => {
-                item.action();
-                menu.remove();
+        // Use the ControlsManager to toggle the menu
+        BG3Hotbar.controlsManager.toggleMenu('settingsMenu', button, () => {
+            // Create the menu
+            const menu = document.createElement('div');
+            menu.classList.add('bg3-hud', 'menu-container', 'visible');
+            
+            // Position the menu relative to the settings button
+            const buttonRect = button.getBoundingClientRect();
+            menu.style.position = 'absolute';
+            menu.style.left = `${buttonRect.width + 8}px`; // 8px gap
+            menu.style.bottom = '0';
+            menu.style.zIndex = '1000';
+            
+            // Get menu items from ControlsManager
+            const menuItems = BG3Hotbar.controlsManager.getSettingsMenuItems();
+            
+            menuItems.forEach(item => {
+                if (item.type === 'divider') {
+                    const divider = document.createElement('div');
+                    divider.classList.add('menu-divider');
+                    menu.appendChild(divider);
+                    return;
+                }
+                
+                const menuItem = document.createElement('div');
+                menuItem.classList.add('menu-item');
+                
+                // Create icon
+                const icon = document.createElement('i');
+                icon.className = `fas ${item.icon} menu-item-icon`;
+                menuItem.appendChild(icon);
+                
+                // Create label
+                const label = document.createElement('span');
+                label.className = 'menu-item-label';
+                label.textContent = item.label;
+                menuItem.appendChild(label);
+                
+                menuItem.addEventListener('click', () => {
+                    // Call the appropriate method on the UI
+                    this.ui[item.action]();
+                    
+                    // Close the menu
+                    BG3Hotbar.controlsManager.closeAllMenus();
+                });
+                
+                menu.appendChild(menuItem);
             });
-            menu.appendChild(menuItem);
+            
+            return menu;
         });
-
-        button.appendChild(menu);
-        this._addMenuCloseHandler(menu, button);
-    }
-
-    _handleLockOptionClick(key, menuItem, lockButton) {
-        this.ui._lockSettings[key] = !this.ui._lockSettings[key];
-        
-        // Update checkbox display
-        const checkbox = menuItem.querySelector('.menu-item-checkbox');
-        
-        if (this.ui._lockSettings[key]) {
-            checkbox.classList.add('checked');
-            checkbox.innerHTML = '<i class="fas fa-check"></i>';
-        } else {
-            checkbox.classList.remove('checked');
-            checkbox.innerHTML = '';
-        }
-
-        // Save settings
-        game.settings.set(CONFIG.MODULE_NAME, 'lockSettings', this.ui._lockSettings);
-
-        // Update lock button state based on any lock being active
-        const anyLocked = Object.values(this.ui._lockSettings).some(v => v);
-        if (anyLocked) {
-            lockButton.classList.add('locked');
-            lockButton.innerHTML = '<i class="fas fa-lock"></i>';
-            this.ui._isLocked = true;
-            this.ui.manager._isLocked = true;
-        } else {
-            lockButton.classList.remove('locked');
-            lockButton.innerHTML = '<i class="fas fa-unlock"></i>';
-            this.ui._isLocked = false;
-            this.ui.manager._isLocked = false;
-
-            if (!canvas.tokens.controlled.length && !this.ui._lockSettings.deselect) {
-                this.ui.destroy();
-                this.ui.manager.currentTokenId = null;
-            }
-        }
-
-        // Specific actions for each setting
-        if (key === 'opacity') {
-            this.ui.updateOpacity();
-            this.ui.updateFadeState();
-        }
-    }
-
-    _removeExistingMenus() {
-        document.querySelectorAll('.lock-context-menu, .settings-menu').forEach(menu => menu.remove());
-    }
-
-    _addMenuCloseHandler(menu, button) {
-        const closeMenu = (e) => {
-            if (!menu.contains(e.target) && e.target !== button) {
-                menu.remove();
-                document.removeEventListener('mousedown', closeMenu);
-            }
-        };
-        document.addEventListener('mousedown', closeMenu);
     }
 
     destroy() {

@@ -1,4 +1,5 @@
 // DragDropManager.js
+import { BG3Hotbar } from '../bg3-hotbar.js';
 
 export class DragDropManager {
     constructor(ui) {
@@ -8,7 +9,8 @@ export class DragDropManager {
     }
 
     isLocked() {
-        return this.ui._isLocked || this.ui._lockSettings?.dragDrop;
+        return BG3Hotbar.controlsManager.isLockSettingEnabled('dragDrop') && 
+               BG3Hotbar.controlsManager.isMasterLockEnabled();
     }
 
     async _isDuplicate(dragData) {

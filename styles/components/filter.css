@@ -117,3 +117,7 @@
     gap: 1px;
     align-items: center;
 } 
+
+.bg3-hud .filter-container .spell-level-button[data-level="0"] .spell-slot-box {
+    border-width: 3px;
+}

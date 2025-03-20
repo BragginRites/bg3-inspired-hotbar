@@ -184,7 +184,7 @@ export class FilterContainer {
                     Object.assign(slotBox.style, {
                         width: `${boxSize}px`,
                         height: `${boxSize}px`,
-                        background: isUsed ? "transparent" : "currentColor",
+                        background: isUsed || level === 0 ? "transparent" : "currentColor",
                         borderColor: "currentColor"
                     });
                     
@@ -226,7 +226,7 @@ export class FilterContainer {
         });
 
         wrapper.appendChild(button);
-        wrapper.appendChild(levelLabel);
+        if(level !== 0) wrapper.appendChild(levelLabel);
         return wrapper;
     }
 
@@ -283,6 +283,7 @@ export class FilterContainer {
                 cell.style.borderColor = CONFIG.COLORS.BORDER;
                 cell.style.borderWidth = '2px';
                 cell.style.borderBottom = `2px solid ${CONFIG.COLORS.BORDER}`;
+                cell.style.opacity = '1';
                 
                 const slotKey = cell.dataset.slot;
                 const item = container.data.items[slotKey];
@@ -303,7 +304,7 @@ export class FilterContainer {
                                 color = CONFIG.COLORS.BONUS;
                             } else if (this.selectedActionType === "reaction" && activation === "reaction") {
                                 color = CONFIG.COLORS.REACTION;
-                            }
+                            } else cell.style.opacity = '.25';
 
                             if (color) {
                                 switch (highlightStyle) {
@@ -333,6 +334,7 @@ export class FilterContainer {
                 cell.style.borderColor = CONFIG.COLORS.BORDER;
                 cell.style.borderWidth = '2px';
                 cell.style.borderBottom = `2px solid ${CONFIG.COLORS.BORDER}`;
+                cell.style.opacity = '1';
                 
                 const slotKey = cell.dataset.slot;
                 const item = container.data.items[slotKey];
@@ -340,7 +342,10 @@ export class FilterContainer {
                 if (item && this.selectedSpellLevel.level !== null) {
                     try {
                         const itemData = await fromUuid(item.uuid);
-                        if (!itemData || itemData.type !== "spell") return;
+                        if (!itemData || itemData.type !== "spell") {
+                            cell.style.opacity = '.25';
+                            return
+                        };
 
                         const spellLevel = itemData.system.level;
                         const isPactSpell = itemData.system.preparation?.mode === "pact";
@@ -355,7 +360,7 @@ export class FilterContainer {
                                     cell.style.borderColor = color;
                                     break;
                             }
-                        }
+                        } else cell.style.opacity = '.25';
                     } catch (error) {
                         console.error("Error updating spell level highlights:", error);
                     }
@@ -373,6 +378,7 @@ export class FilterContainer {
                 cell.style.borderColor = CONFIG.COLORS.BORDER;
                 cell.style.borderWidth = '2px';
                 cell.style.borderBottom = `2px solid ${CONFIG.COLORS.BORDER}`;
+                cell.style.opacity = '1';
                 
                 const slotKey = cell.dataset.slot;
                 const item = container.data.items[slotKey];
@@ -380,7 +386,10 @@ export class FilterContainer {
                 if (item && this.featuresEnabled) {
                     try {
                         const itemData = await fromUuid(item.uuid);
-                        if (!itemData || itemData.type !== "feat") return;
+                        if (!itemData || itemData.type !== "feat") {
+                            cell.style.opacity = '.25';
+                            return
+                        };
 
                         const featureType = itemData.system.type?.value || 'default';
                         const color = CONFIG.COLORS.FEATURES[featureType] || CONFIG.COLORS.FEATURES.default;
@@ -500,14 +509,25 @@ export class FilterContainer {
                     spellContainer.appendChild(levelButton);
                 }
             }
+
+            // Then add cantrip spell
+            let cantrips = actor.items.filter(i => i.type==="spell" && i.system.level===0)
+            if(cantrips.length) {
+              const spellLevel = {
+                label: "Cantrip",
+                level: 0,
+                max: 1,
+                override: null,
+                type: "cantrip",
+                value: 1
+              }
+              const levelButton = this._createSpellLevelButton(0, spellLevel);
+              spellContainer.appendChild(levelButton);
+            }
         }
 
-        if (spellContainer.children.length > 0) {
-            this.contentWrapper.appendChild(actionContainer);
-            this.contentWrapper.appendChild(spellContainer);
-        } else {
-            this.contentWrapper.appendChild(actionContainer);
-        }
+        this.contentWrapper.appendChild(actionContainer);
+        if (spellContainer.children.length > 0) this.contentWrapper.appendChild(spellContainer);
 
         this.element.style.display = this.isVisible ? "flex" : "none";
 

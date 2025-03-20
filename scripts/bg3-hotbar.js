@@ -164,6 +164,23 @@ export class BG3Hotbar {
         });
 
         // Visual Settings - Appearance
+        game.settings.register(CONFIG.MODULE_NAME, 'uiScale', {
+            name: 'UI Scale',
+            hint: 'Change the UI  (50% to 300%) according to your preferences and settings.',
+            scope: 'client',
+            config: true,
+            type: Number,
+            range: {
+                min: 50,
+                max: 300,
+                step: 10
+            },
+            default: 100,
+            onChange: value => {
+                this.manager?.ui?.element?.style.setProperty('--bg3-scale-ui', value/100);
+            }
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'showItemNames', {
             name: 'Show Item Names',
             hint: 'Display item names below each hotbar item',

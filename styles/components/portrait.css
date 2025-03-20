@@ -6,7 +6,7 @@
   position: absolute;
   right: calc(100% + 10px);
   bottom: 0;
-  width: 200px;
+  width: var(--bg3-portrait-size);
   min-width: 80px;
   height: 200px;
   min-height: 80px;

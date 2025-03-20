@@ -56,7 +56,7 @@ export class HotbarManager {
         // Case 3: New token selected or force update - create new UI
         
         // Save current config if we have one
-        if (this.currentTokenId) {
+        if (this.currentTokenId && !forceUpdate) {
             const containersToCache = this.containers.map(container => ({
                 index: container.index,
                 cols: container.cols,
@@ -79,7 +79,7 @@ export class HotbarManager {
         // Update current token and load its config
         this.currentTokenId = controlled.id;
         
-        if (this.tokenConfigs.has(this.currentTokenId)) {
+        if (this.tokenConfigs.has(this.currentTokenId) && !forceUpdate) {
             const config = this.tokenConfigs.get(this.currentTokenId);
             this.containers = config.containers.map(container => ({
                 index: container.index,
@@ -226,6 +226,17 @@ export class HotbarManager {
         for (const token of canvas.tokens.placeables) {
             if (token.actor && !token.actorLink) {
                 await token.actor.unsetFlag(CONFIG.MODULE_NAME, CONFIG.FLAG_NAME);
+            }
+        }
+    }
+
+    async socketUpdateData(actor, changes) {
+        // Check if we have saved data for this token
+        if(this.currentTokenId && this.tokenConfigs.has(this.currentTokenId)) {
+            // Check if this update affects our current token to force UI update
+            const token = canvas.tokens.get(this.currentTokenId);
+            if (!!token && token.actor?.id === actor.id && !!this.ui) {
+                await this.updateHotbarForControlledToken(true);
             }
         }
     }

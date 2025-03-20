@@ -2,6 +2,7 @@
     /* Colors */
     --bg3-background: #222222f2;
     --bg3-border: #444;
+    --bg3-border-width: 1px;
     --bg3-text: #ddd;
     --bg3-background-highlight: #3a3a3a;
     
@@ -21,6 +22,7 @@
     /* Sizing */
     --bg3-cell-size: 50px;
     --bg3-filter-button-size: 32px;
+    --bg3-portrait-size: 200px;
 }
 
 /* ==========================================================================
@@ -29,19 +31,44 @@
 
 #bg3-hotbar-container {
   position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #222222f2;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 8px;
   display: flex;
-  align-items: stretch;
-  gap: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  align-self: end;
+  justify-content: center;
+  align-items: end;
   z-index: var(--bg3-z-grid);
   font-family: "Signika", sans-serif;
+  scale: var(--bg3-scale-ui);
+  transform-origin: bottom;
+  margin-bottom: calc(10px* var(--bg3-scale-ui));
+  gap: 0.25rem;
+  padding: 0;
+  width: 100%;
+}
+
+/* #bg3-hotbar-container {
+  width: calc(100% / var(--bg3-scale-ui));
+  left: calc(-100%*(1 - var(--bg3-scale-ui)));
+}
+
+#bg3-hotbar-container[data-position="left"] {
+  justify-content: flex-start;
+  padding-left: calc(var(--bg3-portrait-size) + 20px + var(--position-padding));
+}
+
+#bg3-hotbar-container[data-position="right"] {
+  justify-content: flex-end;
+  padding-right: var(--position-padding);
+} */
+
+.bg3-hud .bg3-hotbar-subcontainer {
+  position: relative;
+  display: flex;
+  background: var(--bg3-background);
+  border: var(--bg3-border-width) solid var(--bg3-border);
+  border-radius: 8px;
+  padding: 8px;
+  align-items: stretch;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .bg3-hud .hotbar-container {
@@ -217,3 +244,11 @@
 .bg3-hud .hotbar-item-uses.depleted {
     color: #ff4444;
 } 
+
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
+
+.bg3-hud .hidden {
+  display: none !important;
+}

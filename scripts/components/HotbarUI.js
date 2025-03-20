@@ -10,11 +10,13 @@ import { ActiveEffectsContainer } from './ActiveEffectsContainer.js';
 import { TooltipFactory } from '../tooltip/TooltipFactory.js';
 import { DragDropManager } from '../managers/DragDropManager.js';
 import { BG3Hotbar } from '../bg3-hotbar.js';
+import { RestTurnContainer } from './RestTurnContainer.js';
 
 class HotbarUI {
   constructor(manager) {
     this.manager = manager;
     this.element = null;
+    this.subContainer = null;
     this.gridContainers = [];
     this.contextMenu = null;
     this.portraitCard = null;
@@ -22,6 +24,7 @@ class HotbarUI {
     this.controlsContainer = null;
     this.passivesContainer = null;
     this.activeEffectsContainer = null;
+    this.combat = [];
     this._fadeTimeout = null;
     this.dragDropManager = new DragDropManager(this);
 
@@ -63,16 +66,23 @@ class HotbarUI {
     this.element = document.createElement("div");
     this.element.id = "bg3-hotbar-container";
     this.element.classList.add("bg3-hud");
-    this.element.style.transition = "opacity 0.3s ease-in-out";
+    this.element.style.transition = "transform 0.3s ease-in-out, opacity 0.3s ease-in-out";
     this.element.style.opacity = game.settings.get(CONFIG.MODULE_NAME, 'normalOpacity');
+    this.element.style.setProperty('--bg3-scale-ui', game.settings.get(CONFIG.MODULE_NAME, 'uiScale')/100);
+        
+    // Create sub container
+    this.subContainer = document.createElement("div");
+    this.subContainer.classList.add("bg3-hotbar-subcontainer");
+    this.element.appendChild(this.subContainer);
+
     
     // Create passives container
     this.passivesContainer = new PassivesContainer(this);
-    this.element.appendChild(this.passivesContainer.element);
+    this.subContainer.appendChild(this.passivesContainer.element);
     
     // Create active effects container
     this.activeEffectsContainer = new ActiveEffectsContainer(this);
-    this.element.appendChild(this.activeEffectsContainer.element);
+    this.subContainer.appendChild(this.activeEffectsContainer.element);
 
     // Create grid containers based on manager's data
     this.gridContainers = this.manager.containers.map((containerData, index) => {
@@ -82,10 +92,10 @@ class HotbarUI {
 
     // Add drag bars between containers
     this.gridContainers.forEach((container, index) => {
-      this.element.appendChild(container.element);
+      this.subContainer.appendChild(container.element);
       if (index < this.gridContainers.length - 1) {
         const dragBar = this._createDragBar(index);
-        this.element.appendChild(dragBar);
+        this.subContainer.appendChild(dragBar);
       }
     });
 
@@ -94,17 +104,23 @@ class HotbarUI {
 
     // Create filter container
     this.filterContainer = new FilterContainer(this);
-    this.element.appendChild(this.filterContainer.element);
+    this.subContainer.appendChild(this.filterContainer.element);
 
     // Create portrait card for first container
     if (this.gridContainers.length > 0) {
       const firstContainer = this.gridContainers[0];
       this.portraitCard = new PortraitCard(firstContainer);
-      this.element.appendChild(this.portraitCard.element);
+      this.subContainer.appendChild(this.portraitCard.element);
     }
 
     // Create settings menu with control column
     this.controlsContainer = new ControlsContainer(this);
+
+    // Create rest turn container
+    const restTurnContainer = new RestTurnContainer(ui);
+    this.element.appendChild(restTurnContainer.element);
+
+    this.combat.push(restTurnContainer);
 
     // Add keyboard event listener
     document.addEventListener('keydown', this._handleKeyDown);
@@ -454,6 +470,11 @@ class HotbarUI {
   updateFadeDelay() {
     const isFaded = this.element?.classList.contains('faded');
     this._updateFadeState(isFaded);
+  }
+  
+  toggleUI(state) {
+    const toggleInput = document.getElementById('toggle-input');
+    if(toggleInput) toggleInput.checked = !state;
   }
 }
 

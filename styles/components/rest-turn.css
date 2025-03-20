@@ -1,0 +1,119 @@
+:root {
+    --rest-base-background: #414B55E6;
+    --rest-base-color: #B4D2DCFF;
+    --rest-hover-background: #747e88e6;
+    --rest-hover-color: #B4D2DCFF;
+    --turn-base-background: #374B3CE6;
+    --turn-base-color: #B4D2DCFF;
+    --turn-hover-background: #849889e6;
+    --turn-hover-color: #B4D2DCFF;
+}
+
+.bg3-hud .rest-turn-container {
+    position: relative;
+    display: flex;
+    min-height: 184px;
+    min-width: 80px;
+    flex-direction: column;
+    gap: 0.25rem;
+    justify-content: space-around;
+    margin-left: 35px;
+}
+
+.bg3-hud .rest-turn-container i {
+    font-size: xx-large;
+}
+
+.bg3-hud .rest-turn-button, .bg3-hud .button-hud-button {
+    background: var(--rest-base-background) center no-repeat;
+    background-origin: content-box;
+    background-size: contain;
+    border: 1px solid var(--bg3-border);
+    color: var(--rest-base-color);
+    cursor: pointer;
+}
+
+.bg3-hud .rest-turn-button:hover, .bg3-hud .button-hud-button:hover, .bg3-hud .rest-turn-button:active, .bg3-hud .rest-turn-button.active {
+    background-color: var(--rest-hover-background);
+    color: var(--rest-hover-color);
+}
+
+.bg3-hud .rest-turn-button {
+    display: flex;
+    padding: .5rem 1rem 2rem;
+    position: relative;
+    transition: all .3s ease-in-out;
+    flex: 1;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.bg3-hud .rest-turn-button.end-turn {
+    background-color: var(--turn-base-background);
+    border-color: var(--bg3-border);
+    color: var(--turn-base-color);
+}
+
+.bg3-hud .rest-turn-button.end-turn:hover, .bg3-hud .rest-turn-button.end-turn:active, .bg3-hud .rest-turn-button.end-turn.active {
+    background-color: var(--turn-hover-background);
+    color: var(--turn-hover-color);
+}
+
+.bg3-hud .turn-button {
+    /* background-image: url(../../icons/duration.webp); */
+}
+
+.bg3-hud .rest-turn-label {
+    align-items: center;
+    bottom: 0px;
+    display: flex;
+    height: 2.5rem;
+    justify-content: center;
+    left: 0px;
+    position: absolute;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    font-size: var(--font-size-12);
+}
+
+.bg3-hud .btn-toggle {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    width: 100%;
+    height: 25px;
+    z-index: 90;
+    background: #333;
+    border: var(--bg3-border-width) solid var(--bg3-border);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-20);
+    transition: all .3s ease-in-out;
+}
+
+.bg3-hud .btn-toggle:hover {
+    background: #333;
+    border-color: #cc3333;
+}
+
+#toggle-input:checked ~ #bg3-hotbar-container {
+    transform: translateY(calc(100% + 15px));
+}
+
+#toggle-input:checked ~ #bg3-hotbar-container .filter-container, #toggle-input:checked ~ #bg3-hotbar-container .passives-container, #toggle-input:checked ~ #bg3-hotbar-container .effects-container, #toggle-input:checked ~ #bg3-hotbar-container .bg3-hotbar-weaponcontainer, #toggle-input:checked ~ #bg3-hotbar-container .portrait-card {
+    transition: all .3s ease-in-out !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#toggle-input:checked ~ #bg3-hotbar-container .btn-toggle::before {
+    -webkit-transform: scaleY(-1);
+    transform: scaleY(-1);
+}

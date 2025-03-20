@@ -16,12 +16,6 @@ class GridContainer {
     this.lastKnownActorId = null;
     
     this._createContainer();
-    // For the first container, create and append the portrait card.
-    if (this.index === 0) {
-      this.portraitCard = new PortraitCard(this);
-      // Insert portrait card as the first child.
-      this.element.prepend(this.portraitCard.element);
-    }
   }
 
   _createContainer() {
@@ -68,15 +62,6 @@ class GridContainer {
       }
     }
 
-    // Re-add portrait card if this is the first container.
-    if (this.index === 0) {
-      if (!this.portraitCard) {
-        this.portraitCard = new PortraitCard(this);
-      }
-      this.portraitCard.render();
-      // Prepend so it remains at the top.
-      this.element.prepend(this.portraitCard.element);
-    }
   }
 
   _createCell(col, row) {

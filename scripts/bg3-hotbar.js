@@ -164,6 +164,36 @@ export class BG3Hotbar {
         });
 
         // Visual Settings - Appearance
+        game.settings.register(CONFIG.MODULE_NAME, 'uiScale', {
+            name: 'UI Scale',
+            hint: 'Change the UI  (50% to 300%) according to your preferences and settings.',
+            scope: 'client',
+            config: true,
+            type: Number,
+            range: {
+                min: 50,
+                max: 300,
+                step: 10
+            },
+            default: 100,
+            onChange: value => {
+                this.manager?.ui?.element?.style.setProperty('--bg3-scale-ui', value/100);
+            }
+        });
+      
+        game.settings.register(CONFIG.MODULE_NAME, 'autoHideCombat', {
+          name: 'Hide UI when not in combat and show only on your turn',
+          // hint: 'Display a extra container to for basic actions like dodge, dash, etc (Compatible with CPR)',
+          scope: 'client',
+          config: true,
+          type: Boolean,
+          default: false,
+          onChange: value => {
+            if(!value) document.getElementById("toggle-input").checked = false;
+            else BG3Hotbar._onUpdateCombat(true);
+          }
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'showItemNames', {
             name: 'Show Item Names',
             hint: 'Display item names below each hotbar item',
@@ -600,12 +630,14 @@ export class BG3Hotbar {
 
         // Add combat turn update hooks
         Hooks.on("updateCombat", (combat, changed, options, userId) => {
-            if (!this.manager?.ui?.filterContainer) return;
+            
+            this._onUpdateCombat(combat, changed);
             
             // Only process if the turn actually changed
-            if (!hasProperty(changed, "turn") && !hasProperty(changed, "round")) return;
+            if (!foundry.utils.hasProperty(changed, "turn") && !foundry.utils.hasProperty(changed, "round")) return;
             
             // Handle the turn update in the filter container
+            if (!this.manager?.ui?.filterContainer) return;
             this.manager.ui.filterContainer.handleCombatTurnUpdate();
         });
 
@@ -617,6 +649,8 @@ export class BG3Hotbar {
 
         // Handle when combat is actually deleted/removed
         Hooks.on("deleteCombat", (combat) => {
+            this.manager?.ui?.combat?.forEach((component) => component.updateVisibility());
+            if (game.settings.get(CONFIG.MODULE_NAME, 'autoHideCombat')) BG3Hotbar.manager.ui?.toggleUI(false);
             if (!this.manager?.ui?.filterContainer) return;
             this.manager.ui.filterContainer.resetUsedActions();
         });
@@ -725,6 +759,28 @@ export class BG3Hotbar {
             }
         });
     }
+
+    static async _onStartCombat(combat) {
+      // Token was selected, update or create UI
+      if (!this.manager.ui) {
+          // UI doesn't exist but should (UI is enabled and token selected)
+          await this.manager.updateHotbarForControlledToken(true);
+      } else {
+          // UI exists, just update it
+          await this.manager.updateHotbarForControlledToken();
+      }
+    }
+
+    static async _onUpdateCombat(combat, updates) {
+        this.manager?.ui?.combat?.forEach((component) => component.updateVisibility());
+        if (combat === true || "round" in updates || "turn" in updates) {
+          if (game.settings.get(CONFIG.MODULE_NAME, 'autoHideCombat')) {
+            const actor = canvas.tokens.get(BG3Hotbar.manager.currentTokenId)?.actor;
+            BG3Hotbar.manager.ui?.toggleUI(!!game.combat?.started && game.combat?.combatant?.actor === actor);
+          }
+        }
+        if (updates && updates.round === 1 && updates.turn === 0) this._onStartCombat(combat);
+      }
 }
 
 // Initialize the module when Foundry is ready

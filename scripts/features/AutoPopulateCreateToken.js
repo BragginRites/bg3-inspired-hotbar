@@ -25,7 +25,8 @@ export class AutoPopulateDefaults extends FormApplication {
         const containerSettings = {
             container1: game.settings.get(CONFIG.MODULE_NAME, 'container1AutoPopulate'),
             container2: game.settings.get(CONFIG.MODULE_NAME, 'container2AutoPopulate'),
-            container3: game.settings.get(CONFIG.MODULE_NAME, 'container3AutoPopulate')
+            container3: game.settings.get(CONFIG.MODULE_NAME, 'container3AutoPopulate'),
+            allowPassive: game.settings.get(CONFIG.MODULE_NAME, 'noActivityAutoPopulate')
         };
 
         // Define available choices
@@ -62,6 +63,7 @@ export class AutoPopulateDefaults extends FormApplication {
                 
                 await game.settings.set(CONFIG.MODULE_NAME, `${container}AutoPopulate`, selectedTypes);
             }
+            await game.settings.set(CONFIG.MODULE_NAME, `noActivityAutoPopulate`, this.element[0].querySelector("#passive-populate-checkbox").checked);
             ui.notifications.info(game.i18n.localize("BG3.Settings.ContainerAutoPopulate.SaveSuccess"));
         } catch (error) {
             console.error("Error saving container settings:", error);
@@ -83,7 +85,7 @@ export class AutoPopulateDefaults extends FormApplication {
 
 export class AutoPopulateCreateToken {
     static async populateUnlinkedToken(token) {
-        if (!token?.actor || token.actorLink) return;
+        if (!token?.actor || token.actor.type === 'character') return;
 
         try {
             // Check if user has permission to modify this token
@@ -168,7 +170,7 @@ export class AutoPopulateCreateToken {
                 const hasActivities = item.system?.activities?.length > 0 ||
                                     (item.system?.activation?.type && item.system?.activation?.type !== "none");
                 
-                if (hasActivities) {
+                if (hasActivities || game.settings.get(CONFIG.MODULE_NAME, 'noActivityAutoPopulate')) {
                     const itemData = {
                         uuid: item.uuid,
                         name: item.name,

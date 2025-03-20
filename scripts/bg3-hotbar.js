@@ -164,6 +164,23 @@ export class BG3Hotbar {
         });
 
         // Visual Settings - Appearance
+        game.settings.register(CONFIG.MODULE_NAME, 'uiScale', {
+            name: 'UI Scale',
+            hint: 'Change the UI  (50% to 300%) according to your preferences and settings.',
+            scope: 'client',
+            config: true,
+            type: Number,
+            range: {
+                min: 50,
+                max: 300,
+                step: 10
+            },
+            default: 100,
+            onChange: value => {
+                this.manager?.ui?.element?.style.setProperty('--bg3-scale-ui', value/100);
+            }
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'showItemNames', {
             name: 'Show Item Names',
             hint: 'Display item names below each hotbar item',
@@ -363,6 +380,15 @@ export class BG3Hotbar {
         });
 
         // Auto-Population Settings
+        game.settings.register(CONFIG.MODULE_NAME, 'autoPopulateLinkedTokens', {
+            name: 'Auto-Populate Linked Tokens',
+            hint: 'Automatically populate the hotbar for newly created linked tokens based on the settings below',
+            scope: 'world',
+            config: true,
+            type: Boolean,
+            default: true
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'autoPopulateUnlinkedTokens', {
             name: 'BG3.Settings.AutoPopulateUnlinkedTokens.Name',
             hint: 'BG3.Settings.AutoPopulateUnlinkedTokens.Hint',
@@ -397,6 +423,15 @@ export class BG3Hotbar {
             config: false,
             type: Array,
             default: ["consumable"],
+        });
+
+        game.settings.register(CONFIG.MODULE_NAME, 'noActivityAutoPopulate', {
+            name: 'Allow passives for auto-populate',
+            hint: 'If activated, passives will be also added to hotbars.',
+            scope: 'world',
+            config: false,
+            type: Boolean,
+            default: false,
         });
 
         // Register the chip selector menu item
@@ -489,14 +524,17 @@ export class BG3Hotbar {
 
         // Token creation hook for auto-populating unlinked tokens
         Hooks.on("createToken", async (token) => {
-            if (!token?.actor || token.actorLink) return;
+            if (!token?.actor || token.actor.type === 'character') return;
             
             // Check if auto-populate for unlinked tokens is enabled
-            const shouldAutoPopulate = game.settings.get(CONFIG.MODULE_NAME, 'autoPopulateUnlinkedTokens');
-            if (!shouldAutoPopulate) return;
+            if(!token.actorLink && game.settings.get(CONFIG.MODULE_NAME, 'autoPopulateUnlinkedTokens')) {
+                await AutoPopulateCreateToken.populateUnlinkedToken(token);
+            }
             
-            // Auto-populate the token's hotbar
-            await AutoPopulateCreateToken.populateUnlinkedToken(token);
+            // Check if auto-populate for unlinked tokens is enabled
+            if(token.actorLink && game.settings.get(CONFIG.MODULE_NAME, 'autoPopulateLinkedTokens')) {
+                await AutoPopulateCreateToken.populateUnlinkedToken(token);
+            }
         });
 
         // Actor updates

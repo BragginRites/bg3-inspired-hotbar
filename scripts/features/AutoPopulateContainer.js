@@ -199,7 +199,7 @@ export class AutoPopulateDialog extends Dialog {
         const hasActivities = item.system?.activities?.length > 0 ||
                             (item.system?.activation?.type && item.system?.activation?.type !== "none");
         
-        if (hasActivities) {
+        if (hasActivities || game.settings.get(CONFIG.MODULE_NAME, 'noActivityAutoPopulate')) {
           itemsWithActivities.push({
             uuid: item.uuid,
             name: item.name,

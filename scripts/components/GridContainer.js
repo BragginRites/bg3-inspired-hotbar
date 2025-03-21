@@ -1,7 +1,6 @@
 // GridContainer.js
 
 import { CONFIG } from '../utils/config.js';
-import { PortraitCard } from './PortraitCard.js';
 import { TooltipFactory } from '../tooltip/TooltipFactory.js';
 import { fromUuid } from '../utils/foundryUtils.js';
 
@@ -12,16 +11,9 @@ class GridContainer {
     this.index = index;
     this.element = null;
     this.items = new Map();
-    this.portraitCard = null;
     this.lastKnownActorId = null;
     
     this._createContainer();
-    // For the first container, create and append the portrait card.
-    if (this.index === 0) {
-      this.portraitCard = new PortraitCard(this);
-      // Insert portrait card as the first child.
-      this.element.prepend(this.portraitCard.element);
-    }
   }
 
   _createContainer() {
@@ -38,13 +30,11 @@ class GridContainer {
   }
 
   render() {
-    // Clear existing grid cells while preserving the portrait card (if present).
-    // We'll remove all children except the portrait card in container 0.
-    if (this.index === 0 && this.portraitCard) {
+    // Clear existing grid cells.
+    // We'll remove all children.
+    if (this.index === 0) {
       // Remove all cells except the portrait card.
-      const children = Array.from(this.element.children).filter(
-        (child) => child !== this.portraitCard.element
-      );
+      const children = Array.from(this.element.children);
       children.forEach(child => this.element.removeChild(child));
     } else {
       while (this.element.firstChild) {
@@ -66,16 +56,6 @@ class GridContainer {
         const cell = this._createCell(c, r);
         this.element.appendChild(cell);
       }
-    }
-
-    // Re-add portrait card if this is the first container.
-    if (this.index === 0) {
-      if (!this.portraitCard) {
-        this.portraitCard = new PortraitCard(this);
-      }
-      this.portraitCard.render();
-      // Prepend so it remains at the top.
-      this.element.prepend(this.portraitCard.element);
     }
   }
 

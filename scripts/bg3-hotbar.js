@@ -192,7 +192,7 @@ export class BG3Hotbar {
             }
         });
 
-        game.settings.register('bg3-inspired-hotbar', 'highlightStyle', {
+        game.settings.register(CONFIG.MODULE_NAME, 'highlightStyle', {
             name: game.i18n.localize('BG3.Settings.HighlightStyle.Name'),
             hint: game.i18n.localize('BG3.Settings.HighlightStyle.Hint'),
             scope: 'client',

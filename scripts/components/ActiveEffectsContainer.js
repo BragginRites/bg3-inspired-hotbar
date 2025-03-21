@@ -106,7 +106,7 @@ export class ActiveEffectsContainer {
     }
     wrapper.dataset.uuid = effect.uuid;
     const img = document.createElement("img");
-    img.src = effect.icon;
+    img.src = effect.img;
 
     // Toggle effect status on click.
     wrapper.addEventListener("click", async (e) => {

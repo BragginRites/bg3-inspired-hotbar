@@ -6,9 +6,9 @@
   position: absolute;
   right: calc(100% + 10px);
   bottom: 0;
-  width: 200px;
+  width: var(--bg3-portrait-size);
   min-width: 80px;
-  height: 200px;
+  height: var(--bg3-portrait-size);
   min-height: 80px;
   border-radius: 50%;
   overflow: visible;

@@ -70,6 +70,102 @@ export const CONFIG = {
             subclass: "#9370db",   // Medium Purple
             default: "#808080"     // Gray for unknown types
         }
+    },
+
+    // Themes
+    THEME: {
+        /* gold: [
+            "#bg3-hotbar-container {color: red;}",
+            ".bg3-hotbar-subcontainer {color: yellow}"
+        ], */
+        gold: {
+            ":root": {
+                "--primary-border-width": "2px",
+                "--primary-border-color": "#b78846",
+                "--bg3-border": "#161616",
+                "--shadow-text-stroke": "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
+                "--bg3-portrait-size": "175px"
+            },
+            "img": {
+                border: "unset"
+            },
+            ".bg3-hud .bg3-hotbar-subcontainer": {
+                padding: "2px 6px"
+            },
+            ".bg3-hud .hotbar-subcontainer": {
+                width: "var(--cols-override, calc(var(--cols) * (var(--cell-size) + 1px) + 8px))",
+                background: "#222222f2",
+                gap: "1px"
+            },
+            ".bg3-hud .passives-container, .bg3-hud .effects-container": {
+                bottom: "calc(100% + var(--primary-border-width))",
+                top: "unset",
+                background: "unset",
+                border: "unset",
+                padding: "0",
+                gap: "0"
+            },
+            ".bg3-hud .passive-feature-icon img, .bg3-hud .active-effect-icon img": {
+                width: "36px",
+                height: "36px",
+                border: "1px solid var(--color-border-dark)",
+                "background-color": "var(--bg3-background)"
+            },
+            ".bg3-hud .filter-container": {
+                bottom: "calc(100% - 5px)"
+            },
+            ".bg3-hud .hotbar-cell": {
+                width: "var(--cell-size)",
+                height: "var(--cell-size)"
+            },
+            ".bg3-hud .hotbar-item-uses": {
+                "text-shadow": "var(--shadow-text-stroke)"
+            },
+            ".bg3-hud .hotbar-item": {
+                "object-fit": "contain",
+                width: "100%",
+                height: "100%"
+            },
+            ".bg3-hud .hotbar-control-column": {
+                left: "calc(100% + -7px)"
+            },
+            ".bg3-hud .hotbar-control-button": {
+                "border-radius": "50%"
+            },
+            ".bg3-hud .hotbar-control-button, .bg3-hud .rest-turn-button, .bg3-hud .bg3-weapon-container .hotbar-cell, #bg3-combat-container": {
+                border: "var(--primary-border-width) solid var(--primary-border-color)"
+            },
+            ".bg3-hud .rest-turn-container": {
+                "margin-left": "20px",
+                "min-height": "168px"
+            },
+            ".bg3-hud .damage-overlay": {
+                top: "unset",
+                bottom: "0",
+                "border-radius": "unset"
+            },
+            ".bg3-hud .hp-text": {
+                bottom: "25px",
+                "z-index": "20",
+                "text-shadow": "var(--shadow-text-stroke)"
+            },
+            ".bg3-hud .portrait-card .extra-info": {
+                "text-shadow": "var(--shadow-text-stroke)"
+            },
+            ".bg3-hud .ability-button": {
+                width: "40px",
+                height: "40px",
+                "font-size": "var(--font-size-20)",
+                top: "-20px"
+            },
+            ".bg3-hud .spell-level-label": {
+                "text-shadow": "var(--shadow-text-stroke)"
+            },
+            ".bg3-hud .action-type-button, .bg3-hud .feature-button, .bg3-hud .spell-level-button": {
+                "box-shadow": "0px 0px 5px black"
+            }
+        },
+        custom: []
     }
 };
 

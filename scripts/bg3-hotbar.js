@@ -13,6 +13,9 @@ export class BG3Hotbar {
     static controlsManager = null;
 
     static async init() {
+        // Apply custom theme
+        this._applyTheme();
+
         // Ensure we clean up any existing manager/UI
         if (this.manager?.ui) {
             this.manager.ui.destroy();
@@ -42,6 +45,24 @@ export class BG3Hotbar {
         if (controlled) {
             controlled.release(); // This will trigger our controlToken hook properly
         }
+    }
+
+    static _applyTheme() {
+      const theme = game.settings.get(CONFIG.MODULE_NAME, 'themeOption');
+      if(theme !== 'default') {
+        const themeConfig = CONFIG.THEME[theme];
+        if(themeConfig) {
+            const style = document.createElement('style');
+            style.setAttribute('type', 'text/css');
+            style.setAttribute('custom-theme', theme)
+            style.textContent = Object.entries(themeConfig).map(([k, v]) => `${k} {\n${Object.entries(v).map(([k2, v2]) => `${k2}:${v2};`).join('\n')}\n}`).join('\n');
+            document.head.appendChild(style);
+        }
+      } else if(document.head.querySelector('[custom-theme]')) {
+        const currentTheme = document.head.querySelector('[custom-theme]');
+        currentTheme.parentNode.removeChild(currentTheme);
+      }
+      console.log()
     }
     
     static _applyMacrobarCollapseSetting() {
@@ -164,6 +185,90 @@ export class BG3Hotbar {
         });
 
         // Visual Settings - Appearance
+        game.settings.register(CONFIG.MODULE_NAME, 'themeOption', {
+            name: 'Theme options',
+            hint: 'Choose between available themes',
+            scope: 'client',
+            config: true,
+            type: String,
+            choices: {
+                'default': 'Default',
+                'gold': 'Gold',
+                'custom': 'Custom (Coming soon !)'
+            },
+            default: 'default',
+            onChange: value => {
+                if(value == 'custom') game.settings.set(CONFIG.MODULE_NAME, 'themeOption', 'default');
+                this._applyTheme()
+            }
+        });
+        
+        game.settings.register(CONFIG.MODULE_NAME, 'autoScale', {
+            name: 'Auto UI scale',
+            hint: 'Auto scale the UI based on your browser. Disable the UI scale parameter below.',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: true,
+            onChange: () => {
+                if(this.manager?.ui) {
+                    this.manager.ui.updateUIScale();
+                }
+            }
+        });
+
+        game.settings.register(CONFIG.MODULE_NAME, 'uiScale', {
+            name: 'UI Scale',
+            hint: 'Change the UI  (50% to 300%) according to your preferences and settings.',
+            scope: 'client',
+            config: true,
+            type: Number,
+            range: {
+                min: 50,
+                max: 300,
+                step: 5
+            },
+            default: 100,
+            onChange: () => {
+                if(this.manager?.ui) {
+                    this.manager.ui.updateUIScale();
+                }
+            }
+        });
+
+        /* game.settings.register(CONFIG.MODULE_NAME, 'uiPosition', {
+            name: 'UI Position',
+            hint: 'Choose where the hotbar should be placed.',
+            scope: 'client',
+            config: true,
+            type: String,
+            choices: {
+                'center': 'Center',
+                'left': 'Left',
+                'right': 'Right'
+            },
+            default: 'center',
+            onChange: value => {
+                if (this.manager?.ui) {
+                    this.manager.ui.element.dataset.position = value;
+                }
+            }
+        });
+
+        game.settings.register(CONFIG.MODULE_NAME, "posPadding", {
+            name: 'Position padding',
+            hint: 'Distance from the side of the screen for Left/Right position.',
+            scope: "client",
+            config: true,
+            type: Number,
+            default: 0,
+            onChange: value => {
+                if(this.manager?.ui) {
+                    this.manager.ui.element.setProperty('--position-padding', `${value}px`);
+                }
+            },
+        }); */
+
         game.settings.register(CONFIG.MODULE_NAME, 'showItemNames', {
             name: 'Show Item Names',
             hint: 'Display item names below each hotbar item',

@@ -348,9 +348,21 @@ export class PortraitCard {
         // Add health overlay
         this._createHealthOverlay(container, token.actor);
         this._createHPText(container, token.actor);
+        if(game.settings.get(CONFIG.MODULE_NAME, 'showExtraInfo')) this._createExtraInfo(container, token.actor);
 
         // Add double-click event listener to open character sheet
         image.addEventListener('dblclick', (event) => {
+            if(game.settings.get(CONFIG.MODULE_NAME, 'showSheetSimpleClick')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (token?.actor) {
+                token.actor.sheet.render(true);
+            }
+        });
+
+        // Add double-click event listener to open character sheet
+        image.addEventListener('click', (event) => {
+            if(!game.settings.get(CONFIG.MODULE_NAME, 'showSheetSimpleClick')) return;
             event.preventDefault();
             event.stopPropagation();
             if (token?.actor) {
@@ -531,6 +543,35 @@ export class PortraitCard {
         container.appendChild(hpText);
     }
 
+    _createExtraInfo = function(container, actor) {
+        // Remove previous infos
+        const extraInfos = this.element.getElementsByClassName('extra-info');
+        while(extraInfos.length > 0) {
+            extraInfos[0].parentNode.removeChild(extraInfos[0]);
+        }
+
+        const extra1 = document.createElement("div");
+        extra1.classList.add("extra-info", "extra-info-one", "fas", "fa-shield");
+        const extraText1 = document.createElement("span");
+        extraText1.innerText = actor.system.attributes.ac.value;
+        extra1.appendChild(extraText1);
+        // const extraIcon1 = document.createElement("i");
+        // extraIcon1.classList.add("fas", "fa-shield");
+        // extra1.appendChild(extraIcon1);
+        extra1.appendChild(extraText1);
+        container.appendChild(extra1);
+
+        const extra2 = document.createElement("div");
+        extra2.classList.add("extra-info", "extra-info-two", "fas", "fa-book-open");
+        const extraText2 = document.createElement("span");
+        extraText2.innerText = actor.system.attributes.spelldc;  
+        extra2.appendChild(extraText2);
+        // const extraIcon2 = document.createElement("i");
+        // extraIcon2.classList.add("fas", "fa-book-open");
+        // extra2.appendChild(extraIcon2);
+        container.appendChild(extra2);
+    }
+
     toggle() {
         this.element.classList.toggle('visible', this.isVisible);
     }
@@ -587,6 +628,16 @@ export class PortraitCard {
 
         // Update HP text
         this._createHPText(container, token.actor);
+
+        // Update Extra Infos
+        if(game.settings.get(CONFIG.MODULE_NAME, 'showExtraInfo')) {
+          this._createExtraInfo(container, token.actor);
+        } else if(document.getElementsByClassName('extra-info').length) {
+          const extraInfo = document.getElementsByClassName('extra-info');
+          while(extraInfo.length > 0) {
+            extraInfo[0].parentNode.removeChild(extraInfo[0]);
+          }
+        }
 
         // Update death saves
         this._updateDeathSaves(token.actor);

@@ -164,6 +164,47 @@ export class BG3Hotbar {
         });
 
         // Visual Settings - Appearance
+        game.settings.register(CONFIG.MODULE_NAME, 'uiScale', {
+            name: 'UI Scale',
+            hint: 'Change the UI  (50% to 300%) according to your preferences and settings.',
+            scope: 'client',
+            config: true,
+            type: Number,
+            range: {
+                min: 50,
+                max: 300,
+                step: 10
+            },
+            default: 100,
+            onChange: value => {
+                this.manager?.ui?.element?.style.setProperty('--bg3-scale-ui', value/100);
+            }
+        });
+
+        game.settings.register(CONFIG.MODULE_NAME, 'showSheetSimpleClick', {
+            name: 'Open character sheet on click',
+            hint: 'Open the character sheet with a single click on portrait instead of double click.',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: false
+        });
+
+        game.settings.register(CONFIG.MODULE_NAME, 'showExtraInfo', {
+          name: 'Show AC and DC on character portrait.',
+          // hint: 'Display a extra container to for basic actions like dodge, dash, etc (Compatible with CPR)',
+          scope: 'client',
+          config: true,
+          type: Boolean,
+          default: false,
+          onChange: value => {
+            if(BG3Hotbar.manager.ui.portraitCard) {
+                const actor = canvas.tokens.get(BG3Hotbar.manager.currentTokenId)?.actor;
+                BG3Hotbar.manager.ui.portraitCard.update(actor);
+            }
+          }
+        });
+
         game.settings.register(CONFIG.MODULE_NAME, 'showItemNames', {
             name: 'Show Item Names',
             hint: 'Display item names below each hotbar item',

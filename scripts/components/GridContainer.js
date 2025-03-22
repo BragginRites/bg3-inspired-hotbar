@@ -25,14 +25,17 @@ class GridContainer {
   }
 
   _createContainer() {
-    this.element = document.createElement("div");
+    this.element = document.createElement(this.data.type ?? "div");
     this.element.classList.add("bg3-hud", "hotbar-subcontainer", "drag-cursor");
     this.element.setAttribute("data-container-index", this.index);
+    if(this.data.type == 'label' && this.data.for) {
+        this.element.setAttribute("for", `${this.data.for}-${this.index}`);
+    }
     
     // Set initial grid template via CSS variables.
     this.element.style.setProperty('--cols', this.data.cols);
     this.element.style.setProperty('--rows', this.data.rows);
-    this.element.style.setProperty('--cell-size', `${CONFIG.CELL_SIZE}px`);
+    this.element.style.setProperty('--cell-size', `${CONFIG.CELL_SIZE * (this.data.size ?? 1)}px`);
     
     this.render();
   }
@@ -55,7 +58,7 @@ class GridContainer {
     // Update grid template
     this.element.style.setProperty('--cols', this.data.cols);
     this.element.style.setProperty('--rows', this.data.rows);
-    this.element.style.setProperty('--cell-size', `${CONFIG.CELL_SIZE}px`);
+    this.element.style.setProperty('--cell-size', `${CONFIG.CELL_SIZE * (this.data.size ?? 1)}px`);
     
     // Force a reflow to update grid layout.
     this.element.offsetHeight;
@@ -91,6 +94,15 @@ class GridContainer {
     }
 
     this._setupCellEvents(cell, slotKey);
+      
+    // If weapon slot
+    if(this.data.for == 'weapon-set') {
+      if(this.ui.manager.activeSet == parseInt(this.element.dataset.containerIndex) && this.data.oldWeapons != this.data.items) {
+        this.data.oldWeapons = foundry.utils.deepClone(this.data.items);
+        this.ui.switchSet.bind(this.ui)(this.index);
+      }
+    }
+
     return cell;
   }
 
@@ -168,17 +180,47 @@ class GridContainer {
 
     // Store drag data on the cell.
     cell._dragData = item ? { containerIndex: this.index, slotKey: cell.getAttribute("data-slot") } : null;
+
+    // Weapon cell container & 2-handed weapon
+    if(this.data.for == 'weapon-set') {
+      try {
+        const itemData = await fromUuid(item.uuid),
+          parentNode = cell.parentNode;
+        if(parentNode?.classList.contains('bg3-weapon-container') && itemData?.type === 'weapon') {
+          if(itemData?.labels?.properties?.find(p => p.abbr === 'two') && cell.dataset.slot === '0-0') {
+            // Check if there is already a weapon in the second slot
+            cell.classList.add('has-2h')
+            const img2 = document.createElement("img");
+            img2.src = item.icon;
+            img2.alt = item.name || "";
+            img2.classList.add("bg3-hud", "hotbar-item");
+            img2.style.borderRadius = '3px';
+            // Make sure the image doesn't interfere with drag operations
+            img2.draggable = false;
+            img2.style.pointerEvents = "none";
+            parentNode.lastChild?.appendChild(img2);
+            if(this.data?.items['1-0']) {
+              delete this.data.items['1-0'];
+              this.render();
+              await this.ui.manager.persist();
+            }
+          }
+        }
+      } catch (error) {
+        console.warn("Error fetching item data for uses display:", error);
+      }
+    }
   }
 
   _setupCellEvents(cell, slotKey) {
     // Set up draggable state
     const item = this.data.items[slotKey];
-    cell.setAttribute("draggable", item ? "true" : "false");
+    cell.setAttribute("draggable", item && !this.data.locked ? "true" : "false");
     cell.classList.toggle("bg3-hud", "has-item", !!item);
 
     // Basic dragstart: set dataTransfer with a simple JSON object
     cell.addEventListener("dragstart", (e) => {
-      if (this.ui.dragDropManager.isLocked()) {
+      if (this.ui.dragDropManager.isLocked() || this.data.locked) {
         e.preventDefault();
         return;
       }
@@ -217,7 +259,7 @@ class GridContainer {
     // Allow dropping by preventing default on dragover
     cell.addEventListener("dragover", (e) => {
       e.preventDefault();
-      if (this.ui.dragDropManager.isLocked()) return;
+      if (this.ui.dragDropManager.isLocked() || this.data.locked) return;
       e.dataTransfer.dropEffect = "move";
       cell.classList.add("dragover");
     });
@@ -225,7 +267,7 @@ class GridContainer {
     // On drop, parse the source data and update the target slot
     cell.addEventListener("drop", async (e) => {
       e.preventDefault();
-      if (this.ui.dragDropManager.isLocked()) return;
+      if (this.ui.dragDropManager.isLocked() || this.data.locked) return;
 
       cell.classList.remove("dragover");
 
@@ -250,7 +292,7 @@ class GridContainer {
       // Handle internal moves (between slots/containers)
       // First, store the item that's currently in the target slot (if any)
       const targetItem = this.data.items[slotKey];
-      const sourceContainer = this.ui.gridContainers[dragData.containerIndex];
+      const sourceContainer = this.data.for == 'weapon-set' ? this.ui.weaponContainer[dragData.containerIndex] : this.ui.gridContainers[dragData.containerIndex];
 
       // Move the dragged item to the target slot
       this.data.items[slotKey] = dragData.item;
@@ -274,13 +316,13 @@ class GridContainer {
     // Basic visual feedback on dragenter/dragleave
     cell.addEventListener("dragenter", (e) => {
       e.preventDefault();
-      if (this.ui.dragDropManager.isLocked()) return;
+      if (this.ui.dragDropManager.isLocked() || this.data.locked) return;
       cell.classList.add("dragover");
     });
 
     cell.addEventListener("dragleave", (e) => {
       e.preventDefault();
-      if (this.ui.dragDropManager.isLocked()) return;
+      if (this.ui.dragDropManager.isLocked() || this.data.locked) return;
       cell.classList.remove("dragover");
     });
 
@@ -309,12 +351,6 @@ class GridContainer {
           return;
         }
 
-        const itemData = await fromUuid(item.uuid);
-        if (!itemData) {
-          ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.UnableToRetrieve"));
-          return;
-        }
-
         let actor = null;
         if (this.lastKnownActorId) {
           actor = game.actors.get(this.lastKnownActorId);
@@ -325,6 +361,25 @@ class GridContainer {
             actor = token.actor;
             this.lastKnownActorId = actor.id;
           }
+        }
+
+        if(!item.uuid) {
+          ChatMessage.create({
+            user: game.user,
+            speaker: {
+                actor: actor,
+                token: actor.token,
+                alias: actor.name
+            },
+            content: '\n<div class="dnd5e2 chat-card item-card" data-display-challenge="">\n\n<section class="card-header description collapsible">\n\n<header class="summary">\n<img class="gold-icon" src="'.concat(item.icon, '">\n<div class="name-stacked border">\n<span class="title">').concat(item.name, '</span>\n<span class="subtitle">\nFeature\n</span>\n</div>\n<i class="fas fa-chevron-down fa-fw"></i>\n</header>\n\n<section class="details collapsible-content card-content">\n<div class="wrapper">\n').concat(item.description, "\n</div>\n</section>\n</section>\n\n\n</div>\n")
+          });
+          return;
+        }
+
+        const itemData = await fromUuid(item.uuid);
+        if (!itemData) {
+          ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.UnableToRetrieve"));
+          return;
         }
         if (!actor) {
           ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoActor"));

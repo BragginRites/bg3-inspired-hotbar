@@ -10,10 +10,14 @@ export class HotbarManager {
         this.ui = null;
         this.currentTokenId = null;
         this.containers = [];
+        this.weaponsContainers = [];
         this.tokenConfigs = new Map(); // Store configurations per token
         this.portraitVisible = true;
         this.itemManager = new ItemUpdateManager(this);
+        this.activeSet = 0;
+        this.combatActionsArray = [];
         this._initializeContainers();
+        this.loadCombatActions();
     }
 
     _initializeContainers() {
@@ -25,6 +29,21 @@ export class HotbarManager {
                 cols: CONFIG.INITIAL_COLS,
                 rows: CONFIG.ROWS,
                 items: {}
+            });
+        }
+        
+        // Create 3 weapons containers
+        for(let i = 0; i < 3; i++) {
+            this.weaponsContainers.push({
+                index: i,
+                cols: 2,
+                rows: 1,
+                items: {},
+                type: 'label',
+                for: 'weapon-set',
+                size: 1.5,
+                delOnly: true,
+                allowDuplicate: true
             });
         }
     }
@@ -63,10 +82,24 @@ export class HotbarManager {
                 rows: container.rows,
                 items: foundry.utils.deepClone(container.items)
             }));
+
+            const weaponsContainersToCache = this.weaponsContainers.map(container => ({
+                index: container.index,
+                cols: container.cols,
+                rows: container.rows,
+                items: foundry.utils.deepClone(container.items),
+                type: container.type,
+                for: container.for,
+                size: container.size,
+                delOnly: container.delOnly,
+                allowDuplicate: container.allowDuplicate
+            }));
             
             this.tokenConfigs.set(this.currentTokenId, {
                 containers: containersToCache,
-                portraitVisible: this.portraitVisible
+                weaponsContainers: weaponsContainersToCache,
+                portraitVisible: this.portraitVisible,
+                activeSet: this.activeSet
             });
         }
 
@@ -87,7 +120,19 @@ export class HotbarManager {
                 rows: container.rows,
                 items: foundry.utils.deepClone(container.items)
             }));
+            this.weaponsContainers = config.weaponsContainers.map(container => ({
+                index: container.index,
+                cols: container.cols,
+                rows: container.rows,
+                items: foundry.utils.deepClone(container.items),
+                type: container.type,
+                for: container.for,
+                size: container.size,
+                delOnly: container.delOnly,
+                allowDuplicate: container.allowDuplicate
+            }));
             this.portraitVisible = config.portraitVisible;
+            this.activeSet = config.activeSet;
         } else {
             await this._loadTokenData();
         }
@@ -106,7 +151,7 @@ export class HotbarManager {
 
         if (savedData) {
             // Handle both old and new data formats
-            let containersData;
+            let containersData, weaponsContainersData;
             if (Array.isArray(savedData)) {
                 // Old format: direct array of containers
                 containersData = foundry.utils.deepClone(savedData);
@@ -115,6 +160,24 @@ export class HotbarManager {
             } else {
                 // New format: object with containers and portraitVisible
                 containersData = foundry.utils.deepClone(savedData.containers);
+                weaponsContainersData = foundry.utils.deepClone(savedData.weaponsContainers);
+                if(!weaponsContainersData) {
+                  weaponsContainersData = []
+                  for(let i=0;i<3;i++) {
+                    weaponsContainersData.push({
+                        index: this.weaponsContainers.length,
+                        cols: 2,
+                        rows: 1,
+                        items: {},
+                        type: 'label',
+                        for: 'weapon-set',
+                        size: 1.5,
+                        delOnly: true,
+                        allowDuplicate: true
+                    });
+                  }
+                }
+                this.activeSet = savedData.activeSet ?? 0;
                 this.portraitVisible = savedData.portraitVisible ?? true;
                 // Using new data format
             }
@@ -128,6 +191,18 @@ export class HotbarManager {
                 rows: maxRows, // Use the maximum row count for all containers
                 items: foundry.utils.deepClone(container.items || {})
             }));
+              
+            this.weaponsContainers = weaponsContainersData.map((container, index) => ({
+                index: index,
+                cols: container.cols,
+                rows: container.rows,
+                items: foundry.utils.deepClone(container.items || {}),
+                type: container.type,
+                for: container.for,
+                size: container.size,
+                delOnly: container.delOnly,
+                allowDuplicate: container.allowDuplicate
+            }));
 
             // Final state after loading
 
@@ -140,9 +215,23 @@ export class HotbarManager {
                     items: {}
                 });
             }
+            while (this.weaponsContainers.length < 3) {
+                this.weaponsContainers.push({
+                    index: this.weaponsContainers.length,
+                    cols: 2,
+                    rows: 1,
+                    items: {},
+                    type: 'label',
+                    for: 'weapon-set',
+                    size: 1.5,
+                    delOnly: true,
+                    allowDuplicate: true
+                });
+            }
         } else {
             // No saved hotbar data found, initializing default state with portrait hidden
             this.portraitVisible = true;
+            this.activeSet = 0;
             this._initializeContainers();
         }
 
@@ -154,6 +243,18 @@ export class HotbarManager {
                 rows: container.rows,
                 items: foundry.utils.deepClone(container.items)
             })),
+            weaponsContainers: this.weaponsContainers.map(container => ({
+              index: container.index,
+              cols: container.cols,
+              rows: container.rows,
+              items: foundry.utils.deepClone(container.items),
+              type: container.type,
+              for: container.for,
+              size: container.size,
+              delOnly: container.delOnly,
+              allowDuplicate: container.allowDuplicate
+            })),
+            activeSet: this.activeSet,
             portraitVisible: this.portraitVisible
         };
         this.tokenConfigs.set(this.currentTokenId, cacheData);
@@ -175,10 +276,25 @@ export class HotbarManager {
             rows: container.rows,
             items: foundry.utils.deepClone(container.items)  // Use Foundry's deep clone utility
         }));
+  
+        // Create deep copies of the weapons containers for saving
+        const weaponsToSave = this.weaponsContainers.map(container => ({
+            index: container.index,
+            cols: container.cols,
+            rows: container.rows,
+            items: foundry.utils.deepClone(container.items),  // Use Foundry's deep clone utility
+            type: 'label',
+            for: 'weapon-set',
+            size: 1.5,
+            delOnly: true,
+            allowDuplicate: true
+        }));
 
         // Create the data object including portrait visibility
         const dataToSave = {
             containers: containersToSave,
+            weaponsContainers: weaponsToSave,
+            activeSet: this.activeSet,
             portraitVisible: this.portraitVisible
         };
 
@@ -210,6 +326,23 @@ export class HotbarManager {
         if (token.actor && !token.actorLink) {
             await token.actor.unsetFlag(CONFIG.MODULE_NAME, CONFIG.FLAG_NAME);
         }
+    }
+
+    async loadCombatActions() {
+        if (!game.modules.get("chris-premades")?.active) return;
+        let pack = game.packs.get("chris-premades.CPRActions"),
+            promises = [];
+        Object.entries(CONFIG.COMBATACTIONDATA).forEach(([key, value]) => {
+            let macroID = pack.index.find(t =>  t.type == 'feat' && t.name === value.name)._id;
+            if(macroID) {
+                promises.push(new Promise(async (resolve, reject) => {
+                    let item = await pack.getDocument(macroID);
+                    if(item) this.combatActionsArray.push(item)
+                    resolve();
+                }))
+            }
+        })
+        await Promise.all(promises).then((values) => {})
     }
 
     // Clean up all data

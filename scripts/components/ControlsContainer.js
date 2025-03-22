@@ -59,7 +59,7 @@ export class ControlsContainer {
         this.element.appendChild(settingsButton);
 
         // Add the column to the hotbar container
-        this.ui.element.appendChild(this.element);
+        this.ui.subContainer.appendChild(this.element);
     }
 
     _createButton(iconClass, title, clickHandler) {

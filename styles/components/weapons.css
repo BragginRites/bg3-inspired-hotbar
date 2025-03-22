@@ -1,0 +1,140 @@
+:root {
+    --weapon-opacity: 0.6;
+    --weapon-scale: 0.6;
+    --weapon-translate: 50%;
+    --weapon-translate2: -50%;
+}
+
+.bg3-hud .bg3-hotbar-weaponcontainer {
+    height: 168px;
+    display: flex;
+    height: 100%;
+    padding-top: var(--cell-size);
+}
+
+.bg3-hotbar-weaponcontainer {
+    transform-style: preserve-3d;
+    position: relative;
+    height: 86px;
+    width: calc(2*(75px + 1px) + 0px);
+    margin-right: 5px;
+}
+
+.bg3-hud .bg3-weapon-container, #bg3-combat-container {
+    width: fit-content !important;
+    height: fit-content;
+}
+
+.bg3-hud .bg3-weapon-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: auto;
+    transition: all 0.4s ease;
+    cursor: pointer !important;
+    padding: 0;
+    /* background: var(--primary-border-color);
+    padding: 0;
+    gap: 2px; */
+}
+
+.bg3-hud .bg3-weapon-container::before {
+    content: "I";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* right: calc(100% + 5px); */
+    text-shadow: var(--shadow-text-stroke);
+    color: white;
+    font-size: var(--font-size-18);
+    font-family: 'Roboto Slab';
+    z-index: 50;
+    pointer-events: none;
+    border: var(--primary-border-width) solid var(--primary-border-color);
+    background: #2a2a2a;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+}
+
+.bg3-hud .bg3-weapon-container[data-container-index="1"]::before {
+    content: "II";
+}
+
+.bg3-hud .bg3-weapon-container[data-container-index="2"]::before {
+    content: "III";
+}
+
+.bg3-hud .bg3-weapon-container .hotbar-cell {
+    padding: 4px;
+}
+
+@keyframes disable-pointer-events {
+    0%, 99% {
+        pointer-events: none;  
+    }  
+}
+
+#weapon-set-0:checked ~ .bg3-weapon-container[data-container-index="0"], #weapon-set-1:checked ~ .bg3-weapon-container[data-container-index="1"], #weapon-set-2:checked ~ .bg3-weapon-container[data-container-index="2"] {
+    transform: translateY(0%) scale(1);
+    opacity: 1;
+    z-index: 1;
+    animation: disable-pointer-events 400ms;
+}
+
+#weapon-set-0:checked ~ .bg3-weapon-container[data-container-index="1"], #weapon-set-1:checked ~ .bg3-weapon-container[data-container-index="2"], #weapon-set-2:checked ~ .bg3-weapon-container[data-container-index="0"] {
+    transform: translateY(var(--weapon-translate)) scale(var(--weapon-scale));
+    opacity: var(--weapon-opacity);
+    z-index: 0;
+}
+
+#weapon-set-0:checked ~ .bg3-weapon-container[data-container-index="2"], #weapon-set-1:checked ~ .bg3-weapon-container[data-container-index="0"], #weapon-set-2:checked ~ .bg3-weapon-container[data-container-index="1"] {
+    transform: translateY(var(--weapon-translate2)) scale(var(--weapon-scale));
+    opacity: var(--weapon-opacity);
+    z-index: 0;
+}
+
+#weapon-set-0:checked ~ .bg3-weapon-container[data-container-index="1"] .hotbar-cell, #weapon-set-1:checked ~ .bg3-weapon-container[data-container-index="2"] .hotbar-cell, #weapon-set-2:checked ~ .bg3-weapon-container[data-container-index="0"] .hotbar-cell, #weapon-set-0:checked ~ .bg3-weapon-container[data-container-index="2"] .hotbar-cell, #weapon-set-1:checked ~ .bg3-weapon-container[data-container-index="0"] .hotbar-cell, #weapon-set-2:checked ~ .bg3-weapon-container[data-container-index="1"] .hotbar-cell {
+    pointer-events: none;
+}
+
+input[name="weapon-choice"] {
+    display: none;
+}
+
+.bg3-hud .bg3-weapon-container {
+    border-radius: 10px;
+}
+
+.bg3-hud .bg3-weapon-container .hotbar-cell:first-of-type {
+    border-radius: 10px 5px 5px 10px;
+}
+
+.bg3-hud .bg3-weapon-container .hotbar-cell:last-of-type {
+    border-radius: 5px 10px 10px 5px;
+}
+
+.bg3-hud .bg3-weapon-container .hotbar-cell.has-2h + .hotbar-cell {
+    pointer-events: none !important;
+}
+
+.bg3-hud .bg3-weapon-container .hotbar-cell.has-2h + .hotbar-cell img {
+    opacity: 0.25;
+}
+
+/** Combat Container **/
+
+#bg3-combat-container {
+    grid-template-rows: repeat(2, calc((var(--cell-size) - 24px) / 2));
+    align-self: end;
+    grid-template-columns: repeat(3, calc((var(--cell-size) - 5px)* 2 / 3));
+    padding: 2px;
+    margin-top: 33px;
+}
+
+#bg3-combat-container .hotbar-cell {
+    width: 100%;
+    height: 100%;
+}

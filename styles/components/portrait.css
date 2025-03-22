@@ -4,7 +4,7 @@
 
 .bg3-hud .portrait-card {
   position: absolute;
-  right: calc(100% + 10px);
+  right: calc(100% + 172px);
   bottom: 0;
   width: 200px;
   min-width: 80px;

@@ -102,6 +102,38 @@ export class AutoPopulateCreateToken {
             tempManager.currentTokenId = token.id;
             await tempManager._loadTokenData();
 
+            // Initialize weapons containers with correct structure
+            tempManager.weaponsContainers = [];
+            for (let i = 0; i < 3; i++) {
+                tempManager.weaponsContainers[i] = {
+                    index: i,
+                    cols: 2,
+                    rows: 1,
+                    items: {},
+                    type: 'label',
+                    for: 'weapon-set',
+                    size: 1.5,
+                    delOnly: true,
+                    allowDuplicate: true,
+                    data: {
+                        index: i,
+                        cols: 5,
+                        rows: 3,
+                        items: {},
+                        type: 'label',
+                        for: 'weapon-set',
+                        size: 1.5,
+                        delOnly: true,
+                        allowDuplicate: true
+                    }
+                };
+            }
+  
+            // Process each container
+            if (token.actor) {
+                await this._populateWeaponsToken(token.actor, tempManager);
+            }
+
             // Initialize containers with correct structure
             tempManager.containers = [];
             for (let i = 0; i < 3; i++) {
@@ -149,7 +181,13 @@ export class AutoPopulateCreateToken {
             // Process all items from the actor
             for (const item of actor.items) {
                 // Skip if item type is not in the selected types
-                if (!itemTypes.includes(item.type)) continue;
+                if (!itemTypes.includes(item.type) || Object.values(CONFIG.COMBATACTIONDATA).find(d => d.name === item.name)) continue;
+                // Skip if item already in weapons containers
+                let isInSet = false;
+                for(let i = 0; i < manager.weaponsContainers.length; i++) {
+                    if(Object.values(manager.weaponsContainers[i].items).find(w => w.uuid === item.uuid)) isInSet = true;
+                }
+                if(isInSet) continue;
                 
                 // For spells, check preparation state unless bypassed by setting
                 if (item.type === "spell") {
@@ -216,5 +254,44 @@ export class AutoPopulateCreateToken {
         } catch (error) {
             console.error("BG3 Inspired Hotbar | Error auto-populating container:", error);
         }
+    }
+
+    static async _populateWeaponsToken(actor, manager) {
+      if (!actor?.items || !manager?.weaponsContainers) return;
+
+      try {
+        // Process each container
+        let weaponsList = actor.items.filter(w => w.type == 'weapon'),
+          toUpdate = [];
+        if(weaponsList.length) {
+          for(let i = 0; i < weaponsList.length; i++) {
+            const gridKey = `0-0`,
+              item = weaponsList[i];
+            if(i < 3) {
+              manager.weaponsContainers[i].items = {};
+              manager.weaponsContainers[i].data.items = {};
+              const itemData = {
+                  uuid: item.uuid,
+                  name: item.name,
+                  icon: item.img,
+                  type: item.type,
+                  activation: item.system?.activation?.type || "passive",
+                  sortData: {
+                      spellLevel: item.type === "spell" ? item.system?.level ?? 99 : 99,
+                      featureType: item.type === "feat" ? item.system?.type?.value ?? "" : "",
+                      name: item.name
+                }
+              };
+              manager.weaponsContainers[i].items[gridKey] = itemData;
+              manager.weaponsContainers[i].data.items[gridKey] = itemData;
+            }
+            if((i === 0 && !item.system.equipped) || (i > 0 && item.system.equipped)) toUpdate.push({_id: item.uuid.split('.').pop(), "system.equipped": (i === 0 ? 1 : 0)})
+          }
+          actor.updateEmbeddedDocuments("Item", toUpdate);
+        }    
+        // await AutoPopulateCreateToken._removeOtherItems()        
+      } catch (error) {
+          console.error("BG3 Inspired Hotbar | Error auto-populating weapons token hotbar:", error);
+      }
     }
 }

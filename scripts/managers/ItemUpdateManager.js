@@ -87,6 +87,15 @@ export class ItemUpdateManager {
                         }
                     }
                 }
+                for (const container of this.manager.weaponsContainers) {
+                    for (const [slotKey, slotItem] of Object.entries(container.items)) {
+                        const itemId = slotItem?.uuid?.split('.').pop();
+                        if (itemId === item.id) {
+                            delete container.items[slotKey];
+                            removed = true;
+                        }
+                    }
+                }
                 if (removed) {
                     await this.manager.persist();
                     if (this.manager.ui) {
@@ -176,6 +185,41 @@ export class ItemUpdateManager {
                     updated = true;
                 }
             }
+        }        
+          
+        // Find and update the item in all weapons containers
+        for (const container of this.manager.weaponsContainers) {
+            for (const [slotKey, slotItem] of Object.entries(container.items)) {
+                // Extract the item ID from the UUID
+                const itemId = slotItem?.uuid?.split('.').pop();
+                
+                if (slotItem && itemId === item.id) {
+                    // Get the latest item data
+                    const updatedItemData = await fromUuid(slotItem.uuid);
+                    if (!updatedItemData) continue;
+
+                    // For spells, check if it's prepared or has valid casting mode
+                    if (updatedItemData.type === "spell") {
+                        const prep = updatedItemData.system?.preparation;
+                        if (!prep?.prepared && prep?.mode === "prepared") {
+                            delete container.items[slotKey];
+                            updated = true;
+                            continue;
+                        }
+                    }
+
+                    // Update all properties from the source item
+                    container.items[slotKey] = {
+                        uuid: slotItem.uuid,
+                        name: updatedItemData.name,
+                        icon: updatedItemData.img,
+                        type: updatedItemData.type,
+                        activation: updatedItemData.system?.activation?.type,
+                        sortData: slotItem.sortData // Preserve sort data
+                    };
+                    updated = true;
+                }
+            }
         }
         
         if (updated) {
@@ -197,6 +241,9 @@ export class ItemUpdateManager {
 
     async _handleItemCreate(item, options, userId) {
         if (!this.manager || game.user.id !== userId) return;
+
+        // Check if not already in combat container
+        if(Object.values(CONFIG.COMBATACTIONDATA).find(d => d.name === item.name)) return;
         
         const token = canvas.tokens.get(this.manager.currentTokenId);
         if (!token) return;
@@ -286,6 +333,19 @@ export class ItemUpdateManager {
         
         // Check each container's items
         for (const container of this.manager.containers) {
+            for (const [slot, item] of Object.entries(container.items)) {
+                const itemData = await fromUuid(item.uuid);
+                
+                if (!itemData || !actor.items.has(itemData.id)) {
+                    // Removing invalid item
+                    delete container.items[slot];
+                    hasChanges = true;
+                }
+            }
+        }
+          
+        // Check each weapons container's items
+        for (const container of this.manager.weaponsContainers) {
             for (const [slot, item] of Object.entries(container.items)) {
                 const itemData = await fromUuid(item.uuid);
                 

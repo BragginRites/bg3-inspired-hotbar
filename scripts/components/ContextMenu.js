@@ -157,41 +157,45 @@ export class ContextMenu {
         // Container-wide options
         const token = canvas.tokens.get(this.ui?.manager?.currentTokenId);
         if (token?.actor) {
-            const autoPopulateOption = this._createMenuItem(
-                '<i class="fas fa-magic"></i>',
-                "Auto-Populate This Container",
-                () => {
-                    const targetContainer = this.currentContainer;
-                    // Ensure container and UI references exist
-                    if (!this.ui) {
-                        ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
-                        return;
+            if(this.currentContainer.data?.delOnly !== true) {
+                const autoPopulateOption = this._createMenuItem(
+                    '<i class="fas fa-magic"></i>',
+                    "Auto-Populate This Container",
+                    () => {
+                        const targetContainer = this.currentContainer;
+                        // Ensure container and UI references exist
+                        if (!this.ui) {
+                            ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
+                            return;
+                        }
+                        targetContainer.ui = this.ui;
+                        this.hide();
+                        const dialog = new AutoPopulateDialog(token.actor, targetContainer);
+                        dialog.render(true);
                     }
-                    targetContainer.ui = this.ui;
-                    this.hide();
-                    const dialog = new AutoPopulateDialog(token.actor, targetContainer);
-                    dialog.render(true);
-                }
-            );
-            menuItems.push(autoPopulateOption);
+                );
+                menuItems.push(autoPopulateOption);
+            }
 
             // Sort Items option
-            const sortOption = this._createMenuItem(
-                '<i class="fas fa-sort"></i>',
-                "Sort Items In This Container",
-                async () => {
-                    const targetContainer = this.currentContainer;
-                    // Ensure container and UI references exist
-                    if (!this.ui) {
-                        ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
-                        return;
+            if(this.currentContainer.data?.delOnly !== true) {
+                const sortOption = this._createMenuItem(
+                    '<i class="fas fa-sort"></i>',
+                    "Sort Items In This Container",
+                    async () => {
+                        const targetContainer = this.currentContainer;
+                        // Ensure container and UI references exist
+                        if (!this.ui) {
+                            ui.notifications.error(game.i18n.localize("BG3.Hotbar.Errors.NoUIReference"));
+                            return;
+                        }
+                        targetContainer.ui = this.ui;
+                        this.hide();
+                        await AutoSort.sortContainer(targetContainer);
                     }
-                    targetContainer.ui = this.ui;
-                    this.hide();
-                    await AutoSort.sortContainer(targetContainer);
-                }
-            );
-            menuItems.push(sortOption);
+                );
+                menuItems.push(sortOption);
+            }
 
             // Clear Container option
             const clearOption = this._createMenuItem(

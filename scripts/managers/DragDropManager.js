@@ -214,8 +214,8 @@ export class DragDropManager {
 
             // For items that already belong to the actor, proceed with normal hotbar placement
             if (sourceActor && sourceActor.id === currentToken.actor.id) {
-                // Check for duplicates
-                if (await this._isDuplicate(dragData)) {
+                // Check for duplicates if not allowed for this container
+                if (container.data.allowDuplicate !== true && await this._isDuplicate(dragData)) {
                     ui.notifications.warn("This item is already on the hotbar.");
                     return;
                 }

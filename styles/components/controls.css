@@ -10,6 +10,15 @@
   flex-direction: column;
   gap: 8px;
   z-index: 100;
+  transition: opacity 0.3s ease-in-out 0s;
+}
+
+.bg3-hud .hotbar-control-column.fade {
+  opacity: 0;
+}
+
+.bg3-hud .hotbar-control-column.fade:hover {
+  opacity: 1;
 }
 
 /* ==========================================================================

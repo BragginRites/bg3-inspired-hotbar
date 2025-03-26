@@ -5,6 +5,7 @@ export class ControlsContainer {
     constructor(ui) {
         this.ui = ui;
         this.element = null;
+        this._fadeTimeout = null;
         this._createControlColumn();
     }
 
@@ -12,6 +13,7 @@ export class ControlsContainer {
         // Create the control column container
         this.element = document.createElement('div');
         this.element.classList.add('hotbar-control-column');
+        if(game.settings.get(CONFIG.MODULE_NAME, 'fadeControlsMenu')) this.element.classList.add('fade');
         
         // Add Row button
         const addRowButton = this._createButton('fa-plus', 'Add Row', () => {

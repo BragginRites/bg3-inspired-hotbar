@@ -149,6 +149,39 @@
             "Token": "Zawsze używaj obrazu tokena",
             "Portrait": "Zawsze używaj portretu postaci"
         },
+        "ShapePortraitPreferences": {
+            "Name": "Kształt widoku portretu",
+            "Hint": "Wybierz kształt portretów postaci.",
+            "Round": "Zaokrąglony",
+            "Square": "Kwadrat"
+        },
+        "BorderPortraitPreferences": {
+            "Name": "Obramowanie widoku portretu",
+            "Hint": "Wybierz obramowanie portretów postaci.",
+            "None": "Brak",
+            "Simple": "Proste",
+            "Styled": "Stylowy (tylko zaokrąglony kształt)"
+        },
+        "BackgroundPortraitPreferences": {
+            "Name": "Tło obrazu portretowego",
+            "Hint": "Wybierz kolor tła portretów postaci."
+        },
+        "ShowHealthOverlay": {
+            "Name": "Wyświetl nakładkę stanu zdrowia",
+            "Hint": ""
+        },
+        "ShowHPText": {
+            "Name": "Wyświetl tekst PW",
+            "Hint": ""
+        },
+        "ShowRestTurnButton": {
+            "Name": "Pokaż przycisk Wstrzymaj/Zatrzymaj",
+            "Hint": ""
+        },
+        "OverlayModePortrait": {
+            "Name": "Nakładka zdrowia jako maska",
+            "Hint": "Jeśli ta opcja jest zaznaczona, nakładka zdrowia nie będzie zakrywać przezroczystej części portretu postaci. Zaznacz to, jeśli używasz Dynamicznego Pierścienia Tokena."
+        },
         "SettingsCategories": {
             "HotbarContainer": "Przyciski paska skrótów",
             "CombatContainer": "Wspólne działania kontenera",

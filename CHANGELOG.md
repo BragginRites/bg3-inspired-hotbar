@@ -5,7 +5,7 @@
 - Fix UI not showing on load if a token was selected.
 
 ### Features
-- Add a tooltip on non-active weapon sets. (Related Issue: [#143])
+- Add a tooltip on non-active weapon sets. (Related Issue: [#145])
 
 ## [3.0.5] - 2025-04-30
 ### Fixed

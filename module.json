@@ -75,8 +75,8 @@
   },
   "persistentStorage": true,
   "url": "https://github.com/BragginRites/bg3-inspired-hotbar",
-  "manifest": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/test-foundry-13/module.json",
-  "download": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/test-foundry-13/bg3-inspired-hotbar.zip",
+  "manifest": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/test-foundry-13-1/module.json",
+  "download": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/test-foundry-13-1/bg3-inspired-hotbar.zip",
   "readme": "README.md",
   "bugs": "https://github.com/BragginRites/bg3-inspired-hotbar/issues",
   "packs": [

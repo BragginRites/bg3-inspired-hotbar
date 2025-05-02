@@ -22,6 +22,14 @@ export class WeaponContainer extends BG3Component {
     set activeSet(index) {
         this.actor.setFlag(BG3CONFIG.MODULE_NAME, 'activeSet', index);
         this.element.setAttribute('data-active-set', index);
+        for(let i = 0; i < this.components.weapon.length; i++) {
+            const container = this.components.weapon[i].element;
+            if(i === index) container.removeAttribute('data-tooltip');
+            else {
+                container.dataset.tooltip = `Click: Switch to weapon set #${i+1}`;
+                container.dataset.tooltipDirection = i === index + 1 || (index === this.components.weapon.length - 1 && i === 0) ? 'UP' : 'DOWN';
+            };
+        }
     }
 
     async switchSet(c) {
@@ -117,6 +125,7 @@ export class WeaponContainer extends BG3Component {
             container.id = 'weapon';
             container.element.setAttribute('data-container-index', i);
             container._parent = this;
+
             return container;
         });
         for(const cell of this.components.weapon) this.element.appendChild(cell.element);

@@ -20,4 +20,4 @@ Hooks.once('ready', () => {
     ui.BG3HOTBAR = new BG3Hotbar();
 });
 
-// BG3CONFIG.debug.hooks = true;
+// CONFIG.debug.hooks = true;

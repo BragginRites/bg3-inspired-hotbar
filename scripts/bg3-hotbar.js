@@ -32,6 +32,7 @@ export class BG3Hotbar extends Application {
         this.colorPicker = null;
 
         /** Hooks Event **/
+        // Hooks.once("canvasReady", this._onCanvasReady.bind(this));
         Hooks.on("createToken", this._onCreateToken.bind(this));
         Hooks.on("controlToken", this._onControlToken.bind(this));
         Hooks.on("deleteToken", this._onDeleteToken.bind(this));
@@ -83,6 +84,13 @@ export class BG3Hotbar extends Application {
         document.body.dataset.playerList = game.settings.get(BG3CONFIG.MODULE_NAME, 'playerListVisibility');
 
         this.updateUIScale();
+
+        this._onCanvasReady.bind(this)();
+    }
+
+    _onCanvasReady() {
+        const token = canvas.tokens.controlled?.[0];
+        if(token) this._onControlToken(token, canvas.tokens.controlled);
     }
 
     async _onCreateToken(token) {
@@ -151,9 +159,9 @@ export class BG3Hotbar extends Application {
     async _onUpdateActor(actor, changes, options, userId) {
         if(!this.manager) return;
         
-        if(changes?.flags?.[BG3CONFIG.MODULE_NAME] && game.user.id !== userId) this.manager.socketUpdateData(actor, changes);
+        if(changes?.flags?.[BG3CONFIG.MODULE_NAME] && game.user.id !== userId) return this.manager.socketUpdateData(actor, changes);
         
-        if (game.user.id !== userId) return;
+        // if (game.user.id !== userId) return;
         
         // Check if this update affects our current token
         if (actor?.id !== this.manager.actor?.id) return;

@@ -343,19 +343,23 @@ export function registerEarly() {
     });
 
     Hooks.on('getSceneControlButtons', (controls) => {
-        const tokenTools = controls.find(c => c.name === "token");
+        const tokenTools = controls.tokens ?? controls.find(c => c.name === "token");
         if (!tokenTools) return;
     
-        const isActive = game.settings.get(BG3CONFIG.MODULE_NAME, 'uiEnabled') ?? true;
+        const isActive = game.settings.get(BG3CONFIG.MODULE_NAME, 'uiEnabled') ?? true,
+            btnData = {
+                name: "toggleBG3UI",
+                title: "Toggle BG3 Hotbar",
+                icon: "fas fa-gamepad",
+                toggle: true,
+                active: isActive,
+                onClick: value => ui.BG3HOTBAR.toggle(value),
+                order: 10
+            };
         
-        tokenTools.tools.push({
-            name: "toggleBG3UI",
-            title: "Toggle BG3 Hotbar",
-            icon: "fas fa-gamepad",
-            toggle: true,
-            active: isActive,
-            onClick: value => ui.BG3HOTBAR.toggle(value)
-        });
+
+        if(Array.isArray(tokenTools.tools)) tokenTools.tools.push(btnData);
+        else tokenTools.tools.toggleBG3UI = btnData;
     });
     
     const rollEvents = ["dnd5e.preRollAttackV2", "dnd5e.preRollSavingThrowV2", "dnd5e.preRollSkillV2", "dnd5e.preRollAbilityCheckV2", "dnd5e.preRollConcentrationV2", "dnd5e.preRollDeathSaveV2", "dnd5e.preRollToolV2"];

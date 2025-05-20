@@ -1,17 +1,17 @@
 <div>
     {{#if (eq display 'show')}}
     <div class="death-saves-group">
-        {{#times 3}}
-            <div class="death-save-box success clickable{{#if (lte (math 3 '-' @index) success)}} marked{{/if}}" data-index="{{@index}}" data-tooltip="Set {{math 3 '-' @index}} success{{#if (gt (math 3 '-' @index) 1)}}es{{/if}}" data-tooltip-direction="UP"></div>
-        {{/times}}
+        {{#bg3times data1.max}}
+            <div class="death-save-box success clickable{{#if (lte (math data1.max '-' @index) data1.value)}} marked{{/if}}" data-index="{{@index}}" data-tooltip="Set {{math data1.max '-' @index}} success{{#if (gt (math data1.max '-' @index) 1)}}es{{/if}}" data-tooltip-direction="UP"></div>
+        {{/bg3times}}
     </div>
     {{/if}}
     <div class="death-saves-skull clickable" data-tooltip="Left Click: Roll Death Save (Alt: Advantage, Ctrl: Disadvantage, Shift: Fast Forward)<br>Right Click: Reset death saves" data-tooltip-direction="UP"><i class="fas fa-skull"></i></div>
     {{#if (eq display 'show')}}
     <div class="death-saves-group">
-        {{#times 3}}
-            <div class="death-save-box failure clickable{{#if (lt @index failure)}} marked{{/if}}" data-index="{{@index}}" data-tooltip="Set {{math 1 '+' @index}} failure{{#if (gt @index 1)}}s{{/if}}" data-tooltip-direction="UP"></div>
-        {{/times}}
+        {{#bg3times data2.max}}
+            <div class="death-save-box failure clickable{{#if (lt @index data2.value)}} marked{{/if}}" data-index="{{@index}}" data-tooltip="Set {{math 1 '+' @index}} failure{{#if (gt @index 0)}}s{{/if}}" data-tooltip-direction="UP"></div>
+        {{/bg3times}}
     </div>
     {{/if}}
 </div>

@@ -223,43 +223,43 @@
   margin-bottom: 0.5rem;
 }
 
-#bg3-inspired-hotbar-theme-settings details, section[data-tab="bg3-inspired-hotbar"] details {
+#bg3-inspired-hotbar-theme-settings details, section details.bg3-settings-section {
   position: relative;
   border-top: 1px solid rgba(0, 0, 0, .1);
   /* padding-top: 1em; */
 }
 
-section[data-tab="bg3-inspired-hotbar"] details > div {
+section details.bg3-settings-section > div {
   padding: 3px 0.5rem;
   margin: 0 3px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 1);
 }
 
-section[data-tab="bg3-inspired-hotbar"] details div.form-group.group-header {
+section details.bg3-settings-section div.form-group.group-header {
   margin: 0 -0.5rem 0.5rem;;
 }
 
-#bg3-inspired-hotbar-theme-settings details summary, section[data-tab="bg3-inspired-hotbar"] details summary {
+#bg3-inspired-hotbar-theme-settings details.bg3-settings-section summary, section details.bg3-settings-section summary {
   /* margin-bottom: 1rem; */
   font-weight: 600;
   cursor: pointer;
   padding: 1em 0 1em 5px;
 }
 
-.package-configuration section[data-tab="bg3-inspired-hotbar"] .form-group {
+.package-configuration section details.bg3-settings-section .form-group {
   margin-bottom: 0.5rem;
   margin-top: 0;
 }
 
-.package-configuration section[data-tab="bg3-inspired-hotbar"] details > div > .form-group:not(.group-header):first-child {
+.package-configuration section details.bg3-settings-section > div > .form-group:not(.group-header):first-child {
   margin-top: 0.5rem;
 }
 
-section[data-tab="bg3-inspired-hotbar"] p.notes:empty {
+section details.bg3-settings-section p.notes:empty {
   display: none;
 }
 
-section[data-tab="bg3-inspired-hotbar"] details summary {
+section details.bg3-settings-section summary {
   border-radius: 3px;
   font-size: var(--font-size-14);
   font-family: var(--font-primary);
@@ -270,19 +270,19 @@ section[data-tab="bg3-inspired-hotbar"] details summary {
   color: var(--color-text-dark-primary);
 }
 
-/* section[data-tab="bg3-inspired-hotbar"] :nth-child(odd) summary {
+/* section[data-tab="bg3-hud-core"] :nth-child(odd) summary {
   background-color: rgba(0, 0, 0, 0.4);
 } */
 
-#bg3-inspired-hotbar-theme-settings details summary:hover, section[data-tab="bg3-inspired-hotbar"] details summary:hover, #bg3-inspired-hotbar-theme-settings details[open] summary, section[data-tab="bg3-inspired-hotbar"] details[open] summary {
+#bg3-inspired-hotbar-theme-settings details summary:hover, section details.bg3-settings-section summary:hover, #bg3-inspired-hotbar-theme-settings details[open] summary, section details.bg3-settings-section[open] summary {
   background-color: rgba(0, 0, 0, .1);
 }
 
-#bg3-inspired-hotbar-theme-settings details[open] summary, section[data-tab="bg3-inspired-hotbar"] details[open] summary {
+#bg3-inspired-hotbar-theme-settings details[open] summary, section details.bg3-settings-section[open] summary {
   border-bottom-color: var(--color-text-dark-primary);
 }
 
-#bg3-inspired-hotbar-theme-settings details summary::after, section[data-tab="bg3-inspired-hotbar"] details summary::after {
+#bg3-inspired-hotbar-theme-settings details summary::after, section details.bg3-settings-section summary::after {
   content: "\f139";
   position: absolute;
   font-family: "Font Awesome 6 Pro";
@@ -292,12 +292,12 @@ section[data-tab="bg3-inspired-hotbar"] details summary {
   margin-right: 0.5em;
 }
 
-#bg3-inspired-hotbar-theme-settings details[open] summary::after, section[data-tab="bg3-inspired-hotbar"] details[open] summary::after {
+#bg3-inspired-hotbar-theme-settings details[open] summary::after, section details.bg3-settings-section[open] summary::after {
   content: "\f13a";
 }
 
 #bg3-inspired-hotbar-theme-settings details summary::marker,
-#bg3-inspired-hotbar-theme-settings :is(::-webkit-details-marker), section[data-tab="bg3-inspired-hotbar"] details summary::marker, section[data-tab="bg3-inspired-hotbar"] :is(::-webkit-details-marker) {
+#bg3-inspired-hotbar-theme-settings :is(::-webkit-details-marker), section details.bg3-settings-section summary::marker, section details.bg3-settings-section :is(::-webkit-details-marker) {
   content: '';
   /* content: "+ ";
   font-family: monospace;

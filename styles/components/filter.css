@@ -112,6 +112,10 @@
     width: 100%;
 }
 
+#bg3-hotbar-container .spell-slot-number {
+    font-size: large;
+}
+
 #bg3-hotbar-container .spell-slot-box {
     border-radius: 2px;
     border-width: var(--bg3-filter-border-size);
@@ -120,6 +124,10 @@
     width: 10px;
     height: 10px;
     background-color: currentColor;
+}
+
+#bg3-hotbar-container .action-type-button .spell-slot-box {
+    border-radius: 50%;
 }
 
 #bg3-hotbar-container .spell-slot-box.is-used, #bg3-hotbar-container .spell-cantrip-box .spell-slot-box {

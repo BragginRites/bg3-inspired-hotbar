@@ -3,12 +3,12 @@
         <h3>Container 1 Auto-Populate</h3>
         <p class="notes">What item types to automatically populate in the first container</p>
         <div class="container-chips" data-container="container1">
-            {{#each choices as |label key|}}
-            <div class="chip {{#if (includes ../containerSettings.container1 key)}}active{{/if}}" 
-                 data-value="{{key}}" 
+            {{#each choices}}
+            <div class="chip {{#if (includes ../containerSettings.container1 value)}}active{{/if}}" 
+                 data-value="{{value}}" 
                  data-container="container1"
-                 data-active="{{includes ../containerSettings.container1 key}}">
-                {{label}}
+                 data-active="{{includes ../containerSettings.container1 value}}">
+                {{localize label}}
             </div>
             {{/each}}
         </div>
@@ -18,12 +18,12 @@
         <h3>Container 2 Auto-Populate</h3>
         <p class="notes">What item types to automatically populate in the second container</p>
         <div class="container-chips" data-container="container2">
-            {{#each choices as |label key|}}
-            <div class="chip {{#if (includes ../containerSettings.container2 key)}}active{{/if}}" 
-                 data-value="{{key}}" 
+            {{#each choices}}
+            <div class="chip {{#if (includes ../containerSettings.container2 value)}}active{{/if}}" 
+                 data-value="{{value}}" 
                  data-container="container2"
-                 data-active="{{includes ../containerSettings.container2 key}}">
-                {{label}}
+                 data-active="{{includes ../containerSettings.container2 value}}">
+                {{localize label}}
             </div>
             {{/each}}
         </div>
@@ -33,12 +33,12 @@
         <h3>Container 3 Auto-Populate</h3>
         <p class="notes">What item types to automatically populate in the third container</p>
         <div class="container-chips" data-container="container3">
-            {{#each choices as |label key|}}
-            <div class="chip {{#if (includes ../containerSettings.container3 key)}}active{{/if}}" 
-                 data-value="{{key}}" 
+            {{#each choices}}
+            <div class="chip {{#if (includes ../containerSettings.container3 value)}}active{{/if}}" 
+                 data-value="{{value}}" 
                  data-container="container3"
-                 data-active="{{includes ../containerSettings.container3 key}}">
-                {{label}}
+                 data-active="{{includes ../containerSettings.container3 value}}">
+                {{localize label}}
             </div>
             {{/each}}
         </div>

@@ -7,7 +7,6 @@ export class BG3Component {
         this._parent = parent ?? null;
         this.element = document.createElement(this.elementType);
         this.element.classList.add(...this.classes);
-        // this.element = document.createElement('template');
     }
     
     get template() {
@@ -34,14 +33,6 @@ export class BG3Component {
         return {};
     }
 
-    /* get locked() {
-        return this.locked ?? false;
-    }
-
-    set locked(value) {
-        // this.locked = value;
-    } */
-
     get visible() {
         return true;
     }
@@ -54,14 +45,6 @@ export class BG3Component {
             return $(`<${this.elementType}>`).prop('outerHTML');
         }
     }
-
-    /* get components() {
-        return this.components;
-    }
-
-    set components(components) {
-        this.components = components;
-    } */
 
     addComponent(component) {
         this.components.push(component);
@@ -98,13 +81,12 @@ export class BG3Component {
                     this.element.dataset.tooltipDirection = this.dataTooltip.direction ?? 'UP';
                     break;   
                 case 'advanced':
-                    const uuid = this.data?.uuid ?? this.data?.item?.uuid;
+                    const uuid = this.data?.uuid ?? this.data?.item?.uuid ?? this.data.item?.slug ?? this.data.slug;
                     if(uuid) {
-                        // const exclude = uuid.includes('.Activity.') || uuid.includes('Macro.');
                         const exclude = false;
                         if(exclude) break;
                         const targetElement = this.element.firstElementChild ?? this.element;
-                        targetElement.dataset.tooltip = `<section class="loading" data-uuid="${this.data?.uuid ?? this.data?.item?.uuid}"><i class="fas fa-spinner fa-spin-pulse"></i></section>`;
+                        targetElement.dataset.tooltip = `<section class="loading" data-uuid="${uuid}"><i class="fas fa-spinner fa-spin-pulse"></i></section>`;
                         targetElement.dataset.tooltipClass = `dnd5e2 dnd5e-tooltip item-tooltip bg3-tooltip`;
                         targetElement.dataset.tooltipDirection="UP";
                     }

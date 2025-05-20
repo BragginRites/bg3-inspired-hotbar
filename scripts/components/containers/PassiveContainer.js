@@ -1,4 +1,5 @@
 import { BG3CONFIG } from '../../utils/config.js';
+import { BG3UTILS } from '../../utils/utils.js';
 import { PassiveButton } from '../buttons/passiveButton.js';
 import { BG3Component } from "../component.js";
 
@@ -18,7 +19,7 @@ export class PassiveContainer extends BG3Component {
     get passivesList() {
         if(!this.token && !this.actor) return null;
 
-        const availablePassives = this.actor.items.filter(item => item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive"));
+        const availablePassives = this.actor.items.filter(item => BG3UTILS.itemIsPassive(item));
         return this.selectedPassives?.size ? availablePassives.filter(item => this.selectedPassives.has(item.uuid)) : availablePassives;
     }
 
@@ -39,12 +40,12 @@ export class PassiveContainer extends BG3Component {
                 
         // Get all available passive features from the actor
         const availableFeatures = this.actor.items
-            .filter(item => item.type === "feat" && (!item.system.activation?.type || item.system.activation.type === "passive"))
+            .filter(item => BG3UTILS.itemIsPassive(item))
             .map(item => ({
                 uuid: item.uuid,
                 name: item.name,
                 img: item.img,
-                selected: this.selectedPassives?.has(item.uuid)
+                selected: !this.selectedPassives?.size || this.selectedPassives?.has(item.uuid)
             }));
 
         // Create and show dialog using the template
@@ -102,7 +103,6 @@ export class PassiveContainer extends BG3Component {
     async render() {
         await super.render();
         const passivesList = this.passivesList;
-        // if(passivesList.length === 0) this.element.style.visibility = 'hidden';
 
         const passives = passivesList.map((passive) => new PassiveButton({item: passive}, this));
         for(const passive of passives) this.element.appendChild(passive.element);

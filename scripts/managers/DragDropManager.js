@@ -1,5 +1,4 @@
-import { BG3CONFIG } from '../utils/config.js';
-import { fromUuid } from '../utils/foundryUtils.js';
+import { BG3UTILS } from "../utils/utils.js";
 
 export class DragDropManager {
     constructor() {
@@ -7,9 +6,7 @@ export class DragDropManager {
         this.dragSourceCell = null;
     }
 
-    get locked() {
-
-    }
+    get locked() {}
 
     async _isDuplicate(uuid) {
         // Check all containers for the UUID
@@ -26,7 +23,8 @@ export class DragDropManager {
 
     async proceedDrop(target, event) {
         if(this.dragSourceCell === target) return;
-        let hasUpdate = false;
+        let hasUpdate = false,
+            fullUpdate = false;
         try {
             const savedItem = foundry.utils.deepClone(target.data.item);
             let newItem = null;
@@ -46,11 +44,11 @@ export class DragDropManager {
                 let dragData;
                 try {
                     dragData = JSON.parse(event.dataTransfer.getData("text/plain"));
-                    if(dragData.uuid) {
+                    if(dragData.uuid || dragData.actorUUID) {
                         // Prevent cross-actor item placement
-                        const splitUUID = dragData.uuid.split('.');
-                        if(splitUUID.indexOf('Actor') > -1) {
-                            const actorUUID = splitUUID.slice(0,splitUUID.indexOf('Actor') + 2).join('.');
+                        const splitUUID = dragData.uuid?.split('.') ?? [];
+                        if(splitUUID.indexOf('Actor') > -1 || dragData.actorUUID) {
+                            const actorUUID =  dragData.actorUUID ?? splitUUID.slice(0,splitUUID.indexOf('Actor') + 2).join('.');
                             if(actorUUID && actorUUID !== ui.BG3HOTBAR.manager.actor.uuid) {
                                 ui.notifications.warn("You cannot add items from other characters.");
                                 return;
@@ -61,9 +59,8 @@ export class DragDropManager {
                             ui.notifications.warn("This item is already on the hotbar.");
                             return;
                         }
-                        newItem = {uuid: dragData.uuid};
-                        hasUpdate = true;
-                    }
+                        [newItem, hasUpdate] = await ui.BG3HOTBAR.itemUpdateManager.retrieveNewItem(dragData, target);
+                    };
                 } catch (err) {
                     console.error("Failed to parse drop data:", err);
                     return;
@@ -72,25 +69,23 @@ export class DragDropManager {
             if(newItem) {
                 // Handle 2 Handed weapon specific case
                 if(target._parent.id === 'weapon') {
-                    const item = ui.BG3HOTBAR.manager.actor?.items?.get(newItem.uuid.split('.').pop());
-                    if(target.slotKey === '0-0' && ui.BG3HOTBAR.manager.containers[target._parent.id][target._parent.index].items['1-0']) {
-                        if(item && item?.labels?.properties?.find(p => p.abbr === 'two')) {
-                            delete ui.BG3HOTBAR.manager.containers[target._parent.id][target._parent.index].items['1-0'];
-                            await target._parent.components[1]._renderInner();
+                    const item = await BG3UTILS.getItem(newItem, ui.BG3HOTBAR.manager.actor);
+                    if(item) {
+                        if(target.slotKey === '1-0' && BG3UTILS.check2Handed(target)) {
+                            ui.notifications.warn('You can\'t assign a 2-handed weapon to an offhand slot.')
+                            return;
                         }
-                    } else if(target.slotKey === '1-0' && item && item?.labels?.properties?.find(p => p.abbr === 'two')) {
-                        ui.notifications.warn('You can\'t assign a 2-handed weapon to an offhand slot.')
-                        return;
                     }
                 }
-
+                
                 target.data.item = newItem;
     
                 // Update manager stored data
                 ui.BG3HOTBAR.manager.containers[target._parent.id][target._parent.index].items[target.slotKey] = newItem;
                 hasUpdate = true;
 
-                await target._renderInner();
+                if(fullUpdate) await target._parent.render();
+                else await target._renderInner();
             }
         } catch (error) {
             console.error("Error during drop process:", error);

@@ -5,18 +5,41 @@ import { PortraitContainer } from './components/containers/PortraitContainer.js'
 import { RestTurnContainer } from './components/containers/RestTurnContainer.js';
 import { WeaponContainer } from './components/containers/WeaponContainer.js';
 import { ThemeSettingDialog } from './components/dialog/ThemeSettingDialog.js';
-import { AutoPopulateCreateToken } from './features/AutoPopulateCreateToken.js';
+import { AutoPopulateFeature } from './features/AutoPopulateFeature.js';
 import { ControlsManager } from './managers/ControlsManager.js';
 import { DragDropManager } from './managers/DragDropManager.js';
 import { HotbarManager } from './managers/HotbarManager.js';
 import { ItemUpdateManager } from './managers/ItemUpdateManager.js';
 import { BG3CONFIG, preloadHandlebarsTemplates } from './utils/config.js';
-import { BG3TooltipManager } from './managers/TooltipManager.js';
 import { AdvContainer } from './components/containers/AdvContainer.js';
+import { BG3Component } from './components/component.js';
+import { AbilityContainer } from './components/containers/AbilityContainer.js';
+import { DeathSavesContainer } from './components/containers/DeathSavesContainer.js';
+import { FilterContainer } from './components/containers/FilterContainer.js';
+import { GridCell } from './components/containers/GridCell.js';
+import { CPRActionsDialog } from './components/dialog/CPRActionsDialog.js';
+import { BG3UTILS } from './utils/utils.js';
+import { BG3TooltipManager } from './managers/TooltipManager.js';
+
+const BG3ClassesLib = {
+    'BG3Component' : BG3Component,
+    'AbilityContainer' : AbilityContainer,
+    'RestTurnContainer' : RestTurnContainer,
+    'DeathSavesContainer' : DeathSavesContainer,
+    'FilterContainer' : FilterContainer,
+    'AutoPopulateFeature' : AutoPopulateFeature,
+    'WeaponContainer' : WeaponContainer,
+    'GridCell' : GridCell,
+    'CPRActionsDialog' : CPRActionsDialog,
+    'ItemUpdateManager' : ItemUpdateManager,
+    'AdvContainer' : AdvContainer,
+    'BG3TooltipManager': BG3TooltipManager
+}
 
 export class BG3Hotbar extends Application {
     constructor() {
         super();
+        this.performSystemAddonCheck();
 
         this._manager = null;
         this.dragDropManager = null;
@@ -27,18 +50,15 @@ export class BG3Hotbar extends Application {
         this.components = {};
         this.macroBarTimeout = null;
         this.combatActionsArray = [];
-        // this.enabled = game.settings.get(BG3CONFIG.MODULE_NAME, 'uiEnabled');
         this.generateTimeout = null;
         this.colorPicker = null;
 
         /** Hooks Event **/
-        // Hooks.once("canvasReady", this._onCanvasReady.bind(this));
         Hooks.on("createToken", this._onCreateToken.bind(this));
         Hooks.on("controlToken", this._onControlToken.bind(this));
         Hooks.on("deleteToken", this._onDeleteToken.bind(this));
         Hooks.on("updateToken", this._onUpdateToken.bind(this));
         Hooks.on("updateActor", this._onUpdateActor.bind(this));
-        // Hooks.on("deleteScene", this._onDeleteScene.bind(this));
         Hooks.on("updateCombat", this._onUpdateCombat.bind(this));
         Hooks.on("deleteCombat", this._onDeleteCombat.bind(this));
         Hooks.on("createActiveEffect", this._onUpdateActive.bind(this));
@@ -68,6 +88,7 @@ export class BG3Hotbar extends Application {
     }
 
     async _init() {
+        // this.constructConfigClass();
 
         this._applyTheme();
 
@@ -86,6 +107,13 @@ export class BG3Hotbar extends Application {
         document.body.dataset.playerList = game.settings.get(BG3CONFIG.MODULE_NAME, 'playerListVisibility');
     }
 
+    async performSystemAddonCheck() {
+        const systemAddon = game.modules.get(`bg3-hud-${game.system.id}`);
+        if (systemAddon?.active) return;
+        const systemAddonLink = `<a href="https://foundryvtt.com/packages/bg3-hud-${game.system.id}" target="_blank">BG3 Inspired HUD - ${game.system.id.toUpperCase()}</a>`;
+        ui.notifications.error(game.i18n.format("BG3.Hotbar.Errors.AddonMissing", {systemAddonLink}), { permanent: true });
+    }
+
     isV13orHigher() {
         return Number(game.version) > 13;
     }
@@ -99,7 +127,7 @@ export class BG3Hotbar extends Application {
     async _onCreateToken(token) {
         if (!token?.actor) return;
         setTimeout(async () => {
-            await AutoPopulateCreateToken.populateUnlinkedToken(token);
+            await AutoPopulateFeature.populateUnlinkedToken(token);
         }, 100)
     }
 
@@ -123,6 +151,7 @@ export class BG3Hotbar extends Application {
     }
 
     async _onUpdateToken(token, changes, options, userId) {
+        console.log('_onUpdateToken', token, changes)
         if (!this.manager || game.user.id !== userId) return;
         // If this is our current token and actor-related data changed
         if (token.id === this.manager.currentTokenId && (changes.actorId || changes.actorData || changes.actorLink)) {
@@ -199,7 +228,7 @@ export class BG3Hotbar extends Application {
     async _onUpdateActive(effect) {
         if (effect?.parent?.id === this.manager?.actor?.id && this.components.container.components.activeContainer) {
             await this.components.container.components.activeContainer.render();
-            if(['dnd5ebonusaction', 'dnd5ereaction000'].includes(effect.id) && this.components.container.components.filterContainer) this.components.container.components.filterContainer._checkBonusReactionUsed();
+            if(['dnd5ebonusaction', 'dnd5ereaction000'].includes(effect.id) && this.components.container.components.filterContainer) this.components.container.components.filterContainer._autoCheckUsed();
         }
     }
 
@@ -215,7 +244,7 @@ export class BG3Hotbar extends Application {
     }
 
     _onDeleteCombat(combat) {
-        if(ui.BG3HOTBAR.element?.[0]) return;
+        if(!ui.BG3HOTBAR.element?.[0]) return;
         this.combat.forEach(e => e.setComponentsVisibility());
         if(!this.components.container?.components?.filterContainer) return;
         this.components.container.components.filterContainer.resetUsedActions();
@@ -254,7 +283,7 @@ export class BG3Hotbar extends Application {
     }
 
     _autoPopulateToken(token) {
-        return AutoPopulateCreateToken.populateUnlinkedToken(token.document ?? token, true);
+        return AutoPopulateFeature.populateUnlinkedToken(token.document ?? token, true);
     }
 
     async _applyTheme() {
@@ -314,7 +343,7 @@ export class BG3Hotbar extends Application {
 
     async _render(force=false, options={}) {
         await super._render(force, options);
-        if(this.components?.container?.components?.filterContainer) this.components.container.components.filterContainer._checkBonusReactionUsed();
+        if(this.components?.container?.components?.filterContainer) this.components.container.components.filterContainer._autoCheckUsed();
         if(game.settings.get(BG3CONFIG.MODULE_NAME, 'collapseFoundryMacrobar') === 'select') this._applyMacrobarCollapseSetting();
     }
 
@@ -332,13 +361,11 @@ export class BG3Hotbar extends Application {
         if(game.settings.get(BG3CONFIG.MODULE_NAME, 'fadedOpacity') !== 1) html.style.setProperty('--bg3-faded-opacity', game.settings.get(BG3CONFIG.MODULE_NAME, 'fadedOpacity'));
         html.style.setProperty('--bg3-faded-delay', `${game.settings.get(BG3CONFIG.MODULE_NAME, 'fadeOutDelay')}s`);
         html.setAttribute('theme-option', game.settings.get(BG3CONFIG.MODULE_NAME, 'themeOption'));
-        // html.style.setProperty('--position-bottom', `${game.settings.get(BG3CONFIG.MODULE_NAME, 'posPaddingBottom')}px`);
         html.dataset.itemName = game.settings.get(BG3CONFIG.MODULE_NAME, 'showItemNames');
         html.dataset.itemUse = game.settings.get(BG3CONFIG.MODULE_NAME, 'showItemUses');
         html.dataset.cellHighlight = game.settings.get(BG3CONFIG.MODULE_NAME, 'highlightStyle');
         html.dataset.cellHighlight = game.settings.get(BG3CONFIG.MODULE_NAME, 'highlightStyle');
         html.dataset.filterHover = game.settings.get(BG3CONFIG.MODULE_NAME, 'hoverFilterShow');
-        document.body.dataset.showMaterials = game.settings.get(BG3CONFIG.MODULE_NAME, 'showMaterialDescription');
         ControlsManager.updateUIDataset(html);
 
         if(this.manager.currentTokenId) {
@@ -360,6 +387,7 @@ export class BG3Hotbar extends Application {
             if (component && !Array.isArray(component)) html.appendChild(component.element);
         });
         this.components.container._parent = this;
+        this.combat = [];
         this.combat.push(this.components.restTurn);
 
         const promises = [];
@@ -374,5 +402,17 @@ export class BG3Hotbar extends Application {
 
     refresh() {
         if (this.rendered) this.render(true);
+    }
+
+    static getConfig() {
+        return [BG3CONFIG, BG3UTILS];
+    }
+
+    static overrideClass(className, methodName = null, method = null, ...args) {
+        if(methodName && method) {
+            const cls = BG3ClassesLib[className];
+            if(cls.prototype[methodName]) cls.prototype[methodName] = method;
+            else if(cls[methodName]) cls[methodName] = method;
+        } else BG3ClassesLib[className.name] = className;
     }
 }

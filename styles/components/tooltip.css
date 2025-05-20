@@ -70,3 +70,9 @@ body[data-light-tooltip="light"] :is(#tooltip, .locked-tooltip).dnd5e-tooltip.bg
     white-space: nowrap;
     max-width: unset;
 }
+
+:is(#tooltip, .locked-tooltip).bg3-tooltip .unlist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}

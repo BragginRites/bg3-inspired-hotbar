@@ -6,19 +6,11 @@ import { fromUuid } from '../utils/foundryUtils.js';
 export class AutoSort {
     static async sortContainer(container) {
         if (!container?.data?.items) return;
-
+console.log('sortContainer')
         try {
             // Convert items object to array for sorting
-            const items = [];
-            
-            // First pass: collect all items and their UUIDs
-            for (const [key, item] of Object.entries(container.data.items)) {
-                items.push({
-                    key,
-                    ...item,
-                    sortData: null  // We'll populate this with fresh data
-                });
-            }
+            const items = Object.values(container.data.items);
+            console.log(items)
             
             // Second pass: fetch fresh data for each item
             for (const item of items) {
@@ -26,7 +18,7 @@ export class AutoSort {
                     const itemData = await fromUuid(item.uuid);
                     if (itemData) {
                         item.sortData = {
-                            spellLevel: item.type === "spell" ? (itemData.system?.level ?? 0) : 99,
+                            spellLevel: item.type === "spell" ? (item.override.level ?? itemData.system?.level ?? 0) : 99,
                             featureType: item.type === "feat" ? itemData.system?.type?.value ?? "" : "",
                             name: item.name
                         };
@@ -63,14 +55,7 @@ export class AutoSort {
 
             for (const item of items) {
                 const slotKey = `${c}-${r}`;
-                container.data.items[slotKey] = {
-                    uuid: item.uuid,
-                    // name: item.name,
-                    // icon: item.icon,
-                    // type: item.type,
-                    // activation: item.activation,
-                    // sortData: item.sortData
-                };
+                container.data.items[slotKey] = item;
 
                 // Move to next position
                 c++;
@@ -84,13 +69,9 @@ export class AutoSort {
             }
 
             // Render container and persist changes
-            if (container.render) {
-                container.render();
-            }
-            if (ui.BG3HOTBAR?.manager?.persist) {
-                await ui.BG3HOTBAR.manager.persist();
-                // await container.ui.manager.persist();
-            }
+            if (container.render) container.render();
+            
+            if (ui.BG3HOTBAR?.manager?.persist) await ui.BG3HOTBAR.manager.persist();
 
             ui.notifications.info("Container sorted successfully.");
         } catch (error) {

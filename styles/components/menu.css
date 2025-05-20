@@ -154,7 +154,7 @@
   padding: 2px 8px;
 }
 
-#bg3-hotbar-container .bg3-menu-container .bg3-menu-container .menu-item-content > .menu-item-label {
+#bg3-hotbar-container .bg3-menu-container .menu-item-content .menu-item-label {
   display: flex;
   align-items: center;
 }
@@ -219,4 +219,8 @@
 
 #bg3-hotbar-container .menu-item[data-key="token"] .menu-item-content .menu-item-special label i {
   pointer-events: none;
+}
+
+#bg3-hotbar-container .menu-item select {
+  background: url(../../../../ui/parchment.jpg) repeat;
 }

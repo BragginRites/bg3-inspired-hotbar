@@ -17,8 +17,7 @@ export class CPRActionsDialog extends FormApplication {
     }
 
     async getData() {
-        const cprs = game.packs.get("chris-premades.CPRActions");
-        return {actions: cprs.index, selected: game.settings.get(BG3CONFIG.MODULE_NAME, 'choosenCPRActions')};
+        return super.getData();
     }
 
     activateListeners(html) {

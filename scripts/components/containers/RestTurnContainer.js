@@ -13,74 +13,66 @@ export class RestTurnContainer extends BG3Component {
     }
 
     get btnData() {
-        let btnData = [];
-        if(game.settings.get(BG3CONFIG.MODULE_NAME, 'showRestTurnButton') && ui.BG3HOTBAR.manager.actor) {
-            btnData = [...btnData, ...[
-                {
-                    type: 'div',
-                    class: ["rest-turn-button", "turn-button"], 
-                    label: 'End Turn',
-                    icon: 'fa-clock-rotate-left',
-                    visible: () => !!game.combat?.started && game.combat?.combatant?.actor === this.actor,
-                    events: {
-                        'click': function() {
-                            game.combat.nextTurn.bind(game.combat)()
+        return (async () => {
+            try {
+                let btnData = [];
+                if(game.settings.get(BG3CONFIG.MODULE_NAME, 'showRestTurnButton') && ui.BG3HOTBAR.manager.actor) {
+                    btnData = [...btnData, ...[
+                        {
+                            type: 'div',
+                            class: ["rest-turn-button", "turn-button"], 
+                            label: 'End Turn',
+                            icon: 'fa-clock-rotate-left',
+                            visible: () => !!game.combat?.started && game.combat?.combatant?.actor === this.actor,
+                            events: {
+                                'click': function() {
+                                    game.combat.nextTurn.bind(game.combat)()
+                                }
+                            }
+                        },
+                        ...(await this.getRestBtns())
+                    ]]
+                } else if(ui.BG3HOTBAR.manager.canGMHotbar()) {
+                    btnData = [...btnData, ...[
+                        {
+                            type: 'div',
+                            class: ["rest-turn-button"],
+                            label: 'Macros',
+                            icon: "fa-folder",
+                            events: {
+                                'click': ev => ui.macros.renderPopout(true)
+                            }
+                        },
+                        ...(await this.getRestBtns())
+                    ]]
+                };
+                btnData = [...btnData, ...[
+                    {
+                        type: 'label',
+                        class: ["btn-toggle", "fas", "fa-caret-down"],
+                        attr: {"title": 'Show/Hide HotBar UI', "for": 'toggle-input'},
+                        events: {
+                            'click': () => {
+                                this.slideState = !this.slideState;
+                                ui.BG3HOTBAR.element[0].classList.toggle('slidedown', this.slideState);
+                            }
                         }
                     }
-                },
-                {
-                    type: 'div',
-                    class: ["rest-turn-button"],
-                    label: 'Short Rest',
-                    icon: "fa-campfire",
-                    visible: () => !game.combat?.started,
-                    events: {
-                        'click': this.actor.shortRest.bind(this.actor)
-                    }
-                },
-                {
-                    type: 'div',
-                    class: ["rest-turn-button"],
-                    label: 'Long Rest',
-                    icon: "fa-tent",
-                    visible: () => !game.combat?.started,
-                    events: {
-                        'click': this.actor.longRest.bind(this.actor)
-                    }
-                }
-            ]]
-        } else if(ui.BG3HOTBAR.manager.canGMHotbar()) {
-            btnData = [...btnData, ...[
-                {
-                    type: 'div',
-                    class: ["rest-turn-button"],
-                    label: 'Macros',
-                    icon: "fa-folder",
-                    events: {
-                        'click': ev => ui.macros.renderPopout(true)
-                    }
-                }
-            ]]
-        };
-        btnData = [...btnData, ...[
-            {
-                type: 'label',
-                class: ["btn-toggle", "fas", "fa-caret-down"],
-                attr: {"title": 'Show/Hide HotBar UI', "for": 'toggle-input'},
-                events: {
-                    'click': () => {
-                        this.slideState = !this.slideState;
-                        ui.BG3HOTBAR.element[0].classList.toggle('slidedown', this.slideState);
-                    }
-                }
+                ]];
+                return btnData;
+            } catch(e) {
+                return [];  // fallback value
             }
-        ]];
-        return btnData;
+        })();
+    }
+
+    async getRestBtns() {
+        return [];
     }
 
     async render() {
         await super.render();
-        this.components = this.btnData.map((btn) => new BaseButton(btn));
+        this.components = [...(await this.btnData)].map((btn) => new BaseButton(btn));
         for(const btn of this.components) this.element.appendChild(btn.element);
         await Promise.all(this.components.map((btn) => btn.render()));
         return this.element;

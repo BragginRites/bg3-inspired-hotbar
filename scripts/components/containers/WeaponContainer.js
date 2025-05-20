@@ -32,44 +32,11 @@ export class WeaponContainer extends BG3Component {
         }
     }
 
+    async autoEquipWeapons(c) {}
+
     async switchSet(c) {
         if(c.index === this.activeSet && c.oldWeapons === c.data.items) return;
-
-        if(game.settings.get(BG3CONFIG.MODULE_NAME, 'enableWeaponAutoEquip')) {
-            const weaponsList = this.actor.items.filter(w => w.type == 'weapon'),
-                compareOld = c.index === this.activeSet ? c.oldWeapons : this.components.weapon[this.activeSet].data.items;
-            let toUpdate = [];
-            weaponsList.forEach(w => {
-                if(w.system.equipped && !Object.values(c.data.items).find(wc => wc?.uuid && w.id === wc.uuid.split('.').pop())) {
-                    toUpdate.push({_id: w.id, "system.equipped": 0});
-                } else if(!w.system.equipped && Object.values(c.data.items).find(wc => wc?.uuid && w.id === wc.uuid.split('.').pop())) {
-                    toUpdate.push({_id: w.id, "system.equipped": 1});
-                }
-            });
-            Object.values(c.data.items).forEach(nw => {
-                if(!nw?.uuid) return;
-                const itemId = nw.uuid.split('.').pop(),
-                    item = this.actor.items.get(itemId);
-                if(item && item.type !== 'weapon' && !item.system.equipped) toUpdate.push({_id: itemId, "system.equipped": 1});
-            });
-            if(compareOld) {
-                Object.values(compareOld).forEach(ow => {
-                    if(!ow?.uuid) return;
-                    const itemId = ow.uuid.split('.').pop(),
-                        item = this.actor.items.get(itemId);
-                    if(item && item.type !== 'weapon' && item.system.equipped && !Object.values(c.data.items).find(w => w.uuid === ow.uuid)) toUpdate.push({_id: itemId, "system.equipped": 0});
-                });
-            }
-            
-            // Update active set & equipped items
-            c.oldWeapons = foundry.utils.deepClone(c.data.items);
-            if(toUpdate.length) {
-                for(const update of toUpdate) {
-                    const item = this.actor.items.get(update._id);
-                    if(item) item.updateSource({"system.equipped": update["system.equipped"]})
-                }
-            }
-        }
+        if(game.settings.get(BG3CONFIG.MODULE_NAME, 'enableWeaponAutoEquip')) this.autoEquipWeapons(c);
         this.activeSet = c.index;
     }
 
@@ -98,6 +65,7 @@ export class WeaponContainer extends BG3Component {
 
             return container;
         });
+        
         for(const cell of this.components.weapon) this.element.appendChild(cell.element);
         await Promise.all(this.components.weapon.map((cell) => cell.render()));
 

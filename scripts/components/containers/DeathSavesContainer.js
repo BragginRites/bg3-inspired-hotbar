@@ -15,46 +15,26 @@ export class DeathSavesContainer extends BG3Component {
         return [...["bg3-death-saves-container"], ...(game.settings.get(BG3CONFIG.MODULE_NAME, 'showDeathSavingThrow') === 'only' ? ['death-only-skull'] : [])]
     }
 
-    async getData() {
-        return {display: game.settings.get(BG3CONFIG.MODULE_NAME, 'showDeathSavingThrow'), success: this.actor.system.attributes.death.success || 0, failure: this.actor.system.attributes.death.failure || 0};
+    getData() {
+        return {display: false};
+    }
+
+    isVisible() {
+        return false;
     }
 
     get visible() {
-        if (!this.actor || this.actor.type !== 'character' || game.settings.get(BG3CONFIG.MODULE_NAME, 'showDeathSavingThrow') === 'hide') return false;
-        // Get current HP and death saves state
-        const currentHP = this.actor.system.attributes?.hp?.value || 0;
+        return this.isVisible();
+    }
 
-        return currentHP <= 0
+    async skullClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return null;
     }
 
     async _registerEvents() {
-        this.element.querySelector('.death-saves-skull').addEventListener('click', async (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            // Get current death save count before the roll
-            const currentSuccesses = this.actor.system.attributes.death.success || 0;
-
-            try {
-                // Determine roll mode based on modifiers
-                let rollMode = "roll";
-                if (event.altKey) rollMode = "advantage";
-                if (event.ctrlKey) rollMode = "disadvantage";
-                if (event.shiftKey) rollMode = "gmroll";
-
-                // Roll the death save with the appropriate mode
-                const roll = await this.actor.rollDeathSave({
-                    event: event,  // Pass the original event
-                    advantage: event.altKey,
-                    disadvantage: event.ctrlKey,
-                    fastForward: event.shiftKey
-                });
-                
-                if(!roll) return;
-                this.setVisibility();
-            } catch (error) {
-                console.error("Error during death save roll:", error);
-            }
-        });
+        this.element.querySelector('.death-saves-skull').addEventListener('click', this.skullClick.bind(this));
 
         this.element.querySelector('.death-saves-skull').addEventListener('contextmenu', async (event) => {
             event.preventDefault();
@@ -63,10 +43,8 @@ export class DeathSavesContainer extends BG3Component {
             if (!this.actor || this.actor.type !== 'character') return;
 
             // Reset both successes and failures to 0
-            await this.actor.update({
-                'system.attributes.death.success': 0,
-                'system.attributes.death.failure': 0
-            });
+            if(this.getData().data1?.update) await this.getData().data1.update(0);
+            if(this.getData().data2?.update) await this.getData().data2.update(0);
 
             // Update the UI
             const successBoxes = this.element.querySelectorAll('.death-save-box.success');
@@ -94,9 +72,7 @@ export class DeathSavesContainer extends BG3Component {
                 });
 
                 // Update the actor with the number of successes (3 - clicked index)
-                await this.actor.update({
-                    'system.attributes.death.success': 3 - clickedIndex
-                });
+                if(this.getData().data1?.update) await this.getData().data1.update(this.getData().data1.max - clickedIndex);
             })
         );
 
@@ -117,9 +93,7 @@ export class DeathSavesContainer extends BG3Component {
                 });
 
                 // Update the actor with the number of failures (clicked index + 1)
-                await this.actor.update({
-                    'system.attributes.death.failure': clickedIndex + 1
-                });
+                if(this.getData().data2?.update) await this.getData().data2.update(clickedIndex + 1);
             })
         );
     }

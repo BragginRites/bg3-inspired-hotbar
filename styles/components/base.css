@@ -146,6 +146,6 @@ body[data-player-list="hover"] #players:hover {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
-section[data-tab="bg3-inspired-hotbar"] > div.form-group:not(.submenu) {
+section[data-tab="bg3-hud-core"] > div.form-group:not(.submenu) {
     /* display: none !important; */
 }

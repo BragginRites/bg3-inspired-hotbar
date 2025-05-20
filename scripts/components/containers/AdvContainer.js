@@ -11,31 +11,12 @@ export class AdvContainer extends BG3Component {
         return ["bg3-adv-container"]
     }
 
-    get visible() {
-        return game.settings.get(BG3CONFIG.MODULE_NAME, 'addAdvBtnsMidiQoL');
+    isVisible() {
+        return false;
     }
     
-    get btnData() {
-        return [
-            {
-                type: 'div',
-                key: 'advBtn',
-                title: 'Left-click to set Advantage to roll only.<br>Right-click to toggle.',
-                label: 'ADV',
-                events: {
-                    'mouseup': this.setState.bind(this),
-                }
-            },
-            {
-                type: 'div',
-                key: 'disBtn',
-                title: 'Left-click to set Disadvantage to roll only.<br>Right-click to toggle.',
-                label: 'DIS',
-                events: {
-                    'mouseup': this.setState.bind(this),
-                }
-            }
-        ];
+    getBtnData() {
+        return [];
     }
 
     async setState(event) {
@@ -62,18 +43,16 @@ export class AdvContainer extends BG3Component {
     
     async _renderInner() {
         await super._renderInner();
-        if(!game.modules.get("midi-qol")?.active || !game.settings.get(BG3CONFIG.MODULE_NAME, 'addAdvBtnsMidiQoL')) return;
-        const buttons = this.btnData.map((btn) => new BaseButton(btn, this));
+        if(!this.isVisible()) return;
+        const buttons = this.getBtnData().map((btn) => new BaseButton(btn, this));
         for(const btn of buttons) this.element.appendChild(btn.element);
         await Promise.all(buttons.map((btn) => btn.render()));
         this.updateButtons();
-        // this.registerHooks() ;
     }
 
     destroy() {
         while (this.element.firstChild) {
             this.element.removeChild(this.element.lastChild);
         }
-        // this.unRegisterHooks();
     }
 }

@@ -145,7 +145,7 @@ export class AutoPopulateSettingDialog extends ThemeSettingDialog {
         super();
         this.keys = [
             {label: 'none',
-            fields: ['enforceSpellPreparationPC', 'enforceSpellPreparationNPC', 'autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']}
+            fields: [/* 'enforceSpellPreparationPC', 'enforceSpellPreparationNPC',  */'autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']}
         ]
     }
 
@@ -157,7 +157,7 @@ export class AutoPopulateSettingDialog extends ThemeSettingDialog {
     }
 }
 
-export class MidiQoLSettingDialog extends ThemeSettingDialog {
+/* export class MidiQoLSettingDialog extends ThemeSettingDialog {
     constructor () {
         super();
         this.keys = [
@@ -172,14 +172,14 @@ export class MidiQoLSettingDialog extends ThemeSettingDialog {
             title: "Auto-Populating settings"
         }
     }
-}
+} */
 
 export class TooltipSettingDialog extends ThemeSettingDialog {
     constructor () {
         super();
         this.keys = [
             {label: 'none',
-            fields: ['enableLightTooltip', 'tooltipDelay', 'showMaterialDescription', 'showDamageRanges']}
+            fields: ['enableLightTooltip', 'tooltipDelay'/* , 'showMaterialDescription' */, 'showDamageRanges']}
         ]
     }
 

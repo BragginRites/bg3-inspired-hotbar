@@ -17,7 +17,6 @@ export class ThemeSettingDialog extends FormApplication {
     }
 
     async getData() {
-        // const dataKeys = ['scopeTheme'],
         const dataKeys = [],
             configData = {};
         for(let i = 0; i < dataKeys.length; i++) {
@@ -42,10 +41,7 @@ export class ThemeSettingDialog extends FormApplication {
                     },
                     {
                         fields: [
-                            // { id:'bg3-cell-size', label: 'Cell size', field: {type: 'number', value: '', min: 10, max: 200, unit:'px'}},
                             { id:'bg3-border-size', label: 'Border size', field: {type: 'number', value: '', min: 0, max: 10, unit:'px'}}
-                            /* ,
-                            { id:'bg3-border-radius', label: 'Border radius', field: {type: 'number', value: '', min: 0, max: 10, unit:'px'}} */
                         ]
                     }
                 ]
@@ -82,7 +78,6 @@ export class ThemeSettingDialog extends FormApplication {
             },
             {
                 name: 'Weapons Sets',
-                // hint: 'If not specified, size is equal to 1.5 time Hotbar (or Global) cell size.',
                 categories: [
                     {
                         headers: ['', 'Normal', 'Hover'],
@@ -98,22 +93,6 @@ export class ThemeSettingDialog extends FormApplication {
                     }
                 ]
             },
-            /* {
-                name: 'Common Actions',
-                hint: '',
-                categories: [
-                    {
-                        headers: ['', 'Normal', 'Hover'],
-                        fields: [{ id:'bg3-common-border-color', label: 'Border Color', field: {type: 'color', value: '', value2: ''}},
-                        { id:'bg3-common-background-color', label: 'Background Color', field: {type: 'color', value: '', value2: ''}},
-                        { id:'bg3-common-text-color', label: 'Text Color', field: {type: 'color', value: '', value2: ''}}]
-                    },
-                    {
-                        fields: [{ id:'bg3-common-cell-size', label: 'Cell size', field: {type: 'number', value: 50, min: 10, max: 200, unit:'px'}},
-                            { id:'bg3-common-border-size', label: 'Border size', field: {type: 'number', value: 2, min: 0, max: 10, unit:'px'}}]
-                    }
-                ]
-            }, */
             {
                 name: 'Filters',
                 hint: '',
@@ -182,24 +161,7 @@ export class ThemeSettingDialog extends FormApplication {
                         fields: [{ id:'bg3-rest-border-size', label: 'Border size', field: {type: 'number', value: '', min: 0, max: 10, unit:'px'}}]
                     }
                 ]
-            }/* ,
-            {
-                name: 'Tooltip',
-                hint: '',
-                categories: [
-                    {
-                        // headers: ['', 'Normal', 'Hover'],
-                        fields: [{ id:'bg3-tooltip-border-color', label: 'Border Color', field: {type: 'color', value: '', value2: ''}},
-                        { id:'bg3-tooltip-background-color', label: 'Background Color', field: {type: 'color', value: '', value2: ''}},
-                        { id:'bg3-tooltip-text-color', label: 'Text Color', field: {type: 'color', value: '', value2: ''}},
-                        { id: 'bg3-tooltip-text-secondary-color', label: 'Text Secondary Color', field: {type: 'color', value: '', value2: ''}},
-                        { id: 'bg3-tooltip-component-color', label: 'Text Component Color', field: {type: 'color', value: '', value2: ''}}]
-                    },
-                    {
-                        fields: [{ id:'bg3-tooltip-border-size', label: 'Border size', field: {type: 'number', value: '', min: 0, max: 10, unit:'px'}}]
-                    }
-                ]
-            } */
+            }
         ];
 
         return {configData, dataInput, themeList, canExport: game.user.hasPermission('FILES_UPLOAD')};
@@ -350,7 +312,6 @@ export class ThemeSettingDialog extends FormApplication {
                             themeName = $(event).find('input[name="bg3ThemeName"]').val();
                         const theme = new File([new Blob([JSON.stringify(themeData)], { type: "application/json" })], `${themeName}.json`);
                         FilePicker.uploadPersistent(BG3CONFIG.MODULE_NAME, "themes", theme).then(async (response) => {
-                            // game.settings.set(BG3CONFIG.MODULE_NAME, 'themeOption', themeName);
                             const themeList = await this.generateThemeList(themeName);
                             $('[name="bg3-inspired-hotbar.themeOption"]').empty();
                             $('[name="bg3-inspired-hotbar.themeOption"]').append(themeList);

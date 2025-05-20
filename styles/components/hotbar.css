@@ -139,7 +139,7 @@
     border-color: var(--bg3-feature-subclass);
 }
 
-#bg3-hotbar-container .hotbar-cell[data-item-type="spell"]:not([data-preparation-mode="pact"]):not([data-preparation-mode="apothecary"])[data-highlight="highlight"] {
+#bg3-hotbar-container .hotbar-cell[data-item-type="spell"][data-highlight="highlight"] {
     border-color: var(--bg3-spell);
 }
 
@@ -209,14 +209,13 @@
     display: block;
 }
 
-#bg3-hotbar-container .hotbar-item-uses {
+#bg3-hotbar-container .hotbar-item-uses, #bg3-hotbar-container .hotbar-item-quantity {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 0;
     display: none;
     color: #fff;
-    padding: 1px 4px;
     border-radius: 3px;
+    padding: 1px 4px;
     font-size: 0.8em;
     font-weight: bold;
     z-index: 11;
@@ -224,12 +223,41 @@
     text-shadow: var(--shadow-text-stroke);
 }
 
+#bg3-hotbar-container .hotbar-item-uses {
+    right: 0;
+}
+
+#bg3-hotbar-container .hotbar-item-quantity {
+    left: 0;
+}
+
 #bg3-hotbar-container .hotbar-item-uses.depleted {
     color: #ff4444;
 } 
 
-#bg3-hotbar-container[data-item-use="true"] .hotbar-item-uses {
+#bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-uses, #bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-quantity {
     display: block;
+}
+
+#bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-uses::before, #bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-quantity::before {
+    border-top: 1.5rem solid rgba(0, 0, 0, 0);
+    content: "";
+    height: 0;
+    position: absolute;
+    top: 0;
+    width: 0;
+    border-top-color: rgba(255,255,255,.5);
+    z-index: -1;
+}
+
+#bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-uses::before {
+    border-left: 1.5rem solid rgba(0, 0, 0, 0);
+    right: 0;
+}
+
+#bg3-hotbar-container[data-item-use="true"] .bg3-hotbar-container .hotbar-item-quantity::before {
+    border-right: 1.5rem solid rgba(0, 0, 0, 0);
+    left: 0;
 }
 
 #bg3-hotbar-container .bg3-adv-container {

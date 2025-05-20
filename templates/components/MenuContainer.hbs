@@ -1,7 +1,7 @@
 <div>
     {{#each buttons}}
         {{#unless visibility}}
-            {{#if (eq @key 'divider')}}
+            {{#if (eq label 'divider')}}
                 <div class="menu-divider"></div>
             {{else}}
                 <div class="menu-item{{#if class}} {{class}}{{/if}}" data-key="{{@key}}">

@@ -8,7 +8,8 @@
             "UnableToRetrieve": "Unable to retrieve item data.",
             "MacroNotFound": "Macro not found",
             "NoActor": "No actor found",
-            "NoUIReference": "UI reference not found. Please try refreshing the page."
+            "NoUIReference": "UI reference not found. Please try refreshing the page.",
+            "AddonMissing": "BG3 Inspired HUD: System specific module not installed or not active, please install and enable the {systemAddonLink} module, if available, to access full features."
         },
         "ContextMenu": {
             "EditItem": "Edit Item",

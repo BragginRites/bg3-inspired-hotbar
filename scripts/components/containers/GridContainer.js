@@ -1,4 +1,4 @@
-import { AutoPopulateDialog } from "../../features/AutoPopulateContainer.js";
+import { AutoPopulateDialog } from "../../features/AutoPopulateFeature.js";
 import { AutoSort } from "../../features/AutoSort.js";
 import { BG3Component } from "../component.js";
 import { GridCell } from "./GridCell.js";

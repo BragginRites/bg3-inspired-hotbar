@@ -126,7 +126,7 @@ export class ControlContainer extends BG3Component {
                         
                     }
                 },
-                divider: {},
+                divider: {label: 'divider'},
                 importSettings: {
                     label: game.i18n.localize("BG3.Hotbar.SettingsMenu.ImportLayout"),
                     icon: 'fas fa-file-import',
@@ -147,7 +147,6 @@ export class ControlContainer extends BG3Component {
                                 ui.BG3HOTBAR.manager.containers = layout;
                                 await ui.BG3HOTBAR.manager.persist();
                                 // Recreate UI with new layout
-                                // this.destroy();
                                 ui.BG3HOTBAR.refresh();
                               } catch (error) {
                                 console.error('Failed to import layout:', error);

@@ -1,14 +1,12 @@
 // Configuration constants for the BG3 Hotbar
 
-// import { AutoPopulateDefaults } from "../components/dialog/AutoPopulateCreateToken.js";
-import { AutoPopulateDefaults } from "../features/AutoPopulateCreateToken.js";
+import { AutoPopulateSettings } from "../features/AutoPopulateFeature.js";
 import { ExtraInfosDialog } from "../components/dialog/ExtraInfosDialog.js";
 import { ThemeSettingDialog } from "../components/dialog/ThemeSettingDialog.js";
-import { AutoPopulateSettingDialog, CombatSettingDialog, GlobalSettingDialog, HotbarSettingDialog, MidiQoLSettingDialog, PortraitSettingDialog, TooltipSettingDialog } from "../components/dialog/SettingDialog.js";
-// import ColorSetting from "/modules/colorsettings/colorSetting.js";
 import Picker from "/modules/colorsettings/lib/vanilla-picker.min.mjs";
 import API from "/modules/colorsettings/api.js";
 import { CPRActionsDialog } from "../components/dialog/CPRActionsDialog.js";
+import { BG3UTILS } from "./utils.js";
 
 export const BG3CONFIG = {
     // UI Constants
@@ -206,7 +204,21 @@ export const BG3CONFIG = {
         "--bg3-tooltip-text-secondary-color": "var(--bg3-text-secondary-color)",
         "--bg3-tooltip-component-color": "#aaaaaa",
         "--bg3-tooltip-border-size": "var(--bg3-border-size)"
-    }
+    },
+
+    // Item Types
+    ITEM_TYPES: [
+        { value: "weapon", label: "BG3.Settings.ContainerAutoPopulate.Weapons" },
+        { value: "feat", label: "BG3.Settings.ContainerAutoPopulate.Features" },
+        { value: "spell", label: "BG3.Settings.ContainerAutoPopulate.Spells" },
+        { value: "consumable", label: "BG3.Settings.ContainerAutoPopulate.Consumables" },
+        { value: "equipment", label: "BG3.Settings.ContainerAutoPopulate.Equipment" },
+        { value: "tool", label: "BG3.Settings.ContainerAutoPopulate.Tools" },
+        { value: "loot", label: "BG3.Settings.ContainerAutoPopulate.Loot" }
+    ],
+
+    COMMON_ACTIONS: {},
+    DEFAULT_COMMON_ACTIONS: []
 };
 
 export function registerKeybinding() {
@@ -225,7 +237,7 @@ export function registerKeybinding() {
 }
 
 export function registerLibWrapper() {
-    patchFunc("game.dnd5e.dataModels.ItemDataModel.prototype.getCardData", async function (wrapped, { activity, ...enrichmentOptions }={}) {
+    /* patchFunc("game.dnd5e.dataModels.ItemDataModel.prototype.getCardData", async function (wrapped, { activity, ...enrichmentOptions }={}) {
         const context = await wrapped.call(this);
         if(context.labels?.damages?.length) {
             let textDamage = '';
@@ -243,13 +255,15 @@ export function registerLibWrapper() {
         }
         if(!this.hasOwnProperty('identified') && this.hasLimitedUses) context.uses = this.uses;
         return context;
-    }, "MIXED");
+    }, "MIXED"); */
 }
 
 export async function preloadHandlebarsTemplates() {
     const partials = [
-        `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/weapon-block.hbs`,
-        `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/activity-tooltip.hbs`,
+        // `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/item-tooltip.hbs`,
+        // `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/spell-block.hbs`,
+        // `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/weapon-block.hbs`,
+        // `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/activity-tooltip.hbs`,
         `modules/${BG3CONFIG.MODULE_NAME}/templates/tooltips/macro-tooltip.hbs`,
     ];
 
@@ -363,8 +377,8 @@ export function registerEarly() {
         else tokenTools.tools.toggleBG3UI = btnData;
     });
     
-    const rollEvents = ["dnd5e.preRollAttackV2", "dnd5e.preRollSavingThrowV2", "dnd5e.preRollSkillV2", "dnd5e.preRollAbilityCheckV2", "dnd5e.preRollConcentrationV2", "dnd5e.preRollDeathSaveV2", "dnd5e.preRollToolV2"];
-    for(const event of rollEvents) Hooks.on(event, hookRollEvent);
+    // const rollEvents = ["dnd5e.preRollAttackV2", "dnd5e.preRollSavingThrowV2", "dnd5e.preRollSkillV2", "dnd5e.preRollAbilityCheckV2", "dnd5e.preRollConcentrationV2", "dnd5e.preRollDeathSaveV2", "dnd5e.preRollToolV2"];
+    // for(const event of rollEvents) Hooks.on(event, hookRollEvent);
     
     if (customElements.get('colorpicker-input2') != undefined) {
         return;
@@ -374,7 +388,7 @@ export function registerEarly() {
     });
 }
 
-const hookRollEvent = (rollConfig, dialogConfig, messageConfig) => {
+/* const hookRollEvent = (rollConfig, dialogConfig, messageConfig) => {
     if(!game.modules.get("midi-qol")?.active || !game.settings.get(BG3CONFIG.MODULE_NAME, 'addAdvBtnsMidiQoL') || !ui.BG3HOTBAR.manager?.actor || ui.BG3HOTBAR.manager?.actor !== rollConfig.workflow?.actor) return;
     const state = ui.BG3HOTBAR.manager.actor.getFlag(BG3CONFIG.MODULE_NAME, "advState"),
         once = ui.BG3HOTBAR.manager.actor.getFlag(BG3CONFIG.MODULE_NAME, "advOnce");
@@ -383,29 +397,7 @@ const hookRollEvent = (rollConfig, dialogConfig, messageConfig) => {
         else if(state === 'disBtn') rollConfig.disadvantage = true;
         if(once && !!ui.BG3HOTBAR.components.advantage) ui.BG3HOTBAR.components.advantage.setState(null);
     }
-}
-
-const formatSettingsDetails = (data) => {
-    const bg3Tab = $('section[data-tab="bg3-inspired-hotbar"]').eq(0);
-    if(!bg3Tab) return;
-    for(const detail of data) {
-        let toShow = false;
-        const generalDetails = $('<details>'),
-            contentDetails = $('<div>');
-        generalDetails.append($('<summary>').html(game.i18n.localize(detail.label))).append(contentDetails);
-        for(const category of detail.categories) {
-            if(category.label) contentDetails.append($('<div>').addClass('form-group group-header').html(game.i18n.localize(category.label)));
-            for(const field of category.fields) {
-                const fieldName = `${BG3CONFIG.MODULE_NAME}.${field}`,
-                    childContainer = $(`[name="${fieldName}"]`).length ? $(`[name="${fieldName}"]`) : $(`button[data-key="${fieldName}"]`);
-                if(childContainer.length) toShow = true;
-                else continue;
-                contentDetails.append(childContainer.parents('div.form-group:first'));
-            }
-        }
-        if(toShow) bg3Tab.append(generalDetails);
-    }
-}
+} */
 
 export function updateSettingsDisplay() {
     Hooks.on("renderSettingsConfig", (app, html, data) => {
@@ -488,7 +480,7 @@ export function updateSettingsDisplay() {
                 categories: [
                     {
                         label: null,
-                        fields: ['enforceSpellPreparationPC', 'enforceSpellPreparationNPC', 'autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']
+                        fields: [/* 'enforceSpellPreparationPC', 'enforceSpellPreparationNPC',  */'autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']
                     }
                 ]
             },
@@ -497,11 +489,14 @@ export function updateSettingsDisplay() {
                 categories: [
                     {
                         label: null,
-                        fields: ['enableLightTooltip', 'tooltipDelay', 'showMaterialDescription', 'showDamageRanges']
+                        fields: ['enableLightTooltip', 'tooltipDelay'/* , 'showMaterialDescription' */, 'showDamageRanges']
                     }
                 ]
-            },
-            {
+            }
+            
+        ];
+        /* if(game.modules.get("midi-qol")?.active) {
+            detailsSettings.push({
                 label: 'BG3.Settings.Menu.Midi.Name',
                 categories: [
                     {
@@ -509,9 +504,9 @@ export function updateSettingsDisplay() {
                         fields: ['synchroBRMidiQoL', 'addAdvBtnsMidiQoL']
                     }
                 ]
-            }
-        ];
-        formatSettingsDetails(detailsSettings);
+            });
+        } */
+        BG3UTILS.formatSettingsDetails(BG3CONFIG.MODULE_NAME, detailsSettings);
     });
 }
 
@@ -705,7 +700,7 @@ export function registerSettings() {
       scope: 'client',
       config: true,
       type: String,
-      default: false,
+      default: "false",
       choices: {
           'false': 'Never',
           'true': 'When not in combat',
@@ -982,8 +977,8 @@ export function registerSettings() {
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'showItemUses', {
-        name: 'Show Item Uses',
-        hint: 'Display remaining uses in the top-right corner of items',
+        name: 'Show Item Uses & Quantity',
+        hint: 'Display remaining uses in the top-right corner of items and quantity  in the top-left corner',
         scope: 'client',
         config: true,
         type: Boolean,
@@ -1043,26 +1038,24 @@ export function registerSettings() {
         default: true
     });
 
-    if(game.modules.get("chris-premades")?.active) {
-        game.settings.registerMenu(BG3CONFIG.MODULE_NAME, "chooseCPRActions", {
-            name: 'BG3.Settings.Menu.CPR.Name',
-            label: 'BG3.Settings.Menu.CPR.Label',
-            hint: 'BG3.Settings.Menu.CPR.Hint',
-            icon: "fas fa-cog",
-            type: CPRActionsDialog,
-            scope: 'world',
-            visible: () => {
-                return game.modules.get("chris-premades")?.active;
-            }
-        });
+    game.settings.registerMenu(BG3CONFIG.MODULE_NAME, "chooseCPRActions", {
+        name: 'BG3.Settings.Menu.CPR.Name',
+        label: 'BG3.Settings.Menu.CPR.Label',
+        hint: 'BG3.Settings.Menu.CPR.Hint',
+        icon: "fas fa-cog",
+        type: CPRActionsDialog,
+        scope: 'world',
+        visible: () => {
+            return false;
+        }
+    });
 
-        game.settings.register(BG3CONFIG.MODULE_NAME, 'choosenCPRActions', {
-            scope: 'client',
-            config: false,
-            type: Array,
-            default: ["9wbU6kYxfAaRFrbI", "ga6foNaesV3UJFKm", "eqOOv3smPuxTq7Xm", "pmn1iLabeps5aPtW", "nmkcJWUba7hyi5m5", "34jFXjMOseErle3M"]
-        });
-    }
+    game.settings.register(BG3CONFIG.MODULE_NAME, 'choosenCPRActions', {
+        scope: 'client',
+        config: false,
+        type: Array,
+        default: BG3CONFIG.DEFAULT_COMMON_ACTIONS
+    });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'lockCombatContainer', {
         name: 'Lock the basic actions container',
@@ -1165,7 +1158,7 @@ export function registerSettings() {
     // Filter Settings
 
     // Auto-Population Settings
-    game.settings.register(BG3CONFIG.MODULE_NAME, 'enforceSpellPreparationPC', {
+    /* game.settings.register(BG3CONFIG.MODULE_NAME, 'enforceSpellPreparationPC', {
         name: 'BG3.Settings.EnforceSpellPreparationPC.Name',
         hint: 'BG3.Settings.EnforceSpellPreparationPC.Hint',
         scope: 'client',
@@ -1181,7 +1174,7 @@ export function registerSettings() {
         config: true,
         type: Boolean,
         default: false
-    });
+    }); */
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'autoPopulateLinkedTokens', {
         name: 'Auto-Populate Linked Tokens',
@@ -1275,7 +1268,7 @@ export function registerSettings() {
         }
     });
 
-    game.settings.register(BG3CONFIG.MODULE_NAME, 'showMaterialDescription', {
+    /* game.settings.register(BG3CONFIG.MODULE_NAME, 'showMaterialDescription', {
         name: 'BG3.Settings.ShowMaterialDescription.Name',
         hint: 'BG3.Settings.ShowMaterialDescription.Hint',
         scope: 'client',
@@ -1285,7 +1278,7 @@ export function registerSettings() {
         onChange: value => {
             document.body.dataset.showMaterials = value;
         }
-    });
+    }); */
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'showDamageRanges', {
         name: 'BG3.Settings.ShowDamageRanges.Name',
@@ -1301,38 +1294,40 @@ export function registerSettings() {
     });
 
     // Midi QoL
-    game.settings.register(BG3CONFIG.MODULE_NAME, 'synchroBRMidiQoL', {
-        name: 'BG3.Settings.synchroMidiQoL.BR.Name',
-        hint: 'BG3.Settings.synchroMidiQoL.BR.Hint',
-        scope: 'client',
-        config: game.modules.get("midi-qol")?.active,
-        type: Boolean,
-        default: false,
-        onChange: () => {
-            if(ui.BG3HOTBAR.components?.container?.components?.filterContainer) ui.BG3HOTBAR.components.container.components.filterContainer._checkBonusReactionUsed();
-        }
-    });
-
-    game.settings.register(BG3CONFIG.MODULE_NAME, 'addAdvBtnsMidiQoL', {
-        name: 'BG3.Settings.synchroMidiQoL.ADV.Name',
-        hint: 'BG3.Settings.synchroMidiQoL.ADV.Hint',
-        scope: 'client',
-        config: game.modules.get("midi-qol")?.active,
-        type: Boolean,
-        default: false,
-        onChange: value => {
-            if(ui.BG3HOTBAR.components?.advantage) {
-                if(value) ui.BG3HOTBAR.components.advantage._renderInner();
-                else ui.BG3HOTBAR.components.advantage.destroy();
+    /* if(game.modules.get("midi-qol")?.active) {
+        game.settings.register(BG3CONFIG.MODULE_NAME, 'synchroBRMidiQoL', {
+            name: 'BG3.Settings.synchroMidiQoL.BR.Name',
+            hint: 'BG3.Settings.synchroMidiQoL.BR.Hint',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: false,
+            onChange: () => {
+                if(ui.BG3HOTBAR.components?.container?.components?.filterContainer) ui.BG3HOTBAR.components.container.components.filterContainer._autoCheckUsed();
             }
-        }
-    });
+        });
+
+        game.settings.register(BG3CONFIG.MODULE_NAME, 'addAdvBtnsMidiQoL', {
+            name: 'BG3.Settings.synchroMidiQoL.ADV.Name',
+            hint: 'BG3.Settings.synchroMidiQoL.ADV.Hint',
+            scope: 'client',
+            config: true,
+            type: Boolean,
+            default: false,
+            onChange: value => {
+                if(ui.BG3HOTBAR.components?.advantage) {
+                    if(value) ui.BG3HOTBAR.components.advantage._renderInner();
+                    else ui.BG3HOTBAR.components.advantage.destroy();
+                }
+            }
+        });
+    } */
 
     game.settings.registerMenu(BG3CONFIG.MODULE_NAME, 'containerAutoPopulateSettings', {
         name: 'BG3.Settings.ContainerAutoPopulate.Name',
         label: 'BG3.Settings.ContainerAutoPopulate.Configure',
         icon: 'fas fa-tags',
-        type: AutoPopulateDefaults,
+        type: AutoPopulateSettings,
         restricted: true
     });
 
@@ -1364,17 +1359,7 @@ export function registerSettings() {
 }
 
 export function registerHandlebars() {
-    Handlebars.registerHelper('rangedmg', async function(formula, type) {
-        let textContent = formula;
-        if(game.settings.get(BG3CONFIG.MODULE_NAME, 'showDamageRanges')) {
-            const minRoll = Roll.create(formula).evaluate({ minimize: true }),
-                maxRoll = Roll.create(formula).evaluate({ maximize: true });
-            textContent = `${Math.floor((await minRoll).total)}-${Math.ceil((await maxRoll).total)}`;
-        }
-        return `${textContent}${type && type !== '' ? ` ${type}` : ''}`;
-    });
-
-    Handlebars.registerHelper('times', function(n, block) {
+    Handlebars.registerHelper('bg3times', function(n, block) {
         var accum = '';
         for(var i = 0; i < n; ++i) {
             block.data.index = i;
@@ -1384,42 +1369,52 @@ export function registerHandlebars() {
         }
         return accum;
     });
+    
+    if(!('includes' in Handlebars.helpers)) {
+        Handlebars.registerHelper('includes', function(array, value) {
+            return array?.includes(value) ?? false;
+        });
+    }
 
-    Handlebars.registerHelper('math', function(lvalue, operator, rvalue) {
-        lvalue = parseFloat(lvalue);
-        rvalue = parseFloat(rvalue);
-        return {
-            "+": lvalue + rvalue,
-            "-": lvalue - rvalue,
-            "*": lvalue * rvalue,
-            "/": lvalue / rvalue,
-            "%": lvalue % rvalue
-        }[operator];
-    });
+    if(!('math' in Handlebars.helpers)) {
+        Handlebars.registerHelper('math', function(lvalue, operator, rvalue) {
+            lvalue = parseFloat(lvalue);
+            rvalue = parseFloat(rvalue);
+            return {
+                "+": lvalue + rvalue,
+                "-": lvalue - rvalue,
+                "*": lvalue * rvalue,
+                "/": lvalue / rvalue,
+                "%": lvalue % rvalue
+            }[operator];
+        });
+    }
 
-    /* {{#switch 'a'}} 
-        {{#case 'a'}} A {{/case}} 
-        {{#case 'b'}} B {{/case}} 
-        {{#default '188'}} {{/default}}
-    {{/switch}} */
-    Handlebars.registerHelper('switch', function(value, options) {
-        this.switch_value = value;
-        this.switch_break = false;
-        return options.fn(this);
-    });
-        
-    Handlebars.registerHelper('case', function(value, options) {
-        if (value == this.switch_value) {
-            this.switch_break = true;
+    if(!('switch' in Handlebars.helpers)) {
+        /* {{#switch 'a'}} 
+            {{#case 'a'}} A {{/case}} 
+            {{#case 'b'}} B {{/case}} 
+            {{#default '188'}} {{/default}}
+        {{/switch}} */
+        Handlebars.registerHelper('switch', function(value, options) {
+            this.switch_value = value;
+            this.switch_break = false;
             return options.fn(this);
-        }
-    });
-        
-    Handlebars.registerHelper('default', function(value, options) {
-        if (this.switch_break == false) {
-            return value;
-        }
-    });
+        });
+            
+        Handlebars.registerHelper('case', function(value, options) {
+            if (value == this.switch_value) {
+                this.switch_break = true;
+                return options.fn(this);
+            }
+        });
+            
+        Handlebars.registerHelper('default', function(value, options) {
+            if (this.switch_break == false) {
+                return value;
+            }
+        });
+    }
 
     Handlebars.registerHelper('isdefined', function (value) {
         return value !== undefined;
@@ -1431,60 +1426,6 @@ export function registerHandlebars() {
         }
         return options.inverse(this);
     });
-
-    /* Handlebars.registerHelper('check', function(fn, options) {
-        // console.log(v1)
-        if(fn()) {
-          return options.fn(this);
-        }
-        return options.inverse(this);
-    }); */
-}
-
-/**
- * Helper function to determine token linkage status
- * @param {Actor} actor - The actor to check
- * @param {string} tokenId - The token ID to check
- * @returns {boolean} - Whether the token is considered linked
- */
-export function isTokenLinked(actor, tokenId) {
-    // Get the token from the canvas
-    const token = canvas.tokens.get(tokenId);
-    
-    // If we have a token, check its document's actorLink property
-    if (token) {
-        return token.document.actorLink;
-    }
-    
-    // If no token found, assume it's linked if it's not a synthetic token actor
-    return !actor.isToken;
-}
-
-/**
- * Helper function to determine if spell preparation should be enforced
- * @param {Actor} actor - The actor to check
- * @param {string} tokenId - The token ID to check
- * @returns {boolean} - Whether spell preparation should be enforced
- */
-export function shouldEnforceSpellPreparation(actor, tokenId) {
-    const isLinked = isTokenLinked(actor, tokenId);
-    
-    // Debug log to help track issues
-    console.debug("BG3 Inspired Hotbar | Spell preparation check:", {
-        actorId: actor.id,
-        actorName: actor.name,
-        tokenId: tokenId,
-        isLinked: isLinked,
-        setting: isLinked ? 'PC' : 'NPC'
-    });
-
-    // If linked token (including PCs) - use PC setting
-    if (isLinked) {
-        return game.settings.get(BG3CONFIG.MODULE_NAME, 'enforceSpellPreparationPC');
-    }
-    
-    // If unlinked token - use NPC setting
-    return game.settings.get(BG3CONFIG.MODULE_NAME, 'enforceSpellPreparationNPC');
 }
 
 export let patchFunc = (prop, func, type = "WRAPPER") => {

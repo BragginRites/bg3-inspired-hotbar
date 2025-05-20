@@ -1,9 +1,10 @@
 <div>
     {{#if icon}}
-        <img src="{{icon}}"{{#if name}} alt="{{name}}"{{/if}} class="hotbar-item{{#if (eq uses.value 0)}} depleted{{/if}}" draggable="false">
-        {{#if name}}<div class="hotbar-item-name">{{name}}</div>{{/if}}
-        {{#if uses}}<div class="hotbar-item-uses{{#if (eq uses.value 0)}} depleted{{/if}}">{{uses.value}}/{{uses.max}}</div>{{/if}}
+        <img src="{{icon}}"{{#if name}} alt="{{localize name}}"{{/if}} class="hotbar-item{{#if (eq uses.value 0)}} depleted{{/if}}" draggable="false">
+        {{#if name}}<div class="hotbar-item-name">{{localize name}}</div>{{/if}}
+        {{#if uses}}<div class="hotbar-item-uses{{#if (eq uses.value 0)}} depleted{{/if}}">{{uses.value}}{{#if uses.max}}/{{uses.max}}{{/if}}</div>{{/if}}
+        {{#if quantity}}<div class="hotbar-item-quantity">{{quantity}}</div>{{/if}}
     {{else}}
-        <div>{{name}}</div>
+        <div>{{localize name}}</div>
     {{/if}}
 </div>

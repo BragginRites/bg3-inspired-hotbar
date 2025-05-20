@@ -23,34 +23,8 @@ export class ActiveButton extends BG3Component {
             e.preventDefault();
             e.stopPropagation();
             
-            // Clear any pending tooltip timer
-            // BaseTooltip.cleanup(effect.type || "effect");
-    
-            // Store the current tooltip before updating
-            // const currentTooltip = wrapper._hotbarTooltip;
-            
-            // Set updating flag
-            // wrapper._isUpdatingTooltip = true;
-            
             // Update the effect's disabled status
             await this.data.item.update({ disabled: !this.data.item.disabled });
-            
-            /* // If there was a tooltip and it's not being dragged, update its content
-            if (currentTooltip && !currentTooltip._isDragging) {
-            // Clear the current content
-            if (currentTooltip.element) {
-                currentTooltip.element.innerHTML = '';
-                // Rebuild the content with the updated effect state
-                currentTooltip.item = effect;  // Update the item reference
-                currentTooltip.buildContent();
-            }
-            }
-            
-            // Clear updating flag after a short delay
-            const tooltipDelay = BaseTooltip.getTooltipDelay();
-            setTimeout(() => {
-            wrapper._isUpdatingTooltip = false;
-            }, tooltipDelay + 50); // Add 50ms buffer to the delay */
             this.update();
         });
         

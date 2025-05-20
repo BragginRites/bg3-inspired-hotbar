@@ -1,7 +1,4 @@
 import { BG3Component } from "../component.js";
-import { AbilityContainer } from "./AbilityContainer.js";
-import { DeathSavesContainer } from "./DeathSavesContainer.js";
-import { MenuContainer } from "./MenuContainer.js";
 import { BG3CONFIG } from "../../utils/config.js";
 
 export class PortraitHealth extends BG3Component {

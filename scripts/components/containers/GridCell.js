@@ -2,6 +2,7 @@ import { BG3Component } from "../component.js";
 import { fromUuid } from "../../utils/foundryUtils.js";
 import { ControlsManager } from "../../managers/ControlsManager.js";
 import { MenuContainer } from "./MenuContainer.js";
+import { BG3UTILS } from "../../utils/utils.js";
 
 export class GridCell extends BG3Component {
     constructor(data, parent) {
@@ -10,7 +11,6 @@ export class GridCell extends BG3Component {
     }
 
     get classes() {
-        // return ['hotbar-cell', 'drag-cursor', 'item-name', 'item-action', 'item-tooltip', 'rollable'];
         return ['hotbar-cell', 'drag-cursor'];
     }
 
@@ -26,8 +26,12 @@ export class GridCell extends BG3Component {
         return {type: 'advanced'};
     }
 
-    check2Handed(item) {
-        return this._parent.id === 'weapon' && this.data.col === 0 && this.data.row === 0 && !!item?.labels?.properties?.find(p => p.abbr === 'two');
+    getActionType(itemData) {
+        return null;
+    }
+
+    getPreparationMode(itemData) {
+        return null;
     }
 
     async getData() {
@@ -37,106 +41,88 @@ export class GridCell extends BG3Component {
             data = {...data, ...{
                     uuid: itemData.uuid,
                     name: itemData.name,
-                    icon: itemData.img ?? 'icons/svg/book.svg',
-                    actionType: itemData.system?.activation?.type?.toLowerCase() ?? itemData.activation?.type?.toLowerCase() ?? null,
-                    itemType: itemData.type
-                },
-                ...await this.getItemUses()
+                    icon: itemData.img,
+                    actionType: this.getActionType(itemData),
+                    itemType: itemData.type,
+                    quantity: itemData.system?.quantity && itemData.system?.quantity > 1 ? itemData.system?.quantity : false
+                }
             };
-            if(itemData.type === "spell") data = {...data, ...{preparationMode: itemData.system?.preparation?.mode, level: itemData.system?.level}};
-            if(itemData.type === 'feat') data = {...data, ...{featType: itemData.system?.type?.value || 'default'}};
         }
         return data;
     }
 
     get item() {
-        return (async () => {            
-            if(!this.data.item) return;
-            if(this.data.item.uuid) return await fromUuid(this.data.item.uuid);
-            else return this.data.item;
-            // if(!this.data.item?.uuid) return;
-            // return await fromUuid(this.data.item.uuid);
-        })();
+        return BG3UTILS.getItem.bind(this)(this.data?.item, this.actor);
     }
 
     async getItemUses() {
-        const itemData = await this.item;
-        if (itemData.hasLimitedUses && (game.user.isGM || !itemData.system.hasOwnProperty('identified') || itemData.system.identified)) {
-            const uses = itemData.system.uses;
-            const value = uses.value ?? 0;
-            const max = uses.max ?? 0;
-
-            // Only show uses if max > 0.
-            if (max > 0) return {uses: {value: value, max: max}};
-            else return null;
-        } else return null;
+        return null;
     }
 
-    getItemMenu() {
+    async getItemMenuBtns() {
+        return {};
+    }
+
+    async getItemMenu() {
+        const systemBtns = await this.getItemMenuBtns();
         return {
-            // position: 'target',
             position: 'topright2',
             event: 'contextmenu',
             name: 'baseMenu',
             closeParent: true,
             standalone: true,
             buttons: {
-                macro: {
-                    label: game.i18n.format("SIDEBAR.Create", {type: 'Macro'}),
-                    icon: 'fas fa-code',
-                    visibility: !!this.data.item || !!ui.BG3HOTBAR.manager.actor || !ui.BG3HOTBAR.manager.canGMHotbar(),
-                    click: () => {
-                        this.menuItemAction('macro');
-                    }
-                },
-                edit: {
-                    label: game.i18n.localize("BG3.Hotbar.ContextMenu.EditItem"),
-                    icon: 'fas fa-edit',
-                    visibility: !this.data.item,
-                    click: () => {
-                        if(!this.data.item) return;
-                        this.menuItemAction('edit');
-                    }
-                },
-                activity: {
-                    label: game.i18n.localize("BG3.Hotbar.ContextMenu.ConfigureActivities"),
-                    icon: 'fas fa-cog',
-                    visibility: !this.data.item,
-                    click: () => {
-                        if(!this.data.item) return;
-                        this.menuItemAction('activity');
-                    }
-                },
-                remove: {
-                    label: game.i18n.localize("BG3.Hotbar.ContextMenu.Remove"),
-                    icon: 'fas fa-trash',
-                    visibility: !this.data.item,
-                    click: async () => {
-                        if(!this.data.item) return;
-                        await this.menuItemAction('remove');
-                        if(this._parent.id === 'weapon') this._parent._parent.switchSet(this._parent._parent.components.weapon[this._parent._parent.activeSet]);
-                    }
-                },
-                divider: {visibility: !this.data.item},
-                populate: {
-                    label: 'Auto-Populate This Container', icon: 'fas fa-magic',
-                    visibility: this.data.delOnly || (!ui.BG3HOTBAR.manager.actor && ui.BG3HOTBAR.manager.canGMHotbar()),
-                    click: () => {
-                        this._parent.menuItemAction('populate');
-                    }
-                },
-                sort: {
-                    label: 'Sort Items In This Container', icon: 'fas fa-sort',
-                    visibility: this.data.delOnly || (!ui.BG3HOTBAR.manager.actor && ui.BG3HOTBAR.manager.canGMHotbar()),
-                    click: () => {
-                        this._parent.menuItemAction('sort');
-                    }
-                },
-                clear: {
-                    label: 'Clear Container', icon: 'fas fa-trash-alt',
-                    click: () => {
-                        this._parent.menuItemAction('clear');
-                        if(this._parent.id === 'weapon') this._parent._parent.switchSet(this._parent._parent.components.weapon[this._parent._parent.activeSet]);
+                ...systemBtns,
+                ...(Object.keys(systemBtns).length ? {div1: {label: 'divider', visibility: !this.data.item}} : {}),
+                ...{
+                    macro: {
+                        label: game.i18n.format("SIDEBAR.Create", {type: 'Macro'}),
+                        icon: 'fas fa-code',
+                        visibility: !!this.data.item || !!ui.BG3HOTBAR.manager.actor || !ui.BG3HOTBAR.manager.canGMHotbar(),
+                        click: () => {
+                            this.menuItemAction('macro');
+                        }
+                    },
+                    edit: {
+                        label: game.i18n.localize("BG3.Hotbar.ContextMenu.EditItem"),
+                        icon: 'fas fa-edit',
+                        visibility: !this.data.item,
+                        click: () => {
+                            if(!this.data.item) return;
+                            this.menuItemAction('edit');
+                        }
+                    },
+                    remove: {
+                        label: game.i18n.localize("BG3.Hotbar.ContextMenu.Remove"),
+                        icon: 'fas fa-trash',
+                        visibility: !this.data.item,
+                        click: async () => {
+                            if(!this.data.item) return;
+                            await this.menuItemAction('remove');
+                            if(this._parent.id === 'weapon') this._parent._parent.switchSet(this._parent._parent.components.weapon[this._parent._parent.activeSet]);
+                        }
+                    },
+                    divider: {label: 'divider', visibility: !this.data.item},
+                    populate: {
+                        label: 'Auto-Populate This Container', icon: 'fas fa-magic',
+                        visibility: this._parent.data.delOnly || ui.BG3HOTBAR.manager.canGMHotbar(),
+                        click: () => {
+                            this._parent.menuItemAction('populate');
+                        }
+                    },
+                    sort: {
+                        label: 'Sort Items In This Container', icon: 'fas fa-sort',
+                        visibility: this._parent.data.delOnly || ui.BG3HOTBAR.manager.canGMHotbar(),
+                        click: () => {
+                            this._parent.menuItemAction('sort');
+                        }
+                    },
+                    clear: {
+                        label: 'Clear Container', icon: 'fas fa-trash-alt',
+                        click: () => {
+                            this._parent.menuItemAction('clear');
+                            if(this._parent.id === 'weapon') this._parent._parent.switchSet(this._parent._parent.components.weapon[this._parent._parent.activeSet]);
+                        }
                     }
                 }
             }
@@ -187,7 +173,6 @@ export class GridCell extends BG3Component {
                         macro = new cls({name: cls.defaultName({type: "chat"}), type: "chat", scope: "global"}),
                         newMacro = macro.sheet.render(true),
                         saveSubmit = newMacro._onSubmit,
-                        // currentContainer = this._parent,
                         currentSlot = this;
                     newMacro._onSubmit = async (...args) => {
                         await saveSubmit.bind(newMacro)(...args);
@@ -210,13 +195,32 @@ export class GridCell extends BG3Component {
         }
     }
 
+    async useItem(item, e, override) {
+        let used = false,
+            options = {};
+        if(item.execute) item.execute();
+        else if(item.use) {
+            options = {
+                configureDialog: false,
+                legacy: false,
+                event: e
+            };
+            used = await item.use(options, { event: e });
+        } else if(item.consume) {
+            item.consume(e);
+            if(item.toChat) item.toChat(e);
+            used = await this.useItem(item, this.data.override.level ?? item.system.level);
+        } else if(item.sheet?.render) item.sheet.render(true);
+        else item.toChat(e);
+        return used;
+    }
+
     async _registerEvents() {
         this.element.addEventListener('click', async (e) => {
             e.preventDefault();
-            // e.stopPropagation();
             const item = await this.item;
             if(!item) return;
-            if(!item.uuid) {
+            if(!item.uuid && !item.slug) {
                 ChatMessage.create({
                 user: game.user,
                 speaker: {
@@ -230,19 +234,8 @@ export class GridCell extends BG3Component {
             }
             if(item) {
                 try {
-                    console.log(item)
-                    if(item.execute) item.execute();
-                    else if(item.use) {
-                        const options = {
-                            configureDialog: false,
-                            legacy: false,
-                            event: e
-                        };
-                        if (e.ctrlKey) options.disadvantage = true;
-                        if (e.altKey) options.advantage = true;
-                        const used = await item.use(options, { event: e });
-                        if (used) this._renderInner();
-                    } else if(item.sheet?.render) item.sheet.render(true)
+                    let used = await this.useItem(item, e, this.data.item.override);
+                    if(used) this._renderInner();
                 } catch (error) {
                     console.error("BG3 Inspired Hotbar | Error using item:", error);
                     ui.notifications.error(`Error using item: ${error.message}`);
@@ -252,15 +245,11 @@ export class GridCell extends BG3Component {
             }
         });
         
-        this.element.addEventListener('contextmenu', (e) => MenuContainer.toggle(this.getItemMenu(), this, e));
+        this.element.addEventListener('contextmenu', async (e) => MenuContainer.toggle(await this.getItemMenu(), this, e));
         
-        this.element.addEventListener('mouseenter', (e) => {
-
-        });
+        this.element.addEventListener('mouseenter', (e) => {});
         
-        this.element.addEventListener('mouseleave', (e) => {
-
-        });
+        this.element.addEventListener('mouseleave', (e) => {});
         
         this.element.addEventListener('dragstart', (e) => {
             if (ControlsManager.isSettingLocked('dragDrop') || this._parent?.locked || !this.data.item) {
@@ -324,23 +313,25 @@ export class GridCell extends BG3Component {
         if(this.data.item) {
             const itemData = await this.item;
             if(itemData) {
-                this.element.dataset.actionType = itemData.system?.activation?.type?.toLowerCase() ?? itemData.activation?.type?.toLowerCase() ?? null;
+                this.element.dataset.actionType = this.getActionType(itemData);
                 this.element.dataset.itemType = itemData.type;
                 switch (itemData.type) {
                     case 'spell':
-                        this.element.dataset.preparationMode = itemData.system.preparation?.mode;
-                        this.element.dataset.level = itemData.system.level;
+                        this.element.dataset.preparationMode = this.getPreparationMode(itemData);
+                        this.element.dataset.level = this.data.item.override?.level ?? itemData.system.level;
                         break;
                     case 'feat':
                         this.element.dataset.featType = itemData.system?.type?.value || 'default';
                         break;
-                    case 'weapon':
-                        const is2h = this.check2Handed(itemData);
-                        this.element.classList.toggle('has-2h', is2h);
-                        if(is2h) this._parent.element.style.setProperty('--bg-2h', `url(${itemData.img.startsWith('http') ? '' : '/'}${itemData.img})`);
-                        else this._parent.element.style.removeProperty('--bg-2h');
-                        break;
                     default:
+                        if(this._parent.id === 'weapon' && this.data.col === 0 && this.data.row === 0) {
+                            const is2h = BG3UTILS.check2Handed(this);
+                            this.element.classList.toggle('has-2h', is2h);
+                            if(is2h) {
+                                const data = await this.getData();
+                                this._parent.element.style.setProperty('--bg-2h', `url(${data.icon.startsWith('http') ? '' : '/'}${data.icon})`);
+                            } else this._parent.element.style.removeProperty('--bg-2h');
+                        }
                         break;
                 }
             }

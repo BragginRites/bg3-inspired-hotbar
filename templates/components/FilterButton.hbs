@@ -1,9 +1,15 @@
 <div>
     {{#if symbol}}<i class="fas {{symbol}}"></i>{{/if}}
+    {{#if img}}<i class="{{img.class}}">{{img.value}}</i>{{/if}}
+    {{#if adv}}{{{adv}}}{{/if}}
     {{#if max}}
-        {{#times max}}
-            <div class="spell-slot-box{{#if (gte @index value)}} is-used{{/if}}"></div>
-        {{/times}}
+        {{#if (gt value 4)}}
+            <div class="spell-slot-number">{{value}}</div>
+        {{else}}
+            {{#bg3times max}}
+                <div class="spell-slot-box{{#if (gte @index value)}} is-used{{/if}}"></div>
+            {{/bg3times}}
+        {{/if}}
     {{/if}}
     {{#if short}}<div class="spell-level-label">{{short}}</div>{{/if}}
     {{#if custom}}<div class="spell-level-label custom-filter-btn">{{custom.value}}/{{custom.max}}</div>{{/if}}

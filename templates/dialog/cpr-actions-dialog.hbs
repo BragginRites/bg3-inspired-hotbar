@@ -6,7 +6,7 @@
         {{#each actions}}
             <div class="form-group">
                 <img src="{{img}}">
-                <label>{{name}}</label>
+                <label>{{localize name}}</label>
                 <div class="form-fields">
                     <input class="cpr-actions" type="checkbox" id="{{_id}}" data-dtype="Boolean" {{#ifIn _id ../selected}}checked{{/ifIn}}>
                 </div>

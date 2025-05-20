@@ -6,7 +6,8 @@
     /* min-height: 184px;
     min-width: 80px; */
     width: calc(var(--bg3-hotbar-cell-size) * 1.5 + 16px);
-    flex-direction: column;
+    /* flex-direction: column; */
+    flex-wrap: wrap;
     gap: 0.25rem;
     /* justify-content: flex-start; */
     margin-left: 20px;
@@ -41,7 +42,8 @@
 #bg3-hotbar-container  .rest-turn-button {
     display: flex;
     /* padding: 0.5rem 1rem 1.9rem; */
-    padding: 0 8px;
+    /* padding: 0 8px; */
+    padding: 4px 8px;
     position: relative;
     transition: all .3s ease-in-out;
     border-radius: 8px;
@@ -52,7 +54,8 @@
     flex-direction: column-reverse;
     /* flex: 1; */
     justify-content: space-evenly;
-    height: calc(var(--bg3-hotbar-cell-size)* 1.5 - 8px);
+    /* height: calc(var(--bg3-hotbar-cell-size)* 1.5 - 8px); */
+    flex: 1;
 }
 
 #bg3-hotbar-container  .rest-turn-button.end-turn {
@@ -68,7 +71,7 @@
 }
 
 #bg3-hotbar-container  .turn-button {
-    height: calc(var(--bg3-hotbar-cell-size)* 3 - 12px);
+    /* height: calc(var(--bg3-hotbar-cell-size)* 3 - 12px); */
 }
 
 #bg3-hotbar-container  .rest-turn-label {

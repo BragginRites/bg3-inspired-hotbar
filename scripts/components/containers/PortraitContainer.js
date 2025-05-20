@@ -194,17 +194,15 @@ export class PortraitContainer extends BG3Component {
         await super._renderInner();
         this.applySettings();
         this.components = {};
+
         // Portrait Health
         this.components.healthContainer = new PortraitHealth({}, this);
-        this.components.healthContainer.render();
-        this.element.appendChild(this.components.healthContainer.element);
         // Death Save
         this.components.deathSavesContainer = new DeathSavesContainer();
-        this.components.deathSavesContainer.render();
-        this.element.appendChild(this.components.deathSavesContainer.element);
         // Ability Container 
         this.components.abilityContainer = new AbilityContainer();
-        this.components.abilityContainer.render();
-        this.element.appendChild(this.components.abilityContainer.element);
+
+        for(const container in this.components) this.element.appendChild(this.components[container].element);
+        await Promise.all(Object.values(this.components).map((container) => container.render()));
     }
 }

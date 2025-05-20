@@ -21,16 +21,12 @@ export class MenuContainer extends BG3Component {
     async getData() {
         return {buttons: this.data.buttons};
     }
-
-    // get dataTooltip() {
-    //     return this.data.tooltip ?? null;
-    // }
     
     async _registerEvents() {
         if(this.data.buttons) {
             Object.entries(this.data.buttons).forEach(([k,b]) => {
+                const btn = this.element.querySelector(`[data-key="${k}"]`);
                 if(b.click || b.subMenu?.length) {
-                    const btn = this.element.querySelector(`[data-key="${k}"]`);
                     if(btn) btn.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -52,11 +48,23 @@ export class MenuContainer extends BG3Component {
                             })
                         }
                         else b.click(event);
-                        if(!this.data.keepOpen) {
+                        if(!this.data.keepOpen && !b.keepOpen) {
                             if(ui.BG3HOTBAR.menuManager) ui.BG3HOTBAR.menuManager.destroy();
                             else this.destroy();
                         }
                     });
+                }
+                if(b.change) {
+                    const input = btn.querySelector('select');
+                    if(input) input.addEventListener('change', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        b.change(event);
+                        if(!this.data.keepOpen) {
+                            if(ui.BG3HOTBAR.menuManager) ui.BG3HOTBAR.menuManager.destroy();
+                            else this.destroy();
+                        }
+                    })
                 }
             })
         } else this.element.style.display = 'none';

@@ -4,7 +4,7 @@
         <p class="notes">{{localize "BG3.Settings.ContainerAutoPopulate.Hint"}}</p>
         <div class="container-chips" data-container="container1">
             {{#each itemTypes}}
-            <div class="chip" data-value="{{this.value}}">{{this.label}}</div>
+            <div class="chip {{#if (includes ../containerSettings value)}}active{{/if}}" data-value="{{this.value}}">{{localize this.label}}</div>
             {{/each}}
         </div>
     </div>

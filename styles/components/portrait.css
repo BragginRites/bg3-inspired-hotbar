@@ -155,13 +155,14 @@
 #bg3-hotbar-container .bg3-death-saves-container {
   position: absolute;
   left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
+  /* top: 50%;
+  transform: translateY(-50%); */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   z-index: 1;
+  bottom: 0;
 }
 
 #bg3-hotbar-container .death-saves-group {

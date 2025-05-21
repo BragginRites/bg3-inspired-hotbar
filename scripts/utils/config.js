@@ -218,7 +218,13 @@ export const BG3CONFIG = {
     ],
 
     COMMON_ACTIONS: {},
-    DEFAULT_COMMON_ACTIONS: []
+    DEFAULT_COMMON_ACTIONS: [],
+
+    AUTOPOPULATE_TYPES: [
+        ["weapon", "feat"],
+        ["spell"],
+        ["consumable"]
+    ]
 };
 
 export function registerKeybinding() {
@@ -1200,7 +1206,7 @@ export function registerSettings() {
         scope: 'world',
         config: false,
         type: Array,
-        default: ["weapon", "feat"],
+        default: BG3CONFIG.AUTOPOPULATE_TYPES[0],
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'container2AutoPopulate', {
@@ -1209,7 +1215,7 @@ export function registerSettings() {
         scope: 'world',
         config: false,
         type: Array,
-        default: ["spell"],
+        default: BG3CONFIG.AUTOPOPULATE_TYPES[1],
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'container3AutoPopulate', {
@@ -1218,7 +1224,7 @@ export function registerSettings() {
         scope: 'world',
         config: false,
         type: Array,
-        default: ["consumable"],
+        default: BG3CONFIG.AUTOPOPULATE_TYPES[2],
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'noActivityAutoPopulate', {

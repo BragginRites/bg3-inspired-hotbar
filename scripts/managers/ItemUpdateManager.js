@@ -68,7 +68,7 @@ export class ItemUpdateManager {
             for (const container of containerData) {
                 let containerUpdate = false;
                 for (const [slotKey, slotItem] of Object.entries(container.data.items)) {
-                    if(slotItem.uuid === item.uuid) {
+                    if(slotItem && slotItem.uuid === item.uuid) {
                         containerUpdate = true;
                         needSave = true;
                         if(!isValid) delete container.data.items[slotKey];

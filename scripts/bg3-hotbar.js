@@ -244,9 +244,10 @@ export class BG3Hotbar extends Application {
     }
 
     _onDeleteCombat(combat) {
-        if(!ui.BG3HOTBAR.element?.[0]) return;
+        if(!ui.BG3HOTBAR.element) return;
         this.combat.forEach(e => e.setComponentsVisibility());
         if(!this.components.container?.components?.filterContainer) return;
+        this.hide();
         this.components.container.components.filterContainer.resetUsedActions();
     }
 
@@ -323,8 +324,36 @@ export class BG3Hotbar extends Application {
             const actor = this.manager.actor;
             if(!actor) return;
             state = (autoHideSetting == 'true' && !game.combat?.started) || (autoHideSetting == 'init' && (!game.combat?.started || !(game.combat?.started && game.combat?.combatant?.actor === actor)));
-            this.element[0].classList.toggle('slidedown',state);
+            if ( !state ) this.maximize();
+            else this.minimize();
         }
+    }
+
+    async minimize() {
+        if ( !this.rendered || [true, null].includes(this._minimized) ) return;
+        this._minimized = null;
+
+        return new Promise(resolve => {
+            ui.BG3HOTBAR.element.addClass('minimized');
+            setTimeout(() => {
+                this._minimized = true;
+                resolve();
+            }, 300);
+        });
+    }
+
+    async maximize() {
+        if ( [false, null].includes(this._minimized) ) return;
+        this._minimized = null;
+
+        // Expand window
+        return new Promise(resolve => {
+            ui.BG3HOTBAR.element.removeClass('minimized');
+            setTimeout(() => {
+                this._minimized = false;
+                resolve();
+            }, 300);
+        });
     }
 
     async generate(token) {

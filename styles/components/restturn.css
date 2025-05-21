@@ -112,29 +112,29 @@
     border-color: var(--bg3-hotbar-drag-color);
 }
 
-#bg3-hotbar-container.slidedown {
+#bg3-hotbar-container.minimized {
     transform: translateY(calc(100% + 5px));
 }
 
-#bg3-hotbar-container.slidedown label.btn-toggle {
+#bg3-hotbar-container.minimized label.btn-toggle {
     /* bottom: calc(100% + 15px); */
 }
 
-#bg3-hotbar-container.slidedown .bg3-filter-subcontainer, #bg3-hotbar-container.slidedown .bg3-passives-container, #bg3-hotbar-container.slidedown .bg3-actives-container, #bg3-hotbar-container.slidedown .bg3-weapon-container, #bg3-hotbar-container.slidedown .bg3-portrait-container {
+#bg3-hotbar-container.minimized .bg3-filter-subcontainer, #bg3-hotbar-container.minimized .bg3-passives-container, #bg3-hotbar-container.minimized .bg3-actives-container, #bg3-hotbar-container.minimized .bg3-weapon-container, #bg3-hotbar-container.minimized .bg3-portrait-container {
     transition: all .3s ease-in-out !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-#bg3-hotbar-container.slidedown .rest-turn-button {
+#bg3-hotbar-container.minimized .rest-turn-button {
     pointer-events: none;
 }
 
-#bg3-hotbar-container.slidedown .btn-toggle {
+#bg3-hotbar-container.minimized .btn-toggle {
     bottom: calc(100% + 5px);
 }
 
-#bg3-hotbar-container.slidedown .btn-toggle::before {
+#bg3-hotbar-container.minimized .btn-toggle::before {
     -webkit-transform: scaleY(-1);
     transform: scaleY(-1);
 }

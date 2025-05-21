@@ -5,7 +5,6 @@ import { BG3CONFIG } from "../../utils/config.js";
 export class RestTurnContainer extends BG3Component {
     constructor(data) {
         super(data);
-        this.slideState = false;
     }
 
     get classes() {
@@ -52,10 +51,7 @@ export class RestTurnContainer extends BG3Component {
                         class: ["btn-toggle", "fas", "fa-caret-down"],
                         attr: {"title": 'Show/Hide HotBar UI', "for": 'toggle-input'},
                         events: {
-                            'click': () => {
-                                this.slideState = !this.slideState;
-                                ui.BG3HOTBAR.element[0].classList.toggle('slidedown', this.slideState);
-                            }
+                            'click': ev => ui.BG3HOTBAR._onToggleMinimize(ev)
                         }
                     }
                 ]];

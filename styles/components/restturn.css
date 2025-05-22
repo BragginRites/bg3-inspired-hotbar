@@ -116,10 +116,6 @@
     transform: translateY(calc(100% + 5px));
 }
 
-#bg3-hotbar-container.minimized label.btn-toggle {
-    /* bottom: calc(100% + 15px); */
-}
-
 #bg3-hotbar-container.minimized .bg3-filter-subcontainer, #bg3-hotbar-container.minimized .bg3-passives-container, #bg3-hotbar-container.minimized .bg3-actives-container, #bg3-hotbar-container.minimized .bg3-weapon-container, #bg3-hotbar-container.minimized .bg3-portrait-container {
     transition: all .3s ease-in-out !important;
     opacity: 0 !important;
@@ -131,7 +127,7 @@
 }
 
 #bg3-hotbar-container.minimized .btn-toggle {
-    bottom: calc(100% + 5px);
+    bottom: calc(100% + 5px + var(--ft-height, 0px));
 }
 
 #bg3-hotbar-container.minimized .btn-toggle::before {

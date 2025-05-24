@@ -3,15 +3,12 @@ import { BG3CONFIG } from "../utils/config.js";
 export class BG3TooltipManager {
     constructor() {
         this.savedEnrichers = {};
+        this._saveEnrichers();
         this._init();
     }
 
     get enrichers() {
         return CONFIG.TextEditor.enrichers ?? CONFIG.TextEditor
-    }
-
-    extendTooltipInit() {
-        return;
     }
 
     _init() {
@@ -54,6 +51,11 @@ export class BG3TooltipManager {
         }
         
         $('body').on('mousedown', '.locked-tooltip.bg3-tooltip', handle_mousedown);
+        this._extendTooltipInit();
+    }
+
+    _extendTooltipInit() {
+        return;
     }
 
     _saveEnrichers() {

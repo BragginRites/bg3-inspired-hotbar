@@ -38,7 +38,9 @@ export class GridCell extends BG3Component {
         let itemData = await this.item,
             data = super.getData();
         if(itemData) {
-            data = {...data, ...{
+            data = {
+                ...data,
+                ...{
                     uuid: itemData.uuid,
                     name: itemData.name,
                     icon: itemData.img,

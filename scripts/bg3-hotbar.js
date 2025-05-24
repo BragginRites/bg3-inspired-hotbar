@@ -83,6 +83,23 @@ export class BG3Hotbar extends Application {
         };
     }
 
+    static get BG3HUD() {
+        return {
+            BG3Component : BG3Component,
+            AbilityContainer : AbilityContainer,
+            RestTurnContainer : RestTurnContainer,
+            DeathSavesContainer : DeathSavesContainer,
+            FilterContainer : FilterContainer,
+            AutoPopulateFeature : AutoPopulateFeature,
+            WeaponContainer : WeaponContainer,
+            GridCell : GridCell,
+            CPRActionsDialog : CPRActionsDialog,
+            ItemUpdateManager : ItemUpdateManager,
+            AdvContainer : AdvContainer,
+            BG3TooltipManager: BG3TooltipManager
+        }
+    }
+
     async getData(data) {
         return {};
     }

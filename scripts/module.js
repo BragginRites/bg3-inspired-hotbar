@@ -2,6 +2,12 @@
 import { BG3Hotbar } from './bg3-hotbar.js';
 import { BG3CONFIG, registerKeybinding, updateSettingsDisplay, registerEarly, registerSettings, registerHandlebars, registerLibWrapper } from './utils/config.js';
 
+Object.defineProperty(globalThis.CONFIG, "BG3HUD", {
+  get: () => {
+    return BG3Hotbar.BG3HUD;
+  }
+});
+
 Hooks.once('init', () => {
     registerEarly();
     registerHandlebars();

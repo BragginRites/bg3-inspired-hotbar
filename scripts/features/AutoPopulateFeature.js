@@ -63,7 +63,7 @@ export class AutoPopulateFeature {
     }
 
     static checkExtraConditions(item) {
-      return game.settings.get(BG3CONFIG.MODULE_NAME, 'noActivityAutoPopulate') || !BG3UTILS.itemIsPassive(item);;
+      return game.settings.get(BG3CONFIG.MODULE_NAME, 'noActivityAutoPopulate') || !BG3UTILS.itemIsPassive(item);
     }
 
     static getItemsList(actor, itemTypes) {

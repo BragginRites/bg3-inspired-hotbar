@@ -14,7 +14,7 @@ export class FilterContainer extends BG3Component {
         return [...['bg3-filter-subcontainer'], ...(this.checkSpellPoint() ? ["filter-spell-point"] : [])];
     }
 
-    getFilterData() {
+    get filterData() {
         return [];
     }
 
@@ -143,7 +143,7 @@ export class FilterContainer extends BG3Component {
 
     async render() {
         await super.render();
-        this.components = this.getFilterData().map((filter) => new FilterButton(filter, this));
+        this.components = this.filterData().map((filter) => new FilterButton(filter, this));
         for(const filter of this.components) this.element.appendChild(filter.element);
         await Promise.all(this.components.map((filter) => filter.render()));
 

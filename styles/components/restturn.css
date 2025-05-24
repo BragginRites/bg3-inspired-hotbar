@@ -124,7 +124,7 @@
 }
 
 #bg3-hotbar-container.minimized .btn-toggle {
-    bottom: calc(100% + 5px + var(--ft-height, 0px));
+    bottom: calc(100% + 5px + (var(--ft-height, 0px) / var(--bg3-scale-ui, 1)));
 }
 
 #bg3-hotbar-container.minimized .btn-toggle::before {

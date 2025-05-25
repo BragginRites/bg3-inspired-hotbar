@@ -51,10 +51,10 @@ export class BG3TooltipManager {
         }
         
         $('body').on('mousedown', '.locked-tooltip.bg3-tooltip', handle_mousedown);
-        this._extendTooltipInit();
+        this.extendTooltipInit();
     }
 
-    _extendTooltipInit() {
+    extendTooltipInit() {
         return;
     }
 

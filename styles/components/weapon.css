@@ -11,7 +11,7 @@
     height: 100%;
     padding-top: var(--bg3-weapon-cell-size);
     min-height: calc(var(--bg3-weapon-cell-size) * 1.6);
-    transform-style: preserve-3d;
+    /* transform-style: preserve-3d; */
     position: relative;
     /* height: 86px; */
     width: calc(2*(var(--bg3-weapon-cell-size) + 1px));

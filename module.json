@@ -76,5 +76,17 @@
   "manifest": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/v4.0.0/module.json",
   "download": "https://github.com/BragginRites/bg3-inspired-hotbar/releases/download/v4.0.0/bg3-inspired-hotbar.zip",
   "readme": "README.md",
-  "bugs": "https://github.com/BragginRites/bg3-inspired-hotbar/issues"
+  "bugs": "https://github.com/BragginRites/bg3-inspired-hotbar/issues",
+    "packs": [
+      {
+        "name": "bg3-inspired-hud",
+        "label": "BG3 Inspired HUD",
+        "path": "packs/bg3-inspired-hud",
+        "type": "Macro",
+        "ownership": {
+          "PLAYER": "LIMITED",
+          "ASSISTANT": "OWNER"
+        }
+      }
+    ]
 }

@@ -1,7 +1,6 @@
 // Auto Populate Feature
 
 import { BG3CONFIG } from '../utils/config.js';
-import { HotbarManager } from '../managers/HotbarManager.js';
 import { AutoSort } from './AutoSort.js';
 import { BG3UTILS } from '../utils/utils.js';
 
@@ -17,7 +16,7 @@ export class AutoPopulateFeature {
             }
 
             // Create a temporary hotbar manager for this token
-            const tempManager = new HotbarManager();
+            const tempManager = new CONFIG.BG3HUD.MANAGERS.HOTBAR();
             tempManager.currentTokenId = token.id;
             await tempManager._loadTokenData();
             
@@ -62,12 +61,12 @@ export class AutoPopulateFeature {
         }
     }
 
-    static checkExtraConditions(item) {
+    static checkExtraConditions(item, actor, manager) {
       return game.settings.get(BG3CONFIG.MODULE_NAME, 'noActivityAutoPopulate') || !BG3UTILS.itemIsPassive(item);
     }
 
-    static getItemsList(actor, itemTypes) {
-        return [];
+    static getItemsList(actor, itemTypes, manager) {
+        return actor.items.filter(i => itemTypes.includes(i.type) && this.checkExtraConditions(i, actor, manager));
     }
 
     static constructItemData(item) {
@@ -85,7 +84,7 @@ export class AutoPopulateFeature {
             const itemsWithActivities = [];
 
             // const itemList = AutoPopulateFeature.getItemsList(actor, itemTypes, BG3UTILS.shouldEnforceSpellPreparation(actor, manager.currentTokenId));
-            const itemList = AutoPopulateFeature.getItemsList(actor, itemTypes, manager);
+            const itemList = CONFIG.BG3HUD.FEATURES.POPULATE.getItemsList(actor, itemTypes, manager);
             // Process all items from the actor
             for (const item of itemList) {
                 // Skip if item type is not in the selected types
@@ -93,7 +92,7 @@ export class AutoPopulateFeature {
                     || manager.containers.weapon.reduce((acc, curr) => acc.concat(Object.values(curr.items)), []).find(i => i.uuid === item.uuid)
                 ) continue;
                 
-                const itemData = AutoPopulateFeature.constructItemData(item);
+                const itemData = CONFIG.BG3HUD.FEATURES.POPULATE.constructItemData(item);
                 itemsWithActivities.push(itemData);
             }
             
@@ -106,7 +105,7 @@ export class AutoPopulateFeature {
             AutoSort._sortItems(itemsWithActivities);
             
             // Get existing UUIDs to prevent duplicates
-            const existingUuids = AutoPopulateFeature._getExistingUuids();
+            const existingUuids = CONFIG.BG3HUD.FEATURES.POPULATE._getExistingUuids();
             
             // Filter out items that already exist in the hotbar
             const newItems = itemsWithActivities.filter(item => !existingUuids.has(item.uuid));
@@ -260,7 +259,7 @@ export class AutoPopulateDialog extends Dialog {
     
                 try {
                     ui.notifications.info("Populating container...");
-                    await AutoPopulateFeature._populateContainerWithSettings(this.actor, ui.BG3HOTBAR.manager, container.index, selectedTypes);
+                    await CONFIG.BG3HUD.FEATURES.POPULATE._populateContainerWithSettings(this.actor, ui.BG3HOTBAR.manager, container.index, selectedTypes);
                     ui.BG3HOTBAR.manager.persist();
                     container.render();
                     ui.notifications.info("Container populated successfully.");

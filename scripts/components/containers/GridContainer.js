@@ -1,7 +1,6 @@
 import { AutoPopulateDialog } from "../../features/AutoPopulateFeature.js";
 import { AutoSort } from "../../features/AutoSort.js";
 import { BG3Component } from "../component.js";
-import { GridCell } from "./GridCell.js";
 
 export class GridContainer extends BG3Component {
     constructor(data) {
@@ -44,7 +43,7 @@ export class GridContainer extends BG3Component {
         for(let r = 0; r < this.data.rows; r++) {
             for(let c = 0; c < this.data.cols; c++) {
                 const item = this.data?.items?.[`${c}-${r}`] ?? null,
-                    cell = new GridCell({row: r, col: c, item: item}, this);
+                    cell = new CONFIG.BG3HUD.CORE.CELL({row: r, col: c, item: item}, this);
                 this.addComponent(cell);
             }
         }

@@ -10,7 +10,7 @@ export class BG3Component {
     }
     
     get template() {
-        return `${BG3CONFIG.COMPONENTS_PATH}${this.constructor.name}.hbs`;
+        return `${BG3CONFIG.COMPONENTS_PATH}${Object.getPrototypeOf(this.constructor) === BG3Component ? this.constructor.name : Object.getPrototypeOf(this.constructor).name}.hbs`;
     }
 
     get classes() {

@@ -1,4 +1,3 @@
-import { BaseButton } from "../buttons/BaseButton.js";
 import { BG3Component } from "../component.js";
 import { BG3CONFIG } from "../../utils/config.js";
 
@@ -68,7 +67,7 @@ export class RestTurnContainer extends BG3Component {
 
     async render() {
         await super.render();
-        this.components = [...(await this.btnData)].map((btn) => new BaseButton(btn));
+        this.components = [...(await this.btnData)].map((btn) => new CONFIG.BG3HUD.BUTTONS.BASE(btn));
         for(const btn of this.components) this.element.appendChild(btn.element);
         await Promise.all(this.components.map((btn) => btn.render()));
         return this.element;

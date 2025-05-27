@@ -1,6 +1,5 @@
 import { BG3Component } from "../component.js";
 import { BG3CONFIG } from "../../utils/config.js";
-import { FilterButton } from "../buttons/filterButton.js";
 
 export class FilterContainer extends BG3Component {
     constructor(data) {
@@ -14,7 +13,7 @@ export class FilterContainer extends BG3Component {
         return [...['bg3-filter-subcontainer'], ...(this.checkSpellPoint() ? ["filter-spell-point"] : [])];
     }
 
-    getFilterData() {
+    get filterData() {
         return [];
     }
 
@@ -99,7 +98,7 @@ export class FilterContainer extends BG3Component {
             color = '#d5a25b';
         for(const item of this.actor.items) {
             if(item.hasLimitedUses && item.name && item.type === 'feat') {
-                resources.push(new FilterButton({
+                resources.push(new CONFIG.BG3HUD.BUTTONS.FILTER({
                     color: color,
                     class: ['filter-spell-point', 'filter-custom'],
                     background: item.img,
@@ -116,7 +115,7 @@ export class FilterContainer extends BG3Component {
         for(const resourceId in this.actor.system.resources) {
             const oResource = this.actor.system.resources[resourceId];
             if(oResource.value && oResource.label && oResource.label !== '') {
-                resources.push(new FilterButton({
+                resources.push(new CONFIG.BG3HUD.BUTTONS.FILTER({
                     color: color,
                     class: ['filter-spell-point', 'filter-custom'],
                     background: null,
@@ -143,7 +142,7 @@ export class FilterContainer extends BG3Component {
 
     async render() {
         await super.render();
-        this.components = this.getFilterData().map((filter) => new FilterButton(filter, this));
+        this.components = this.filterData.map((filter) => new CONFIG.BG3HUD.BUTTONS.FILTER(filter, this));
         for(const filter of this.components) this.element.appendChild(filter.element);
         await Promise.all(this.components.map((filter) => filter.render()));
 

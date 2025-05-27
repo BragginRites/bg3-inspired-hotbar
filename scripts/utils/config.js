@@ -218,7 +218,6 @@ export const BG3CONFIG = {
     ],
 
     COMMON_ACTIONS: {},
-    DEFAULT_COMMON_ACTIONS: [],
 
     AUTOPOPULATE_TYPES: [
         ["weapon", "feat"],
@@ -486,7 +485,7 @@ export function updateSettingsDisplay() {
                 categories: [
                     {
                         label: null,
-                        fields: [/* 'enforceSpellPreparationPC', 'enforceSpellPreparationNPC',  */'autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']
+                        fields: ['autoPopulateLinkedTokens', 'autoPopulateUnlinkedTokens', 'containerAutoPopulateSettings']
                     }
                 ]
             },
@@ -495,23 +494,12 @@ export function updateSettingsDisplay() {
                 categories: [
                     {
                         label: null,
-                        fields: ['enableLightTooltip', 'tooltipDelay'/* , 'showMaterialDescription' */, 'showDamageRanges']
+                        fields: ['enableLightTooltip', 'tooltipDelay', 'showDamageRanges']
                     }
                 ]
             }
             
         ];
-        /* if(game.modules.get("midi-qol")?.active) {
-            detailsSettings.push({
-                label: 'BG3.Settings.Menu.Midi.Name',
-                categories: [
-                    {
-                        label: null,
-                        fields: ['synchroBRMidiQoL', 'addAdvBtnsMidiQoL']
-                    }
-                ]
-            });
-        } */
         BG3UTILS.formatSettingsDetails(BG3CONFIG.MODULE_NAME, detailsSettings);
     });
 }
@@ -764,10 +752,10 @@ export function registerSettings() {
         scope: 'client',
         config: true,
         type: Boolean,
-        default: true,
+        default: false,
         onChange: value => {
           if(ui.BG3HOTBAR.components.portrait?.element) {
-            ui.BG3HOTBAR.components.portrait.element.classList.toggle('portrait-hidden', !value);
+            ui.BG3HOTBAR.components.portrait.element.classList.toggle('portrait-hidden', value);
           }
         }
     });
@@ -1036,8 +1024,8 @@ export function registerSettings() {
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'autoPopulateCombatContainer', {
-        name: 'Autopopulate the basic actions container',
-        hint: 'Auto-populate the basic actions with dodge, dash, etc (Compatible with CPR) for newly created tokens. Disable this will unlock the container.',
+        name: 'BG3.Settings.autoPopulateCombatContainer.Name',
+        hint: 'BG3.Settings.autoPopulateCombatContainer.Hint',
         scope: 'world',
         config: true,
         type: Boolean,
@@ -1049,18 +1037,19 @@ export function registerSettings() {
         label: 'BG3.Settings.Menu.CPR.Label',
         hint: 'BG3.Settings.Menu.CPR.Hint',
         icon: "fas fa-cog",
-        type: CPRActionsDialog,
+        type: CONFIG.BG3HUD.DIALOGS.CPR,
         scope: 'world',
+        restricted: true,
         visible: () => {
             return false;
         }
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'choosenCPRActions', {
-        scope: 'client',
+        scope: 'world',
         config: false,
         type: Array,
-        default: BG3CONFIG.DEFAULT_COMMON_ACTIONS
+        default: []
     });
 
     game.settings.register(BG3CONFIG.MODULE_NAME, 'lockCombatContainer', {

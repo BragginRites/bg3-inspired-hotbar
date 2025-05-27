@@ -1,6 +1,5 @@
 import { BG3CONFIG } from '../../utils/config.js';
 import { BG3UTILS } from '../../utils/utils.js';
-import { PassiveButton } from '../buttons/passiveButton.js';
 import { BG3Component } from "../component.js";
 
 export class PassiveContainer extends BG3Component {
@@ -20,7 +19,7 @@ export class PassiveContainer extends BG3Component {
         if(!this.token && !this.actor) return null;
 
         const availablePassives = this.actor.items.filter(item => BG3UTILS.itemIsPassive(item));
-        return this.selectedPassives?.size ? availablePassives.filter(item => this.selectedPassives.has(item.uuid)) : availablePassives;
+        return this.selectedPassives?.size !== undefined ? availablePassives.filter(item => this.selectedPassives.has(item.uuid)) : availablePassives;
     }
 
     get selectedPassives() {
@@ -45,7 +44,7 @@ export class PassiveContainer extends BG3Component {
                 uuid: item.uuid,
                 name: item.name,
                 img: item.img,
-                selected: !this.selectedPassives?.size || this.selectedPassives?.has(item.uuid)
+                selected: this.selectedPassives?.size === undefined || this.selectedPassives?.has(item.uuid)
             }));
 
         // Create and show dialog using the template
@@ -104,7 +103,7 @@ export class PassiveContainer extends BG3Component {
         await super.render();
         const passivesList = this.passivesList;
 
-        const passives = passivesList.map((passive) => new PassiveButton({item: passive}, this));
+        const passives = passivesList.map((passive) => new CONFIG.BG3HUD.BUTTONS.PASSIVE({item: passive}, this));
         for(const passive of passives) this.element.appendChild(passive.element);
         await Promise.all(passives.map((passive) => passive.render()));
 

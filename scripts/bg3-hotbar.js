@@ -20,20 +20,61 @@ import { GridCell } from './components/containers/GridCell.js';
 import { CPRActionsDialog } from './components/dialog/CPRActionsDialog.js';
 import { BG3UTILS } from './utils/utils.js';
 import { BG3TooltipManager } from './managers/TooltipManager.js';
+import { ActiveContainer } from './components/containers/ActiveContainer.js';
+import { ControlContainer } from './components/containers/ControlContainer.js';
+import { PassiveContainer } from './components/containers/PassiveContainer.js';
+import { GridContainer } from './components/containers/GridContainer.js';
+import { PortraitHealth } from './components/containers/PortraitHealth.js';
+import { BaseButton } from './components/buttons/BaseButton.js';
+import { FilterButton } from './components/buttons/filterButton.js';
+import { MenuContainer } from './components/containers/MenuContainer.js';
+import { ActiveButton } from './components/buttons/activeButton.js';
+import { PassiveButton } from './components/buttons/passiveButton.js';
 
 const BG3ClassesLib = {
-    'BG3Component' : BG3Component,
-    'AbilityContainer' : AbilityContainer,
-    'RestTurnContainer' : RestTurnContainer,
-    'DeathSavesContainer' : DeathSavesContainer,
-    'FilterContainer' : FilterContainer,
-    'AutoPopulateFeature' : AutoPopulateFeature,
-    'WeaponContainer' : WeaponContainer,
-    'GridCell' : GridCell,
-    'CPRActionsDialog' : CPRActionsDialog,
-    'ItemUpdateManager' : ItemUpdateManager,
-    'AdvContainer' : AdvContainer,
-    'BG3TooltipManager': BG3TooltipManager
+    CORE: {
+        MAIN: BG3Component,
+        GRID: GridContainer,
+        CELL: GridCell,
+        MENU: MenuContainer
+    },
+    BUTTONS: {
+        BASE: BaseButton,
+        FILTER: FilterButton,
+        ACTIVE: ActiveButton,
+        PASSIVE: PassiveButton
+    },
+    COMPONENTS: {
+        ADVANTAGE: AdvContainer,
+        HOTBAR: {
+            CONTAINER: HotbarContainer,
+            ACTIVE: ActiveContainer,
+            CONTROL: ControlContainer,
+            FILTER: FilterContainer,
+            GRID: HotbarContainer,
+            PASSIVE: PassiveContainer
+        },
+        PORTRAIT: {
+            CONTAINER: PortraitContainer,
+            ABILITY: AbilityContainer,
+            DEATH: DeathSavesContainer,
+            HEALTH: PortraitHealth
+        },
+        RESTTURN: RestTurnContainer,
+        WEAPON: WeaponContainer
+    },
+    DIALOGS: {
+        CPR: CPRActionsDialog
+    },
+    FEATURES: {
+        POPULATE: AutoPopulateFeature
+    },
+    MANAGERS: {
+        TOOLTIP: BG3TooltipManager,
+        ITEM: ItemUpdateManager,
+        HOTBAR: HotbarManager,
+        DRAG: DragDropManager
+    }
 }
 
 export class BG3Hotbar extends Application {
@@ -52,6 +93,9 @@ export class BG3Hotbar extends Application {
         this.combatActionsArray = [];
         this.generateTimeout = null;
         this.colorPicker = null;
+        
+        /** Emit Event for System Module **/
+        Hooks.callAll(`BG3HotbarInit`, BG3Hotbar);
 
         /** Hooks Event **/
         Hooks.on("createToken", this._onCreateToken.bind(this));
@@ -93,12 +137,12 @@ export class BG3Hotbar extends Application {
         this._applyTheme();
 
         TooltipManager.TOOLTIP_ACTIVATION_MS = game.settings.get(BG3CONFIG.MODULE_NAME, 'tooltipDelay');
-
+        
         // Initialize the hotbar manager
-        this.manager = new HotbarManager();
-        this.dragDropManager = new DragDropManager();
-        this.itemUpdateManager = new ItemUpdateManager();
-        this.tooltipManager = new BG3TooltipManager();
+        this.manager = new CONFIG.BG3HUD.MANAGERS.HOTBAR();
+        this.dragDropManager = new CONFIG.BG3HUD.MANAGERS.DRAG();
+        this.itemUpdateManager = new CONFIG.BG3HUD.MANAGERS.ITEM();
+        this.tooltipManager = new CONFIG.BG3HUD.MANAGERS.TOOLTIP();
 
         await this._onCanvasReady.bind(this)();
         
@@ -127,7 +171,7 @@ export class BG3Hotbar extends Application {
     async _onCreateToken(token) {
         if (!token?.actor) return;
         setTimeout(async () => {
-            await AutoPopulateFeature.populateUnlinkedToken(token);
+            await CONFIG.BG3HUD.FEATURES.POPULATE.populateUnlinkedToken(token);
         }, 100)
     }
 
@@ -284,7 +328,7 @@ export class BG3Hotbar extends Application {
     }
 
     _autoPopulateToken(token) {
-        return AutoPopulateFeature.populateUnlinkedToken(token.document ?? token, true);
+        return CONFIG.BG3HUD.FEATURES.POPULATE.populateUnlinkedToken(token.document ?? token, true);
     }
 
     async _applyTheme() {
@@ -399,23 +443,22 @@ export class BG3Hotbar extends Application {
 
         if(this.manager.currentTokenId) {
             this.components = {
-                portrait: new PortraitContainer(),
-                weapon: new WeaponContainer({weapon: this.manager.containers.weapon, combat: this.manager.containers.combat}),
-                advantage: new AdvContainer(),
-                container: new HotbarContainer(this.manager.containers.hotbar),
-                restTurn: new RestTurnContainer()
+                portrait: new CONFIG.BG3HUD.COMPONENTS.PORTRAIT.CONTAINER(),
+                weapon: new CONFIG.BG3HUD.COMPONENTS.WEAPON({weapon: this.manager.containers.weapon, combat: this.manager.containers.combat}),
+                advantage: new CONFIG.BG3HUD.COMPONENTS.ADVANTAGE(),
+                container: new CONFIG.BG3HUD.COMPONENTS.HOTBAR.CONTAINER(this.manager.containers.hotbar, this),
+                restTurn: new CONFIG.BG3HUD.COMPONENTS.RESTTURN()
             }
         } else if(this.manager.canGMHotbar()) {
             this.components = {
-                container: new HotbarContainer(this.manager.containers.hotbar),
-                restTurn: new RestTurnContainer()
+                container: new CONFIG.BG3HUD.COMPONENTS.HOTBAR.CONTAINER(this.manager.containers.hotbar, this),
+                restTurn: new CONFIG.BG3HUD.COMPONENTS.RESTTURN()
             }
         }
 
         Object.values(this.components).forEach((component) => {
             if (component && !Array.isArray(component)) html.appendChild(component.element);
         });
-        this.components.container._parent = this;
         this.combat = [];
         this.combat.push(this.components.restTurn);
 
@@ -437,11 +480,14 @@ export class BG3Hotbar extends Application {
         return [BG3CONFIG, BG3UTILS];
     }
 
-    static overrideClass(className, methodName = null, method = null, ...args) {
-        if(methodName && method) {
-            const cls = BG3ClassesLib[className];
-            if(cls.prototype[methodName]) cls.prototype[methodName] = method;
-            else if(cls[methodName]) cls[methodName] = method;
-        } else BG3ClassesLib[className.name] = className;
+    static overrideClass(className, methodName) {
+        let pathToArray = className.split('.'),
+            property = pathToArray.pop(),
+            extendClass = pathToArray.reduce((o,i)=> o[i], CONFIG.BG3HUD);
+        if(extendClass[property]) extendClass[property] = methodName;
+    }
+
+    static get BG3HUD() {
+        return BG3ClassesLib;
     }
 }

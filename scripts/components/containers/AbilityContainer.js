@@ -1,5 +1,4 @@
 import { BG3Component } from "../component.js";
-import { MenuContainer } from "./MenuContainer.js";
 
 export class AbilityContainer extends BG3Component {
     constructor(data) {
@@ -11,7 +10,7 @@ export class AbilityContainer extends BG3Component {
     }
 
     async _registerEvents() {    
-        this.element.addEventListener('click', (event) => MenuContainer.toggle(this.getMenuData(), this, event));
+        this.element.addEventListener('click', (event) => CONFIG.BG3HUD.CORE.MENU.toggle(this.getMenuData(), this, event));
         if(!!this.getInitMethod()) {
             this.element.querySelector('.fa-dice-d20').addEventListener('contextmenu', async (event) => {
                 this.getInitMethod()({ rerollInitiative: true, createCombatants: true, event });

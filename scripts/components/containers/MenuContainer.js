@@ -42,7 +42,7 @@ export class MenuContainer extends BG3Component {
                                     });
                                 }
                                 if(!newMenu) return;
-                                const subMenu = new MenuContainer(sb, btn, event, true);
+                                const subMenu = new CONFIG.BG3HUD.CORE.MENU(sb, btn, event, true);
                                 this.components.push(subMenu);
                                 subMenu.render();
                             })
@@ -130,6 +130,6 @@ export class MenuContainer extends BG3Component {
         if(game.tooltip) game.tooltip.deactivate()
         const oldParent = ui.BG3HOTBAR.menuManager?._parent;
         if(ui.BG3HOTBAR.menuManager) ui.BG3HOTBAR.menuManager.destroy();
-        if(oldParent !== parent && !parent.locked) return new MenuContainer(data, parent, event).render();
+        if(oldParent !== parent && !parent.locked) return new CONFIG.BG3HUD.CORE.MENU(data, parent, event).render();
     }
 }

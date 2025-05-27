@@ -1,6 +1,5 @@
 import { BG3CONFIG } from "../../utils/config.js";
 import { BG3Component } from "../component.js";
-import { GridContainer } from "./GridContainer.js";
 
 export class WeaponContainer extends BG3Component {
     constructor(data) {
@@ -57,7 +56,7 @@ export class WeaponContainer extends BG3Component {
         };
         // Weapons Containers
         this.components.weapon = this.data.weapon.map((gridData, i) => {
-            const container = new GridContainer(gridData);
+            const container = new CONFIG.BG3HUD.CORE.GRID(gridData);
             container.index = i;
             container.id = 'weapon';
             container.element.setAttribute('data-container-index', i);
@@ -70,7 +69,7 @@ export class WeaponContainer extends BG3Component {
         await Promise.all(this.components.weapon.map((cell) => cell.render()));
 
         // Combat Container
-        const combatContainer = new GridContainer(this.data.combat[0]);
+        const combatContainer = new CONFIG.BG3HUD.CORE.GRID(this.data.combat[0]);
         combatContainer.locked = game.settings.get(BG3CONFIG.MODULE_NAME, 'lockCombatContainer');
         combatContainer.id = 'combat';
         this.components.combat.push(combatContainer);

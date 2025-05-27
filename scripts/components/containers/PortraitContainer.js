@@ -1,9 +1,5 @@
 import { BG3Component } from "../component.js";
-import { AbilityContainer } from "./AbilityContainer.js";
-import { DeathSavesContainer } from "./DeathSavesContainer.js";
-import { MenuContainer } from "./MenuContainer.js";
 import { BG3CONFIG } from "../../utils/config.js";
-import { PortraitHealth } from "./PortraitHealth.js";
 
 export class PortraitContainer extends BG3Component {
     constructor(data) {
@@ -94,7 +90,7 @@ export class PortraitContainer extends BG3Component {
         });
 
         $(this.element).on('contextmenu', '.portrait-image-container', async (event) => {
-            await MenuContainer.toggle(this.getPortraitMenu(), this.element, event);
+            await CONFIG.BG3HUD.CORE.MENU.toggle(this.getPortraitMenu(), this.element, event);
             $('div[data-key="token"] .menu-item-content input[type="checkbox"]').change(async (event) => {
                 this.scaleTokenImage = !this.scaleTokenImage;
                 await this.actor.setFlag(BG3CONFIG.MODULE_NAME, "scaleTokenImage", this.scaleTokenImage);
@@ -183,7 +179,7 @@ export class PortraitContainer extends BG3Component {
         this.element.setAttribute("data-shape", game.settings.get(BG3CONFIG.MODULE_NAME, 'shapePortraitPreferences'));
         this.element.setAttribute("data-border", game.settings.get(BG3CONFIG.MODULE_NAME, 'borderPortraitPreferences'));
         this.setImgBGColor();
-        this.element.classList.toggle('portrait-hidden', !game.settings.get(BG3CONFIG.MODULE_NAME, 'hidePortraitImage'));
+        this.element.classList.toggle('portrait-hidden', game.settings.get(BG3CONFIG.MODULE_NAME, 'hidePortraitImage'));
         this.setPortraitBendMode();
         this.togglePortraitOverlay();
         this.toggleExtraInfos();
@@ -196,11 +192,11 @@ export class PortraitContainer extends BG3Component {
         this.components = {};
 
         // Portrait Health
-        this.components.healthContainer = new PortraitHealth({}, this);
+        this.components.healthContainer = new CONFIG.BG3HUD.COMPONENTS.PORTRAIT.HEALTH({}, this);
         // Death Save
-        this.components.deathSavesContainer = new DeathSavesContainer();
+        this.components.deathSavesContainer = new CONFIG.BG3HUD.COMPONENTS.PORTRAIT.DEATH();
         // Ability Container 
-        this.components.abilityContainer = new AbilityContainer();
+        this.components.abilityContainer = new CONFIG.BG3HUD.COMPONENTS.PORTRAIT.ABILITY();
 
         for(const container in this.components) this.element.appendChild(this.components[container].element);
         await Promise.all(Object.values(this.components).map((container) => container.render()));

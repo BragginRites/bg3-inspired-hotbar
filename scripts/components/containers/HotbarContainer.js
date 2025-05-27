@@ -1,14 +1,9 @@
 import { BG3Component } from "../component.js";
-import { ActiveContainer } from "./ActiveContainer.js";
-import { ControlContainer } from "./ControlContainer.js";
 import { DragBar } from "./DragBar.js";
-import { FilterContainer } from "./FilterContainer.js";
-import { GridContainer } from "./GridContainer.js";
-import { PassiveContainer } from "./PassiveContainer.js";
 
 export class HotbarContainer extends BG3Component {
-    constructor(data) {
-        super(data);
+    constructor(data, parent) {
+        super(data, parent);
         this.components = {hotbar:[]};
     }
 
@@ -20,19 +15,19 @@ export class HotbarContainer extends BG3Component {
         await super.render();
         this.components = {};
 
-        if(ui.BG3HOTBAR.manager.actor) {
-            this.components.passiveContainer = new PassiveContainer();
-            this.components.activeContainer = new ActiveContainer();
-            this.components.filterContainer = new FilterContainer();
+        if(this.actor) {
+            this.components.passiveContainer = new CONFIG.BG3HUD.COMPONENTS.HOTBAR.PASSIVE();
+            this.components.activeContainer = new CONFIG.BG3HUD.COMPONENTS.HOTBAR.ACTIVE();
+            this.components.filterContainer = new CONFIG.BG3HUD.COMPONENTS.HOTBAR.FILTER();
         }
-        this.components.controlContainer = new ControlContainer();
+        this.components.controlContainer = new CONFIG.BG3HUD.COMPONENTS.HOTBAR.CONTROL();
 
         const toRender = Object.values(this.components);
         this.components.hotbar = [];
 
         for(let i = 0; i < this.data.length; i++) {
             const gridData = this.data[i],
-                container = new GridContainer(gridData);
+                container = new CONFIG.BG3HUD.CORE.GRID(gridData);
             container.index = i;
             container.id = 'hotbar';
             this.components.hotbar.push(container);

@@ -93,8 +93,7 @@ export const BG3UTILS = {
                 for(const field of category.fields) {
                     const fieldName = `${moduleName}.${field}`,
                         childContainer = $(`[name="${fieldName}"]`).length ? $(`[name="${fieldName}"]`) : $(`button[data-key="${fieldName}"]`);
-                    
-                    if(game.settings.menus.get(fieldName)?.visible && !game.settings.menus.get(fieldName).visible()) childContainer.addClass('hidden');
+                    if(game.settings.menus.get(fieldName)?.visible && !game.settings.menus.get(fieldName).visible()) childContainer.attr('disabled', true);
                     if(childContainer.length) toShow = true;
                     else continue;
                     contentDetails.append(childContainer.parents('div.form-group:first'));

@@ -1,4 +1,3 @@
-import { BaseButton } from "../buttons/BaseButton.js";
 import { BG3Component } from "../component.js";
 import { BG3CONFIG } from "../../utils/config.js";
 
@@ -44,7 +43,7 @@ export class AdvContainer extends BG3Component {
     async _renderInner() {
         await super._renderInner();
         if(!this.isVisible()) return;
-        const buttons = this.getBtnData().map((btn) => new BaseButton(btn, this));
+        const buttons = this.getBtnData().map((btn) => new CONFIG.BG3HUD.BUTTONS.BASE(btn, this));
         for(const btn of buttons) this.element.appendChild(btn.element);
         await Promise.all(buttons.map((btn) => btn.render()));
         this.updateButtons();

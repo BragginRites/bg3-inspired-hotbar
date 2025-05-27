@@ -1,7 +1,5 @@
 import { BG3Component } from "../component.js";
-import { fromUuid } from "../../utils/foundryUtils.js";
 import { ControlsManager } from "../../managers/ControlsManager.js";
-import { MenuContainer } from "./MenuContainer.js";
 import { BG3UTILS } from "../../utils/utils.js";
 
 export class GridCell extends BG3Component {
@@ -247,7 +245,7 @@ export class GridCell extends BG3Component {
             }
         });
         
-        this.element.addEventListener('contextmenu', async (e) => MenuContainer.toggle(await this.getItemMenu(), this, e));
+        this.element.addEventListener('contextmenu', async (e) => CONFIG.BG3HUD.CORE.MENU.toggle(await this.getItemMenu(), this, e));
         
         this.element.addEventListener('mouseenter', (e) => {});
         

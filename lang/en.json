@@ -277,6 +277,10 @@
             "Name": "Show Extended Filters",
             "Hint": "If checked, show items with limited uses as Filter (no highlight/grey out)."
         },
+        "autoPopulateCombatContainer": {
+            "Name": "Autopopulate the basic actions container",
+            "Hint": "Auto-populate the basic actions (Game system specific)."
+        },
         "Menu": {
             "Global": {
                 "Name": "General settings",
@@ -336,12 +340,6 @@
                 "Name": "Synchro MidiQoL setting",
                 "Hint": "Synchonization with MidiQoL features. Must have MidiQoL module installed.",
                 "Label": "Configure Synchro MidiQoL"
-            },
-            "CPR": {
-                "Name": "Choose CPR Actions",
-                "Hint": "Select which CPR actions to auto-populate in common actions container.",
-                "Label": "Select CPR Actions",
-                "UpTo6": "Select which CPR actions to auto-populate in common actions container. Up to 6."
             }
         }
     }

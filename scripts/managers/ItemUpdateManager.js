@@ -1,6 +1,4 @@
-import { AutoPopulateFeature } from "../features/AutoPopulateFeature.js";
 import { BG3CONFIG } from "../utils/config.js";
-import { fromUuid } from "../utils/foundryUtils.js";
 
 export class ItemUpdateManager {
     constructor() {
@@ -51,7 +49,7 @@ export class ItemUpdateManager {
     _findAppropriateContainer(item) {
         // Check each container's preferred types
         for(let index of [0,1,2]) {
-            const itemList = AutoPopulateFeature.getItemsList(ui.BG3HOTBAR.manager.actor, game.settings.get(BG3CONFIG.MODULE_NAME, `container${index + 1}AutoPopulate`), ui.BG3HOTBAR.manager);
+            const itemList = CONFIG.BG3HUD.FEATURES.POPULATE.getItemsList(ui.BG3HOTBAR.manager.actor, game.settings.get(BG3CONFIG.MODULE_NAME, `container${index + 1}AutoPopulate`), ui.BG3HOTBAR.manager);
             if(itemList.find(i => i.uuid === item.uuid)) return index;
         }
         return -1;
@@ -63,7 +61,7 @@ export class ItemUpdateManager {
         if (ui.BG3HOTBAR.manager.actor !== actor || !actor?.items.get(item.id)) return;
         let needSave = false;
 
-        const isValid = AutoPopulateFeature.checkExtraConditions(item, actor, ui.BG3HOTBAR.manager);
+        const isValid = CONFIG.BG3HUD.FEATURES.POPULATE.checkExtraConditions(item, actor, ui.BG3HOTBAR.manager);
         for(const containerData of [ui.BG3HOTBAR.components.container.components.hotbar, ui.BG3HOTBAR.components.weapon.components.weapon]) {
             for (const container of containerData) {
                 let containerUpdate = false;
@@ -95,7 +93,7 @@ export class ItemUpdateManager {
         if(container && !Object.values(container.data.items).find(i => i.uuid === item.uuid) && (!isUpdate || game.settings.get(BG3CONFIG.MODULE_NAME, `container${containerIndex + 1}AutoPopulate`).includes('spell'))) {
             const slotKey = this._findNextAvailableSlot(container);                
             if (slotKey) {
-                container.data.items[slotKey] = AutoPopulateFeature.constructItemData(item);
+                container.data.items[slotKey] = CONFIG.BG3HUD.FEATURES.POPULATE.constructItemData(item);
                 container.render();
                 needSave = true;
             }

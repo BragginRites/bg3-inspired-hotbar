@@ -1,7 +1,5 @@
-import { BaseButton } from "../buttons/BaseButton.js";
 import { BG3Component } from "../component.js";
 import { BG3CONFIG } from "../../utils/config.js";
-import { MenuContainer } from "./MenuContainer.js";
 import { ControlsManager } from "../../managers/ControlsManager.js";
 
 export class ControlContainer extends BG3Component {
@@ -215,14 +213,14 @@ export class ControlContainer extends BG3Component {
     };
 
     _registerEvents() {
-        this.element.querySelector('[data-key="controlSettings"]').addEventListener('click', (event) => MenuContainer.toggle(this.getSettingsMenu(), this.element.querySelector('[data-key="controlSettings"]'), event));
-        this.element.querySelector('[data-key="controlLock"]').addEventListener('contextmenu', (event) => MenuContainer.toggle(this.getLockMenu(), this.element.querySelector('[data-key="controlLock"]'), event));
+        this.element.querySelector('[data-key="controlSettings"]').addEventListener('click', (event) => CONFIG.BG3HUD.CORE.MENU.toggle(this.getSettingsMenu(), this.element.querySelector('[data-key="controlSettings"]'), event));
+        this.element.querySelector('[data-key="controlLock"]').addEventListener('contextmenu', (event) => CONFIG.BG3HUD.CORE.MENU.toggle(this.getLockMenu(), this.element.querySelector('[data-key="controlLock"]'), event));
     }
 
     async _renderInner() {
         await super._renderInner();
         if(game.settings.get(BG3CONFIG.MODULE_NAME, 'fadeControlsMenu')) this.element.classList.add('fade');
-        const buttons = this.btnData.map((btn) => new BaseButton(btn));
+        const buttons = this.btnData.map((btn) => new CONFIG.BG3HUD.BUTTONS.BASE(btn));
         for(const btn of buttons) this.element.appendChild(btn.element);
         await Promise.all(buttons.map((btn) => btn.render()));
     }

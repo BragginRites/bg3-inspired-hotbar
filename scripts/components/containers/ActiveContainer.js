@@ -1,4 +1,3 @@
-import { ActiveButton } from '../buttons/activeButton.js';
 import { BG3Component } from "../component.js";
 
 export class ActiveContainer extends BG3Component {
@@ -24,7 +23,7 @@ export class ActiveContainer extends BG3Component {
         if(activesList?.length === 0) this.element.style.visibility = 'hidden';
         else this.element.style.removeProperty('visibility');
 
-        const actives = activesList.map((active) => new ActiveButton({item: active}, this));
+        const actives = activesList.map((active) => new CONFIG.BG3HUD.BUTTONS.ACTIVE({item: active}, this));
         for(const active of actives) this.element.appendChild(active.element);
         await Promise.all(actives.map((active) => active.render()));
         

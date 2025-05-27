@@ -30,6 +30,7 @@ import { FilterButton } from './components/buttons/filterButton.js';
 import { MenuContainer } from './components/containers/MenuContainer.js';
 import { ActiveButton } from './components/buttons/activeButton.js';
 import { PassiveButton } from './components/buttons/passiveButton.js';
+import { ExtraInfosDialog } from './components/dialog/ExtraInfosDialog.js';
 
 const BG3ClassesLib = {
     CORE: {
@@ -64,7 +65,8 @@ const BG3ClassesLib = {
         WEAPON: WeaponContainer
     },
     DIALOGS: {
-        CPR: CPRActionsDialog
+        CPR: CPRActionsDialog,
+        EXTRA: ExtraInfosDialog
     },
     FEATURES: {
         POPULATE: AutoPopulateFeature

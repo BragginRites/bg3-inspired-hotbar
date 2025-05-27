@@ -318,7 +318,7 @@ export class GridCell extends BG3Component {
                 switch (itemData.type) {
                     case 'spell':
                         this.element.dataset.preparationMode = this.getPreparationMode(itemData);
-                        this.element.dataset.level = this.data.item.override?.level ?? itemData.system.level;
+                        this.element.dataset.level = this.data.item.override?.level ?? itemData.system.level?.value ?? itemData.system.level;
                         break;
                     case 'feat':
                         this.element.dataset.featType = itemData.system?.type?.value || 'default';

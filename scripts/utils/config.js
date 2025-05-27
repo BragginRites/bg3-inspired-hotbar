@@ -121,15 +121,6 @@ export const BG3CONFIG = {
         }
     },
 
-    EXTRAINFOS: [
-        {attr: 'attributes.ac.value', icon: 'fas fa-shield', color: '#5abef5', pos: 'Top Left'},
-        {attr: 'attributes.spell.dc', icon: 'fas fa-book-open', color: '#af68d5', pos: 'Top Right'},
-        {attr: '', icon: '', color: '', pos: 'Left'},
-        {attr: '', icon: '', color: '', pos: 'Right'},
-        {attr: '', icon: '', color: '', pos: 'Bottom Left'},
-        {attr: '', icon: '', color: '', pos: 'Bottom Right'}
-    ],
-
     // Themes
     BASE_THEME: {
         "--bg3-border-color": "#444444",
@@ -840,7 +831,14 @@ export function registerSettings() {
         scope: "client",
         config: false,
         type: Array,
-        default: BG3CONFIG.EXTRAINFOS ?? [],
+        default: [
+            {attr: '', icon: '', color: '', pos: 'Top Left'},
+            {attr: '', icon: '', color: '', pos: 'Top Right'},
+            {attr: '', icon: '', color: '', pos: 'Left'},
+            {attr: '', icon: '', color: '', pos: 'Right'},
+            {attr: '', icon: '', color: '', pos: 'Bottom Left'},
+            {attr: '', icon: '', color: '', pos: 'Bottom Right'}
+        ],
         onChange: () => {
             if (ui.BG3HOTBAR.components.portrait) {
                 ui.BG3HOTBAR.components.portrait._renderInner();

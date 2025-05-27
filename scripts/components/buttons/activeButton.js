@@ -18,6 +18,10 @@ export class ActiveButton extends BG3Component {
         return {type: 'advanced'};
     }
 
+    get itemLabel() {
+        return this.data.item.label;
+    }
+
     async _registerEvents() {
         this.element.addEventListener("click", async (e) => {
             e.preventDefault();
@@ -32,7 +36,7 @@ export class ActiveButton extends BG3Component {
             e.preventDefault();
             const dialog = new Dialog({
               title: "Delete Effect",
-              content: `<p>Are you sure you want to delete the effect "${this.data.item.label}"?</p>`,
+              content: `<p>Are you sure you want to delete the effect "${this.itemLabel}"?</p>`,
               buttons: {
                 delete: {
                     icon: '<i class="fas fa-trash"></i>',

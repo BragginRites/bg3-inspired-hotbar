@@ -41,6 +41,12 @@
   bottom: 0;
 }
 
+#bg3-hotbar-container .bg3-menu-container[data-menu-position="bottomleft"] {
+  right: 100%;
+  margin-right: 10px;
+  bottom: 0;
+}
+
 #bg3-hotbar-container .bg3-menu-container[data-menu-position="topleft"] {
   right: 100%;
   margin-right: 10px;

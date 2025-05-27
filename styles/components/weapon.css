@@ -126,7 +126,7 @@ input[name="weapon-choice"] {
 #bg3-hotbar-container .bg3-weapon-set .hotbar-cell.has-2h + .hotbar-cell {
     opacity: 0.25;
     background-image: var(--bg-2h);
-    background-size: 85%;
+    background-size: contain;
     /* width: 100%;
     height: 100%; */
     background-repeat: no-repeat;

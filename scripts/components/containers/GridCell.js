@@ -325,7 +325,7 @@ export class GridCell extends BG3Component {
                         break;
                     default:
                         if(this._parent.id === 'weapon' && this.data.col === 0 && this.data.row === 0) {
-                            const is2h = BG3UTILS.check2Handed(this);
+                            const is2h = BG3UTILS.check2Handed(itemData);
                             this.element.classList.toggle('has-2h', is2h);
                             if(is2h) {
                                 const data = await this.getData();

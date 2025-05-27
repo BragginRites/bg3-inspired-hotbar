@@ -114,6 +114,8 @@ export class MenuContainer extends BG3Component {
         const html = await super.render();
         this.parentElement.appendChild(html);
         this.rendered = true;
+        // console.log($(this.element).get(0).offsetHeight)
+        console.log($(this.element))
         return html;
     }
 

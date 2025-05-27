@@ -71,7 +71,7 @@ export class DragDropManager {
                 if(target._parent.id === 'weapon') {
                     const item = await BG3UTILS.getItem(newItem, ui.BG3HOTBAR.manager.actor);
                     if(item) {
-                        if(target.slotKey === '1-0' && BG3UTILS.check2Handed(target)) {
+                        if(target.slotKey === '1-0' && BG3UTILS.check2Handed(item)) {
                             ui.notifications.warn('You can\'t assign a 2-handed weapon to an offhand slot.')
                             return;
                         }

@@ -244,6 +244,11 @@ export class GridCell extends BG3Component {
                 
             }
         });
+
+        this.element.addEventListener('wheel', (event) => {
+            const tooltipDesc = document.querySelector('#tooltip .description');
+            if(tooltipDesc) tooltipDesc.scrollTop += event.deltaY;
+        })
         
         this.element.addEventListener('contextmenu', async (e) => CONFIG.BG3HUD.CORE.MENU.toggle(await this.getItemMenu(), this, e));
         

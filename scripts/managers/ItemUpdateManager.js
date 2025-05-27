@@ -78,7 +78,7 @@ export class ItemUpdateManager {
         if(!needSave) needSave = this._handleItemCreate(item, options, userId, true);
         if(needSave){
             await ui.BG3HOTBAR.manager.persist();
-            await ui.BG3HOTBAR.components.container.components.filterContainer.updateExtendedFilter();
+            if(ui.BG3HOTBAR.components.container.components.filterContainer) await ui.BG3HOTBAR.components.container.components.filterContainer.updateExtendedFilter();
         }
     }
     

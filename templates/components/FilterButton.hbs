@@ -6,7 +6,7 @@
         {{#if (gt value 4)}}
             <div class="spell-slot-number">{{value}}</div>
         {{else}}
-            {{#bg3times max}}
+            {{#bg3times (math max 'min' 4)}}
                 <div class="spell-slot-box{{#if (gte @index value)}} is-used{{/if}}"></div>
             {{/bg3times}}
         {{/if}}

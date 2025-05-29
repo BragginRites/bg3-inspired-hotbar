@@ -1378,7 +1378,9 @@ export function registerHandlebars() {
                 "-": lvalue - rvalue,
                 "*": lvalue * rvalue,
                 "/": lvalue / rvalue,
-                "%": lvalue % rvalue
+                "%": lvalue % rvalue,
+                "max": Math.max(lvalue, rvalue),
+                "min": Math.min(lvalue, rvalue)
             }[operator];
         });
     }

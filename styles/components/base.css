@@ -25,6 +25,7 @@
     --bg3-feature-feat: var(--color-feature, #ff6347);
     --bg3-feature-monster: var(--color-feature, #4682b4);
     --bg3-feature-subclass: var(--color-feature, #808080);
+    --bg3-toggled: yellow;
     
     /* Z-indices */
     --bg3-z-base: 70;

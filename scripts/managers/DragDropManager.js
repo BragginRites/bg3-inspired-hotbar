@@ -60,6 +60,7 @@ export class DragDropManager {
                             ui.notifications.warn("This item is already on the hotbar.");
                             return;
                         }
+                        console.log(newItem)
                     };
                 } catch (err) {
                     console.error("Failed to parse drop data:", err);

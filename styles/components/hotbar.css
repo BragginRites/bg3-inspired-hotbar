@@ -103,6 +103,10 @@
   opacity: .25;
 }
 
+#bg3-hotbar-container .hotbar-cell.is-toggled, #bg3-hotbar-container .hotbar-cell.is-toggled:hover {
+    border-color: var(--bg3-toggled);
+}
+
 #bg3-hotbar-container .hotbar-cell.has-item[data-action-type="action"][data-highlight="highlight"] {
     border-color: var(--bg3-action);
 }

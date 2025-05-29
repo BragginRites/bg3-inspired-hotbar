@@ -55,6 +55,10 @@ export class GridCell extends BG3Component {
         return BG3UTILS.getItem.bind(this)(this.data?.item, this.actor);
     }
 
+    async isToggled(itemData) {
+        return false;
+    }
+
     async getItemUses() {
         return null;
     }
@@ -318,6 +322,7 @@ export class GridCell extends BG3Component {
         if(this.data.item) {
             const itemData = await this.item;
             if(itemData) {
+                this.element.classList.toggle('is-toggled', await this.isToggled(itemData));
                 this.element.dataset.actionType = this.getActionType(itemData);
                 this.element.dataset.itemType = itemData.type;
                 switch (itemData.type) {

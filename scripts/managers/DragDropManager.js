@@ -8,11 +8,11 @@ export class DragDropManager {
 
     get locked() {}
 
-    async _isDuplicate(uuid) {
+    async _isDuplicate(data) {
         // Check all containers for the UUID
         for (const container of ui.BG3HOTBAR.manager.containers.hotbar) {
             for (const item of Object.values(container.items)) {
-                if (item?.uuid === uuid) {
+                if (item?.uuid === data.uuid) {
                     return true;
                 }
             }
@@ -54,12 +54,12 @@ export class DragDropManager {
                                 return;
                             }
                         }
+                        [newItem, hasUpdate] = await ui.BG3HOTBAR.itemUpdateManager.retrieveNewItem(dragData, target);
                         // Check for duplicates if not allowed for this container
-                        if(target._parent.data.allowDuplicate !== true && await this._isDuplicate(dragData.uuid)) {
+                        if(target._parent.data.allowDuplicate !== true && await this._isDuplicate(newItem)) {
                             ui.notifications.warn("This item is already on the hotbar.");
                             return;
                         }
-                        [newItem, hasUpdate] = await ui.BG3HOTBAR.itemUpdateManager.retrieveNewItem(dragData, target);
                     };
                 } catch (err) {
                     console.error("Failed to parse drop data:", err);

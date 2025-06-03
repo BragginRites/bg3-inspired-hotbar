@@ -327,6 +327,17 @@ export class GridCell extends BG3Component {
             if(itemData) {
                 this.element.dataset.actionType = itemData.system?.activation?.type?.toLowerCase() ?? itemData.activation?.type?.toLowerCase() ?? null;
                 this.element.dataset.itemType = itemData.type;
+
+                if (itemData.system?.activities) {
+                    const activityActionTypes = itemData.system.activities
+                      .values()
+                      .toArray()
+                      .filter((a) => !!a.activation?.type)
+                      .map((a) => a.activation.type);
+
+                    this.element.dataset.activityActionTypes = [...new Set(activityActionTypes)].join(',');
+                }
+
                 switch (itemData.type) {
                     case 'spell':
                         this.element.dataset.preparationMode = itemData.system.preparation?.mode;
@@ -351,3 +362,4 @@ export class GridCell extends BG3Component {
         }
     }
 }
+

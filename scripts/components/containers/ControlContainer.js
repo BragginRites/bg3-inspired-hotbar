@@ -14,70 +14,127 @@ export class ControlContainer extends BG3Component {
     }
 
     get btnData() {
-        return [
-            {
-                type: 'div',
-                key: 'controlPlus',
-                class: ["hotbar-control-button"], 
-                icon: 'fa-plus',
-                title: 'Add Row',
-                events: {
-                    'click': () => {
+        const buttons = [
+            this._getAddRowButton(),
+            this._getRemoveRowButton(),
+            this._getLockButton(),
+            this._getSettingsButton()
+        ];
+
+        if (this._shouldShowGMHotbarToggle()) {
+            buttons.unshift(this._getGMHotbarToggleButton());
+        }
+
+        return buttons;
+    }
+
+    _getAddRowButton() {
+        return {
+            type: 'div',
+            key: 'controlPlus',
+            class: ["hotbar-control-button"],
+            icon: 'fa-plus',
+            title: 'Add Row',
+            events: {
+                'click': () => {
+                    ui.BG3HOTBAR.components.container.components.hotbar.forEach(c => {
+                        c.data.rows++;
+                        c.render();
+                    });
+                    ui.BG3HOTBAR.manager.persist();
+                }
+            }
+        };
+    }
+
+    _getRemoveRowButton() {
+        return {
+            type: 'div',
+            key: 'controlMinus',
+            class: ["hotbar-control-button"],
+            icon: 'fa-minus',
+            title: 'Remove Row',
+            events: {
+                'click': () => {
+                    if (ui.BG3HOTBAR.components.container.components.hotbar[0].data.rows > 1) {
                         ui.BG3HOTBAR.components.container.components.hotbar.forEach(c => {
-                            c.data.rows++;
+                            c.data.rows--;
                             c.render();
                         });
                         ui.BG3HOTBAR.manager.persist();
                     }
                 }
-            },
-            {
-                type: 'div',
-                key: 'controlMinus',
-                class: ["hotbar-control-button"], 
-                icon: 'fa-minus',
-                title: 'Remove Row',
-                events: {
-                    'click': function() {
-                        if(ui.BG3HOTBAR.components.container.components.hotbar[0].data.rows > 1) {
-                            ui.BG3HOTBAR.components.container.components.hotbar.forEach(c => {
-                                c.data.rows--;
-                                c.render();
-                            });
-                            ui.BG3HOTBAR.manager.persist();
-                        }
+            }
+        };
+    }
+
+    _getLockButton() {
+        return {
+            type: 'div',
+            key: 'controlLock',
+            class: [
+                "hotbar-control-button",
+                ...(game.settings.get(BG3CONFIG.MODULE_NAME, 'masterLockEnabled') ? ['locked'] : [])
+            ],
+            icon: 'fa-unlock',
+            title: 'Lock hotbar settings<br>(Right-click for options)',
+            hasChildren: true,
+            events: {
+                'click': () => {
+                    const settings = game.settings.get(BG3CONFIG.MODULE_NAME, 'lockSettings');
+                    if (!Object.values(settings).some(s => s)) {
+                        ui.notifications.warn("Please right-click the lock button to select which settings to lock.");
+                    } else {
+                        ControlsManager.updateMasterLock();
                     }
                 }
-            },
-            {
-                type: 'div',
-                key: 'controlLock',
-                class: [...["hotbar-control-button"], ...(game.settings.get(BG3CONFIG.MODULE_NAME, 'masterLockEnabled') ? ['locked'] : [])], 
-                icon: 'fa-unlock',
-                title: 'Lock hotbar settings<br>(Right-click for options)',
-                hasChildren: true,
-                events: {
-                    'click': (e) => {
-                        const settings = game.settings.get(BG3CONFIG.MODULE_NAME, 'lockSettings');
-                        if(!Object.values(settings).filter(s => s === true).length) ui.notifications.warn("Please right-click the lock button to select which settings to lock.");
-                        else ControlsManager.updateMasterLock();
+            }
+        };
+    }
+
+    _getSettingsButton() {
+        return {
+            type: 'div',
+            key: 'controlSettings',
+            class: ["hotbar-control-button"],
+            icon: 'fa-cog',
+            title: 'Settings',
+            hasChildren: true,
+            events: {
+                'click': () => {
+                    // Evento tratado no _registerEvents
+                }
+            }
+        };
+    }
+
+    _shouldShowGMHotbarToggle() {
+        return game.user.isGM &&
+            game.settings.get(BG3CONFIG.MODULE_NAME, 'enableGMHotbar');
+    }
+
+    _getGMHotbarToggleButton() {
+        return {
+            type: 'div',
+            key: 'toggleGMHotbar',
+            class: ["hotbar-control-button"],
+            icon: 'fa-random',
+            title: 'Toggle between GM Hotbar and Token Hotbar',
+            events: {
+                'click': () => {
+                    const token = canvas.tokens.controlled[0];
+                    const isUsingGM = !ui.BG3HOTBAR.manager.actor;
+
+                    if (isUsingGM && token) {
+                        ui.BG3HOTBAR.overrideGMHotbar = false;
+                        ui.BG3HOTBAR.generate(token);
+                    } else {
+                        ui.BG3HOTBAR.overrideGMHotbar = true;
+                        ui.BG3HOTBAR.generate(null);
                     }
                 }
-            },
-            {
-                type: 'div',
-                key: 'controlSettings',
-                class: ["hotbar-control-button"], 
-                icon: 'fa-cog',
-                title: 'Settings',
-                hasChildren: true,
-                events: {
-                    'click': function(e) {
-                        
-                    }
-                }
-            },
-        ];
+            }
+        };
     }
 
     getSettingsMenu() {

@@ -30,6 +30,7 @@ export class BG3Hotbar extends Application {
         // this.enabled = game.settings.get(BG3CONFIG.MODULE_NAME, 'uiEnabled');
         this.generateTimeout = null;
         this.colorPicker = null;
+        this.overrideGMHotbar = false;
 
         /** Hooks Event **/
         // Hooks.once("canvasReady", this._onCanvasReady.bind(this));
@@ -108,6 +109,9 @@ export class BG3Hotbar extends Application {
     }
 
     async _onControlToken(token, controlled) {
+        if (this.overrideGMHotbar && game.settings.get(BG3CONFIG.MODULE_NAME, 'enableGMHotbar')) {
+            return;
+        }
         if (!this.manager) return;
         
         if(this.generateTimeout) {

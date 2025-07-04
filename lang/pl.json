@@ -195,7 +195,29 @@
         },
         "ShowRestTurnButton": {
             "Name": "Pokaż przyciski odpoczynku/tury",
-            "Hint": ""
+            "Hint": "Sterowanie przyciskami odpoczynku i tury wyświetlanymi na pasku skrótów",
+            "Choices": {
+                "Both": "Pokaż oba (odpoczynek i tura)",
+                "Rest": "Pokaż tylko odpoczynek",
+                "Turn": "Pokaż tylko turę", 
+                "None": "Nie pokazuj żadnego"
+            }
+        },
+        "EnableTargetSelector": {
+            "Name": "Włącz wybór celu",
+            "Hint": "Wyświetla interaktywny wybór celu dla zaklęć i zdolności, które wymagają namierzania. Gdy opcja ta jest włączona, kliknięcie przedmiotów wymagających namierzenia celu spowoduje wyświetlenie kursora z krzyżykiem i umożliwi wybranie celu na płótnie."
+        },
+        "ShowRangeIndicators": {
+            "Name": "Pokaż wskaźniki zakresu",
+            "Hint": "Wyświetlanie wizualnych wskaźników zasięgu podczas korzystania z selektora celów. Wyświetla okręgi wokół tokena, wskazując maksymalny zasięg zaklęć i zdolności."
+        },
+        "AutoTargetSelf": {
+            "Name": "Automatyczne namierzanie siebie",
+            "Hint": "Automatycznie celuj w siebie w przypadku zaklęć i zdolności, które mogą być skierowane tylko na rzucającego (np. samonaprowadzanie). Po włączeniu tej opcji, zaklęcia samonamierzające pomijają wybór celu."
+        },
+        "EnableRangeChecking": {
+            "Name": "Włącz sprawdzanie zakresu",
+            "Hint": "Sprawdza, czy cele znajdują się w zasięgu podczas korzystania z selektora celów. Po wyłączeniu tej opcji możesz obrać za cel dowolny token, niezależnie od zasięgu zaklęcia/zdolności."
         },
         "OverlayModePortrait": {
             "Name": "Nakładka zdrowia jako maska",
@@ -312,6 +334,11 @@
                     "Common": "Wspólne działania",
                     "Other": "Inne"
                 }
+            },
+            "TargetSelector": {
+                "Name": "Ustawienia wyboru celu",
+                "Hint": "Ustawienia interaktywnego systemu wyboru celu.",
+                "Label": "Konfiguracja wyboru celu"
             },
             "Filter": {
                 "Name": "Ustawienia filtra"

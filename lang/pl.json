@@ -149,11 +149,11 @@
             "Potions": "Mikstury",
             "Scrolls": "Zwoje",
             "Ammunition": "Amunicja",
-            "Food": "Żywność",
+            "Food": "Żywność i napoje",
             "Wands": "Różdżki",
             "Rods": "Berła",
             "Poisons": "Trucizny",
-            "Trinkets": "Błyskotki",
+            "Trinkets": "Drobiazgi",
             "Equipment": "Ekwipunek",
             "Tools": "Narzędzia",
             "Loot": "Zdobycz",
@@ -218,6 +218,32 @@
         "ShowRangeIndicators": {
             "Name": "Pokaż wskaźniki zakresu",
             "Hint": "Wyświetlanie wizualnych wskaźników zasięgu podczas korzystania z selektora celów. Wyświetla okręgi wokół tokena, wskazując maksymalny zasięg zaklęć i zdolności."
+        },
+        "RangeIndicatorShape": {
+            "Name": "Kształt wskaźnika zasięgu",
+            "Hint": "Wybierz kształt wskaźników zasięgu. Okrąg pokazuje tradycyjny okrągły zasięg, podczas gdy kwadrat pokazuje zasięg oparty na siatce D&D 5e, który lepiej pasuje do ruchu tokenów.",
+            "Choices": {
+                "Circle": "Kółko",
+                "Square": "Kwadrat"
+            }
+        },
+        "RangeIndicatorAnimation": {
+            "Name": "Animacja wskaźnika zasięgu",
+            "Hint": "Wybierz, czy wskaźniki zasięgu mają pulsować, aby przyciągnąć uwagę, czy pozostać statyczne. Pulsowanie sprawia, że są bardziej zauważalne, podczas gdy statyczne zapewniają czystszy wygląd.",
+            "Choices": {
+                "Pulse": "Puls",
+                "Static": "Statyczny"
+            }
+        },
+        "RangeIndicatorLineWidth": {
+            "Name": "Szerokość linii wskaźnika zasięgu",
+            "Hint": "Wybierz grubość linii wskaźnika zasięgu. Grubsze linie są bardziej widoczne, ale mogą być bardziej uciążliwe.",
+            "Choices": {
+                "Thin": "Cienka (1px)",
+                "Normal": "Normalna (2px)",
+                "Thick": "Gruba (3px)",
+                "ExtraThick": "Bardzo gruba (4px)"
+            }
         },
         "AutoTargetSelf": {
             "Name": "Automatyczne namierzanie siebie",
@@ -305,6 +331,11 @@
         "ShowExtendedFilter": {
             "Name": "Pokaż rozszerzone filtry",
             "Hint": "Jeśli zaznaczone, pokaż elementy o ograniczonym zastosowaniu jako filtr (bez podświetlenia/szarego tła)."
+        },
+        "Keybindings": {
+            "toggleUI": "Przełącz BG3 Hotbar",
+            "decreaseTargets": "Zmniejsz liczbę celów",
+            "increaseTargets": "Zwiększ liczbę celów"
         },
         "Menu": {
             "Global": {

@@ -4,7 +4,7 @@ A Foundry VTT module that reimagines the hotbar interface with a design inspired
 
 **Please check the Settings menu in Foundry VTT for options such as auto-populating actions for unlinked tokens, opacity adjustments, and fade out settings.**
 
-![image](https://github.com/user-attachments/assets/0e7d1e28-8f0e-48c4-8d00-3c3595f8ae28)
+<img width="1822" height="569" alt="image" src="https://github.com/user-attachments/assets/738b0f4d-b5cf-4fec-8002-9833f86cf211" />
 
 Coffee helps me stay up to 2am to write these modules. Thank you for the lack of sleep in advance!
 

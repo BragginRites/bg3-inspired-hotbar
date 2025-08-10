@@ -245,9 +245,17 @@
                 "ExtraThick": "Bardzo gruba (4px)"
             }
         },
+        "RangeIndicatorColor": {
+            "Name": "Kolor wskaźnika zasięgu",
+            "Hint": "Wybierz kolor wskaźników zasięgu. Wskaźnik będzie wyświetlany jako kontur w tym kolorze bez wypełnienia."
+        },
         "AutoTargetSelf": {
             "Name": "Automatyczne namierzanie siebie",
             "Hint": "Automatycznie celuj w siebie w przypadku zaklęć i zdolności, które mogą być skierowane tylko na rzucającego (np. samonaprowadzanie). Po włączeniu tej opcji, zaklęcia samonamierzające pomijają wybór celu."
+        },
+        "SkipSelectorWithValidTarget": {
+            "Name": "Pomiń selektor z prawidłowym celem",
+            "Hint": "W przypadku zaklęć/zdolności skierowanych na jeden cel pomiń wybór celu, jeśli prawidłowy cel został już wybrany."
         },
         "EnableRangeChecking": {
             "Name": "Włącz sprawdzanie zakresu",
@@ -339,7 +347,8 @@
         "Keybindings": {
             "toggleUI": "Przełącz BG3 Hotbar",
             "decreaseTargets": "Zmniejsz liczbę celów",
-            "increaseTargets": "Zwiększ liczbę celów"
+            "increaseTargets": "Zwiększ liczbę celów",
+            "confirmTargets": "Potwierdź wybór celu"
         },
         "Menu": {
             "Global": {

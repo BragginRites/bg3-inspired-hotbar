@@ -31,18 +31,21 @@ export class ItemUpdateManager {
         const { HotbarManager } = await import('./HotbarManager.js');
         const tempManager = new HotbarManager();
 
-        // Find a token for this actor (prefer linked tokens, fall back to any token)
-        let targetToken = null;
-        for (const token of canvas.tokens.placeables) {
-            if (token.actor?.id === actor.id) {
-                targetToken = token;
-                if (token.actorLink) break; // Prefer linked tokens
+        // Resolve token context: for unlinked (synthetic) actors, use their own token id
+        if (actor.isToken && actor.token?.id) {
+            tempManager.currentTokenId = actor.token.id;
+        } else {
+            // Linked actor: prefer a linked token, otherwise any matching token
+            let targetToken = null;
+            for (const token of canvas.tokens.placeables) {
+                if (token.actor?.id === actor.id) {
+                    targetToken = token;
+                    if (token.actorLink) break; // Prefer linked tokens
+                }
             }
-        }
-
-        // If no token found on current scene, we can still work with the actor directly
-        if (targetToken) {
-            tempManager.currentTokenId = targetToken.id;
+            if (targetToken) {
+                tempManager.currentTokenId = targetToken.id;
+            }
         }
 
         // Load the actor's current hotbar data
@@ -318,7 +321,14 @@ export class ItemUpdateManager {
     async _handleItemUpdate(item, changes, options, userId) {
 
         const token = ui.BG3HOTBAR.manager.token;
-        if (!token || item.parent?.id !== token.actor?.id) return;
+        const itemActor = item.parent;
+        if (!token || !itemActor) return;
+        // Guard to ensure we only update UI for the token that actually owns the item
+        if (itemActor.isToken) {
+            if (token.id !== itemActor.token?.id) return;
+        } else if (itemActor.id !== token.actor?.id) {
+            return;
+        }
         let needSave = false;
 
         if (changes.system && Object.keys(changes.system).length === 1 && changes.system.hasOwnProperty('equipped')) return;
@@ -516,7 +526,12 @@ export class ItemUpdateManager {
 
         // If this is the currently selected token, also update the UI
         const currentToken = ui.BG3HOTBAR.manager.token;
-        if (currentToken && currentToken.actor?.id === itemActor.id && ui.BG3HOTBAR.rendered) {
+        const targetTokenId = itemActor?.isToken ? itemActor?.token?.id : null;
+        const isCurrentTarget = currentToken && ui.BG3HOTBAR.rendered && (
+            (targetTokenId && currentToken.id === targetTokenId) ||
+            (!targetTokenId && currentToken.document?.actorLink && currentToken.actor?.id === itemActor.id)
+        );
+        if (isCurrentTarget) {
             try {
                 // First, check if it's already visible in any UI container
                 const uiContainers = ui.BG3HOTBAR.components?.container?.components?.hotbar || [];
@@ -566,7 +581,12 @@ export class ItemUpdateManager {
 
         // If this is the currently selected token, also clean up the UI
         const currentToken = ui.BG3HOTBAR.manager.token;
-        if (currentToken && currentToken.actor?.id === itemActor.id && ui.BG3HOTBAR.rendered) {
+        const targetTokenId = itemActor?.isToken ? itemActor?.token?.id : null;
+        const isCurrentTarget = currentToken && ui.BG3HOTBAR.rendered && (
+            (targetTokenId && currentToken.id === targetTokenId) ||
+            (!targetTokenId && currentToken.document?.actorLink && currentToken.actor?.id === itemActor.id)
+        );
+        if (isCurrentTarget) {
             // Clean up invalid items and re-render for the current token
             await this.cleanupInvalidItems(currentToken.actor);
             await ui.BG3HOTBAR.refresh();

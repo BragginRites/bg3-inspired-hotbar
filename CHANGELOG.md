@@ -17,10 +17,11 @@
 ### Active Effects
 - Fixed an issue where removing an active effect could leave a duplicate-looking icon until reselecting the token. The active effects bar now refreshes cleanly on changes.
 
-
 ### Auto-Populate
 - Auto-populate on token creation is now strictly disabled for player characters. Only NPC tokens will auto-populate, respecting the linked/unlinked token settings.
 
+### Fixed
+- **Hotbar Token Scoping**: When multiple tokens share the same base actor, item grants now update only the receiving token’s hotbar. Items granted to one token will no longer appear on another token’s hotbar.
 
 ## [3.4.3] - 2025-08-16
 ### Added

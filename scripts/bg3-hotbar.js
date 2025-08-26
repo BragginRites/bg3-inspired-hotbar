@@ -109,9 +109,52 @@ export class BG3Hotbar extends Application {
         if (!token?.actor) return;
         // Strictly avoid autopopulate for player characters on token creation
         if (token.actor.type === 'character') return;
-        setTimeout(async () => {
-            await AutoPopulateCreateToken.populateUnlinkedToken(token);
-        }, 100)
+        try {
+            await this._waitForTokenItems(token);
+        } catch (e) {
+            // Fail open; do not block HUD if something odd happens
+        }
+        await AutoPopulateCreateToken.populateUnlinkedToken(token);
+    }
+
+    /**
+     * Wait for item grants on freshly created unlinked tokens to settle.
+     * Uses an idle window heuristic and a timeout to avoid races with other modules.
+     * @param {Token|TokenDocument} tokenLike
+     * @param {{timeoutMs?: number, idleMs?: number, pollMs?: number}} opts
+     */
+    async _waitForTokenItems(tokenLike, opts = {}) {
+        const { timeoutMs = 1500, idleMs = 200, pollMs = 50 } = opts;
+        const tokenDoc = tokenLike?.document ?? tokenLike;
+        const actor = tokenDoc?.actor;
+        if (!actor) return;
+        // Only relevant for unlinked (synthetic) actors; linked actors share base data
+        if (!actor.isToken && tokenDoc?.actorLink) return;
+
+        let lastChangeTs = Date.now();
+        const isTargetActor = (a) => a?.id === actor.id;
+
+        const onCreate = (item) => { if (isTargetActor(item?.parent)) lastChangeTs = Date.now(); };
+        const onUpdate = (item) => { if (isTargetActor(item?.parent)) lastChangeTs = Date.now(); };
+        const onDelete = (item) => { if (isTargetActor(item?.parent)) lastChangeTs = Date.now(); };
+
+        Hooks.on('createItem', onCreate);
+        Hooks.on('updateItem', onUpdate);
+        Hooks.on('deleteItem', onDelete);
+
+        const start = Date.now();
+        try {
+            // Idle-window polling: resolve once no item events for idleMs
+            // or when timeout elapses.
+            while (Date.now() - start < timeoutMs) {
+                if (Date.now() - lastChangeTs >= idleMs) break;
+                await new Promise(r => setTimeout(r, pollMs));
+            }
+        } finally {
+            Hooks.off('createItem', onCreate);
+            Hooks.off('updateItem', onUpdate);
+            Hooks.off('deleteItem', onDelete);
+        }
     }
 
     async _onControlToken(token, controlled) {

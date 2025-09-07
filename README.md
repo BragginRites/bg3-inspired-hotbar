@@ -14,6 +14,7 @@ Coffee helps me stay up to 2am to write these modules. Thank you for the lack of
 
 Check out my other module(s):
 
+- [Token Loot](https://github.com/BragginRites/token-loot)
 - [Surge Dice - A Narrative Dice Pool](https://github.com/BragginRites/surge-dice)
 - [Inspect Statblock](https://github.com/BragginRites/inspect-statblock)
 

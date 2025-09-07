@@ -5,6 +5,9 @@ export class BG3Component {
         this.data = data;
         this.components = [];
         this._parent = parent ?? null;
+        // Stable references captured at render-time by parent; fallback to manager getters
+        this._stableActor = null;
+        this._stableToken = null;
         this.element = document.createElement(this.elementType);
         this.element.classList.add(...this.classes);
         // this.element = document.createElement('template');
@@ -23,11 +26,11 @@ export class BG3Component {
     }
     
     get token() {
-        return ui.BG3HOTBAR.manager.token;
+        return this._stableToken ?? ui.BG3HOTBAR.manager.token;
     }
     
     get actor() {
-        return ui.BG3HOTBAR.manager.actor;
+        return this._stableActor ?? ui.BG3HOTBAR.manager.actor;
     }
 
     async getData() {

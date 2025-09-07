@@ -43,6 +43,14 @@ export class HotbarContainer extends BG3Component {
             }
         }
 
+        // propagate stable references to child components created here
+        for (const c of toRender) {
+            if (c && !Array.isArray(c)) {
+                c._stableToken = this._stableToken ?? ui.BG3HOTBAR.manager.token ?? null;
+                c._stableActor = this._stableActor ?? ui.BG3HOTBAR.manager.actor ?? null;
+            }
+        }
+
         for(const container of toRender) this.element.appendChild(container.element);
         await Promise.all(toRender.map((container) => container.render()));
         return this.element;

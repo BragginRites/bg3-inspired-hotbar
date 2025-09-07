@@ -109,6 +109,16 @@ export class BG3Hotbar extends Application {
         if (!token?.actor) return;
         // Strictly avoid autopopulate for player characters on token creation
         if (token.actor.type === 'character') return;
+        
+        // Check if Token Loot is active and will handle this token
+        const tokenLootAPI = game.modules.get('token-loot')?.api;
+        if (tokenLootAPI?.waitForGrants && game.modules.get('token-loot')?.active) {
+            // Token Loot is active - let it handle the population via the 'token-loot.awarded' hook
+            // The compatibility layer will call AutoPopulateCreateToken.populateUnlinkedToken when ready
+            console.debug('BG3 Hotbar | Skipping immediate population for token, Token Loot will handle it:', token.id);
+            return;
+        }
+        
         try {
             await this._waitForTokenItems(token);
         } catch (e) {
@@ -130,6 +140,18 @@ export class BG3Hotbar extends Application {
         if (!actor) return;
         // Only relevant for unlinked (synthetic) actors; linked actors share base data
         if (!actor.isToken && tokenDoc?.actorLink) return;
+
+        // Try Token Loot API first if available
+        const tokenLootAPI = game.modules.get('token-loot')?.api;
+        if (tokenLootAPI?.waitForGrants) {
+            try {
+                await tokenLootAPI.waitForGrants(tokenDoc);
+                return; // Token Loot handled the waiting
+            } catch (e) {
+                // Fall back to polling if Token Loot API fails
+                console.debug("BG3 Hotbar | Token Loot API failed, falling back to polling:", e);
+            }
+        }
 
         let lastChangeTs = Date.now();
         const isTargetActor = (a) => a?.id === actor.id;
@@ -688,6 +710,16 @@ export class BG3Hotbar extends Application {
                 restTurn: new RestTurnContainer()
             }
         }
+
+        // Capture stable references for this render and propagate to components
+        const stableToken = this.manager.token ?? null;
+        const stableActor = this.manager.actor ?? null;
+        Object.values(this.components).forEach((component) => {
+            if (component && !Array.isArray(component)) {
+                component._stableToken = stableToken;
+                component._stableActor = stableActor;
+            }
+        });
 
         Object.values(this.components).forEach((component) => {
             if (component && !Array.isArray(component)) html.appendChild(component.element);

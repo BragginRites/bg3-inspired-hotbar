@@ -1,4 +1,11 @@
-## [3.4.4] - 2025-08-19
+## [3.4.5] - 2025-09-07
+### Module Compatibility
+- **Token Loot Compatibility**: Hotbar now fills automatically after Token Loot grants items/currency. No setup needed.
+### Fixed
+- **Item Deletion**: Fixed a rare error after deleting an item from a sheet that could interrupt hotbar rendering.
+- **Mass Token Creation**: Fixed a bug where mass token creation such as through summons or with the new Encounters could cause the hotbar to not populate on the correct token.
+
+## [3.4.4] - 2025-08-27
 ### Portrait Extra Data
 - Portrait info: You can now show two values in one line (like 3/5). Example:
   - Focus {{itemName:Focus Points:system.uses.value}}/{{itemName:Focus Points:system.uses.max}}

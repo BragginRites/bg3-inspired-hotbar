@@ -1,6 +1,7 @@
 // Module Lifecycle Management
 import { BG3Hotbar } from './bg3-hotbar.js';
 import { BG3CONFIG, registerKeybinding, updateSettingsDisplay, registerEarly, registerSettings, registerHandlebars, registerLibWrapper } from './utils/config.js';
+import { registerCompat } from './compat/index.js';
 
 Hooks.once('init', () => {
     registerEarly();
@@ -17,6 +18,7 @@ Hooks.once('ready', () => {
     console.log(`${BG3CONFIG.MODULE_NAME} | Registering Settings`);
     registerSettings();
     updateSettingsDisplay();
+    registerCompat();
     ui.BG3HOTBAR = new BG3Hotbar();
 
     // Temp Fix for compendium macros

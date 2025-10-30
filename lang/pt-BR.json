@@ -1,0 +1,426 @@
+{
+    "BG3.Hotbar": {
+        "Errors": {
+            "InvalidDrop": "Dados de arrasto inválidos: JSON inválido.",
+            "InvalidItem": "Dados de item inválidos. Apenas itens com um UUID válido podem ser colocados na barra.",
+            "ItemNotFound": "Não foi possível recuperar o item pelo UUID. Item não colocado na barra.",
+            "WrongToken": "Você não pode arrastar itens de outro token para esta barra.",
+            "UnableToRetrieve": "Não foi possível recuperar os dados do item.",
+            "MacroNotFound": "Macro não encontrada",
+            "NoActor": "Nenhum ator encontrado",
+            "NoUIReference": "Referência da interface não encontrada. Por favor, atualize a página."
+        },
+        "ContextMenu": {
+            "EditItem": "Editar Item",
+            "ConfigureActivities": "Configurar Atividades",
+            "Remove": "Remover"
+        },
+        "UI": {
+            "AddRow": "Adicionar Linha",
+            "RemoveRow": "Remover Linha"
+        },
+        "SettingsMenu": {
+            "ResetLayout": "Redefinir Layout",
+            "ClearAllItems": "Limpar Todos os Itens",
+            "ImportLayout": "Importar Layout",
+            "ExportLayout": "Exportar Layout"
+        },
+        "Tooltips": {
+            "Action": "Ação",
+            "Range": "Alcance",
+            "Target": "Alvo",
+            "Duration": "Duração",
+            "Description": "Descrição",
+            "LoadingDescription": "Carregando descrição...",
+            "NoDescription": "Nenhuma descrição disponível.",
+            "Permanent": "Permanente",
+            "RoundsRemaining": "{count} Rodada(s) Restante(s)",
+            "TurnsRemaining": "{count} Turno(s) Restante(s)",
+            "SecondsRemaining": "{count} Segundos Restantes",
+            "Status": "Estado",
+            "Active": "Ativo",
+            "Disabled": "Desativado"
+        },
+        "Ability": {
+            "Tooltip": "Clique esquerdo para exibir Testes de Atributo e Salvaguardas.<br>Clique direito para rolar Iniciativa (ALT: Vant / CTRL: Desv)."
+        }
+    },
+    "BG3.Portrait": {
+        "HP": {
+            "Death": "Matar !",
+            "Full": "Curar Completamente"
+        }
+    },
+    "BG3.Settings": {
+        "EnableUI": {
+            "Name": "Habilitar Interface de Barra BG3",
+            "Hint": "Ativa ou desativa a interface de barra de atalhos estilo Baldur's Gate 3. Desative se preferir outro módulo de barra ou a barra padrão do Foundry."
+        },
+        "ShowDamageRanges": {
+            "Name": "Exibir Dano como Intervalos",
+            "Hint": "Mostra o dano de magias como mínimo-máximo em vez de notação de dado (ex: '1-8 ígneo' em vez de '1d8 ígneo')."
+        },
+        "ShowMaterialDescription": {
+            "Name": "Exibir Componentes Materiais",
+            "Hint": "Mostra a descrição completa dos componentes materiais nas dicas de magias (ex: 'diamantes no valor de 300 PO, que a magia consome')."
+        },
+        "EnableLightTooltip": {
+            "Name": "Configurar Exibição da Dica",
+            "Hint": "Escolha o que deve ser exibido nas dicas de item.",
+            "Choices": {
+                "Full": "Completo",
+                "Light": "Mostrar Apenas Nome e Tipo do Item",
+                "NoDesc": "Ocultar Apenas a Descrição"
+            }
+        },
+        "BypassSpellPreparationCheck": {
+            "Name": "Incluir Magias Despreparadas",
+            "Hint": "Se ativado, todas as magias aparecerão na barra independentemente do estado de preparação."
+        },
+        "EnforceSpellPreparationPC": {
+            "Name": "Exigir Magias Preparadas (Tokens Vinculados)",
+            "Hint": "Se ativado, tokens vinculados (incluindo personagens de jogadores) mostrarão apenas magias preparadas e magias especiais (inatas, à vontade, pacto, ritual, sempre). Se desativado, todas as magias aparecerão."
+        },
+        "EnforceSpellPreparationNPC": {
+            "Name": "Forçar Magias Preparadas (Tokens Desvinculados)",
+            "Hint": "Se ativado, tokens desvinculados mostrarão apenas magias preparadas e magias especiais (inatas, à vontade, pacto, ritual, sempre). Se desativado, todas as magias aparecerão."
+        },
+        "CollapseFoundryMacrobar": {
+            "Name": "Ocultar Barra de Macro do Foundry",
+            "Hint": "Recolhe automaticamente a barra de macros padrão do Foundry. No Foundry V13 ou superior, as opções \"Sempre\" e \"Totalmente Oculto\" fazem a mesma coisa."
+        },
+        "ShowPassiveFeaturesContainer": {
+            "Name": "Mostrar Recursos Passivos",
+            "Hint": "Exibe o contêiner de características passivas acima do retrato."
+        },
+        "TooltipDelay": {
+            "Name": "Atraso da Dica",
+            "Hint": "Tempo de espera antes de mostrar as dicas (em milissegundos)."
+        },
+        "FadeOutDelay": {
+            "Name": "Atraso para Ocultar Barra",
+            "Hint": "Segundos a aguardar antes de ocultar a barra."
+        },
+        "NormalOpacity": {
+            "Name": "Opacidade Normal",
+            "Hint": "Opacidade da barra quando o mouse estiver sobre ela (0.1 à 1.0)"
+        },
+        "FadedOpacity": {
+            "Name": "Opacidade Oculta",
+            "Hint": "Opacidade da barra quando o mouse não estiver sobre ela (0.0 a 1.0). Defina 1 para desativar o desvanecimento."
+        },
+        "AutoPopulateUnlinkedTokens": {
+            "Name": "Preencher Tokens Desvinculados",
+            "Hint": "Preenche automaticamente a barra para tokens não vinculados recém-criados com base nas configurações abaixo."
+        },
+        "Container1AutoPopulate": {
+            "Name": "Preencher Contêiner 1",
+            "Hint": "Quais tipos de itens preencher automaticamente no primeiro contêiner (índice 0)."
+        },
+        "Container2AutoPopulate": {
+            "Name": "Preencher Contêiner 2",
+            "Hint": "Quais tipos de itens preencher automaticamente no segundo contêiner (índice 1)"
+        },
+        "Container3AutoPopulate": {
+            "Name": "Preencher Contêiner 3",
+            "Hint": "Quais tipos de itens preencher automaticamente no terceiro contêiner (índice 3)"
+        },
+        "AutoPopulateOverflow": {
+            "Name": "Quando o Contêiner Encher",
+            "Hint": "Escolha como lidar quando o contêiner ficar sem espaço.",
+            "Expand": "Continuar Adicionando Linhas",
+            "NextContainer": "Exceder para o próximo contêiner"
+        },
+        "AutoPopulateFillDirection": {
+            "Name": "Direção de Preenchimento",
+            "Hint": "Se deve preencher linhas primeiro (esquerda→direita, depois para baixo) ou colunas primeiro (cima→baixo, depois para a direita).",
+            "RowFirst": "Linhas Primeiro (Esquerda → Direita, Depois Para Baixo)",
+            "ColumnFirst": "Colunas Primeiro (Cima → Baixo, Depois Direita)"
+        },
+        "ContainerAutoPopulate": {
+            "DialogTitle": "Preencher Contêiner",
+            "DefaultsTitle": "Configurar padrões de preenchimento do contêiner.",
+            "Name": "Selecionar Tipos de Itens",
+            "Hint": "Escolha quais tipos de itens adicionar automaticamente a este contêiner.",
+            "Weapons": "Armas",
+            "Features": "Características",
+            "Spells": "Magias",
+            "Consumables": "Consumíveis",
+            "Potions": "Poções",
+            "Scrolls": "Pergaminhos",
+            "Ammunition": "Munição",
+            "Food": "Comida e Bebida",
+            "Wands": "Varinhas",
+            "Rods": "Cajados",
+            "Poisons": "Venenos",
+            "Trinkets": "Adereços",
+            "Equipment": "Equipamentos",
+            "Tools": "Ferramentas",
+            "Loot": "Saques",
+            "Populate": "Preencher",
+            "Cancel": "Cancelar",
+            "Save": "Salvar Alterações",
+            "SaveSuccess": "Configurações salvas com sucesso",
+            "Configure": "Configurar Preenchimento",
+            "Export": "Exportar Tema"
+        },
+        "HighlightStyle": {
+            "Name": "Modo de Destaque",
+            "Hint": "Como os itens são destacados quando filtrados.",
+            "Bottom": "Borda Inferior",
+            "Border": "Borda Completa"
+        },
+        "DefaultPortraitPreferences": {
+            "Name": "Retrato Padrão",
+            "Hint": "Escolha se deve exibir a imagem do token ou o retrato do personagem por padrão. Pode ser sobrescrito por token. Na primeira vez que ativar, será aplicado a tokens sem retrato.",
+            "Token": "Sempre Usar Imagem do Token",
+            "Portrait": "Sempre Usar Retrato"
+        },
+        "ShapePortraitPreferences": {
+            "Name": "Formato do Retrato",
+            "Hint": "Escolha o formato do retrato do personagem.",
+            "Round": "Redondo",
+            "Square": "Quadrado"
+        },
+        "BorderPortraitPreferences": {
+            "Name": "Borda do Retrato",
+            "Hint": "Escolha a borda do retrato.",
+            "None": "Nenhuma",
+            "Simple": "Simples",
+            "Styled": "Estilizada (apenas Redondo)"
+        },
+        "BackgroundPortraitPreferences": {
+            "Name": "Imagem de Fundo do Retrato",
+            "Hint": "Escolha a cor de fundo do retrato."
+        },
+        "ShowHealthOverlay": {
+            "Name": "Mostrar Sobreposição de Vida",
+            "Hint": ""
+        },
+        "ShowHPText": {
+            "Name": "Mostrar Texto de PV",
+            "Hint": ""
+        },
+        "ShowRestTurnButton": {
+            "Name": "Mostrar Botões de Descanso/Turno",
+            "Hint": "Controle quais botões de descanso e turno aparecem na barra.",
+            "Choices": {
+                "Both": "Mostrar Ambos (Descanso e Turno)",
+                "Rest": "Mostrar Apenas Descanso",
+                "Turn": "Mostrar Apenas Turno",
+                "None": "Não Mostrar Nenhum"
+            }
+        },
+        "EnableTargetSelector": {
+            "Name": "Ativar Seletor de Alvo",
+            "Hint": "Mostra um seletor interativo para magias e habilidades que exigem alvos. Ao ativar, clicar em itens que precisam de alvo mostrará uma mira e permitirá selecionar alvos no mapa."
+        },
+        "ShowRangeIndicators": {
+            "Name": "Mostrar Indicadores de Alcance",
+            "Hint": "Mostra indicadores visuais de alcance quando usar o seletor, exibindo círculos ao redor do token indicando o alcance máximo de magias e habilidades."
+        },
+        "RangeIndicatorShape": {
+            "Name": "Formato do Indicador de Alcance",
+            "Hint": "Escolha o formato dos indicadores. Círculo mostra o alcance tradicional arredondado, enquanto Quadrado mostra o alcance em grades do D&D 5e, que combina melhor com o movimento de tokens.",
+            "Choices": {
+                "Circle": "Círculo",
+                "Square": "Quadrado"
+            }
+        },
+        "RangeIndicatorAnimation": {
+            "Name": "Animação do Indicador de Alcance",
+            "Hint": "Escolha se o indicador deve pulsar para chamar atenção ou ficar estático. Pulsar chama mais atenção e estático é mais limpo.",
+            "Choices": {
+                "Pulse": "Pulsar",
+                "Static": "Estático"
+            }
+        },
+        "RangeIndicatorLineWidth": {
+            "Name": "Espessura da Linha do Indicador",
+            "Hint": "Escolha a espessura das linhas dos indicadores. Mais espessas são mais visíveis, porém mais intrusivas.",
+            "Choices": {
+                "Thin": "Fina (1px)",
+                "Normal": "Normal (2px)",
+                "Thick": "Grossa (3px)",
+                "ExtraThick": "Extra Grossa (4px)"
+            }
+        },
+        "RangeIndicatorColor": {
+            "Name": "Cor do Indicador de Alcance",
+            "Hint": "Escolha a cor dos indicadores. Eles aparecem como contorno nessa cor, sem preenchimento."
+        },
+        "AutoTargetSelf": {
+            "Name": "Alvejar a Si Mesmo",
+            "Hint": "Seleciona automaticamente você para magias/habilidades que só podem ter o conjurador como alvo (como buffs próprios). Ao ativar, magias de alvo Pessoal pularão o seletor."
+        },
+        "SkipSelectorWithValidTarget": {
+            "Name": "Pular Seletor com Alvo Válido",
+            "Hint": "Para magias/habilidades de alvo único, pule o seletor se já houver um alvo válido selecionado."
+        },
+        "EnableRangeChecking": {
+            "Name": "Ativar Verificação de Alcance",
+            "Hint": "Verifica se os alvos estão dentro do alcance ao usar o seletor. Se desativado, você pode selecionar qualquer token ignorando alcance da magia/habilidade.."
+        },
+        "OverlayModePortrait": {
+            "Name": "Sobreposição de Vida como Máscara",
+            "Hint": "Se marcado, a sobreposição de vida não cobrirá áreas transparentes do retrato. Marque se usar Anel Dinâmico de Token."
+        },
+        "SettingsCategories": {
+            "HotbarContainer": "Botões da Barra",
+            "CombatContainer": "Contêiner de Ações Comuns",
+            "Global": "Geral",
+            "Portrait": "Retrato do Personagem",
+            "Tooltip": "Dica",
+            "AutoPopulating": "Preenchimento Automático",
+            "FoundryUI": "Ajustes da Interface do Foundry",
+            "MidiQoL": "Sincronizar Midi-QoL"
+        },
+        "MenuTheme": {
+            "Name": "Configuração de Tema",
+            "Hint": "Escolha entre temas disponíveis ou crie um personalizado.",
+            "Label": "Configurar Tema"
+        },
+        "scopeTheme": {
+            "Name": "Escopo do Tema",
+            "Hint": "Se marcado, cada jogador poderá escolher seu tema. Caso contrário, o tema definido pelo Mestre valerá para todos."
+        },
+        "PlayerListVisibility": {
+            "Name": "Visibilidade da Lista de Jogadores",
+            "Hint": "Controle a visibilidade da lista padrão de jogadores do Foundry no canto inferior esquerdo.",
+            "Choices": {
+                "always": "Sempre Visível",
+                "hover": "Mostrar ao Passar o Mouse",
+                "hidden": "Esconder Completamente"
+            }
+        },
+        "ShowDeathSavingThrow": {
+            "Name": "Exibir Salvaguarda Contra Morte",
+            "Hint": "Controle como a Salvaguarda Contra Morte será exibida.",
+            "Choices": {
+                "show": "Padrão",
+                "hide": "Nunca",
+                "only": "Mostrar Apenas uma Caveira Clicável no Retrato"
+            }
+        },
+        "EnableHPControls": {
+            "Name": "Ativar Controles de PV",
+            "Hint": "Adiciona controles extras de PV ao passar o mouse sobre o retrato."
+        },
+        "synchroMidiQoL": {
+            "BR": {
+                "Name": "Efeitos Ativos de Ação Bônus & Reação",
+                "Hint": "Marcar Ação Bônus e Reação como usadas com base nos efeitos ativos do Midi-QoL."
+            },
+            "ADV": {
+                "Name": "Adicionar Botões de Vantagem/Desvantagem",
+                "Hint": "Adiciona uma fonte de vantagem ou desvantagem. Requer Midi-QoL para funcionar."
+            }
+        },
+        "GamePause": {
+            "Name": "Manter \"Jogo Pausado\" no Topo",
+            "Hint": "Se marcado, a interface será exibida abaixo do rótulo \"Jogo Pausado\"."
+        },
+        "AutoScale": {
+            "Name": "Tamanho Automática de Interface",
+            "Hint": "Escala automaticamente a interface com base no navegador. Desativa o parâmetro de escala abaixo."
+        },
+        "EnableGMHotbar": {
+            "Name": "Ativar Barra do Mestre",
+            "Hint": "Exibe uma barra especial para o Mestre quando nenhum token ou múltiplos tokens estiverem selecionados."
+        },
+        "EnableWeaponAutoEquip": {
+            "Name": "Auto-Equipar Conjuntos de Armas",
+            "Hint": "Se marcado, selecionar um token ou trocar conjuntos equipará/desquipará itens automaticamente."
+        },
+        "NpcUseContainerDefaults": {
+            "Name": "PNJs Usam Padrões do Contêiner",
+            "Hint": "Se marcado, PNJs (vinculados ou não) ignorarão conjuntos de armas e usarão os padrões de preenchimento do contêiner."
+        },
+        "HoverFilterShow": {
+            "Name": "Filtro da Barra ao Passar o Mouse",
+            "Hint": "Se marcado, mostra o Filtro da Barra apenas ao passar o mouse sobre ela."
+        },
+        "ShowExtendedFilter": {
+            "Name": "Mostrar Filtros Estendidos",
+            "Hint": "Se marcado, itens com usos limitados aparecerão como Filtro (sem destaque/escurecimento)."
+        },
+        "Keybindings": {
+            "toggleUI": "Alternar Barra BG3",
+            "decreaseTargets": "Diminuir Número de Alvos",
+            "increaseTargets": "Aumentar Número de Alvos",
+            "confirmTargets": "Confirmar Seleção de Alvos"
+        },
+        "Menu": {
+            "Global": {
+                "Name": "Configurações Gerais",
+                "Hint": "Elementos nativos do Foundry ou configurações gerais da interface BG3.",
+                "Label": "Configurações Gerais",
+                "Sub": {
+                    "Foundry": "Interface do Foundry",
+                    "Scale": "Escala e Posição",
+                    "Opacity": "Opacidade e Ocultar"
+                }
+            },
+            "Theme": {
+                "Name": "Configurações de Tema",
+                "Hint": "Escolha entre temas disponíveis ou crie um personalizado.",
+                "Label": "Configurar Tema"
+            },
+            "Portrait": {
+                "Name": "Configurações de Retrato",
+                "Hint": "Configurações avançadas para retrato do personagem.",
+                "Label": "Configurar Retrato",
+                "Sub": {
+                    "Show": "Mostrar/Ocultar Configurações",
+                    "Portrait": "Configurações de Retrato",
+                    "Other": "Outras Configurações"
+                }
+            },
+            "Hotbar": {
+                "Name": "Configurações das Barras",
+                "Hint": "Configurações avançadas para Barras.",
+                "Label": "Configurar Barras",
+                "Sub": {
+                    "General": "General",
+                    "Weapon": "Conjuntos de Armas",
+                    "Common": "Ações Comuns",
+                    "Other": "Outro"
+                }
+            },
+            "TargetSelector": {
+                "Name": "Configurações do Seletor de Alvos",
+                "Hint": "Ajustes do sistema interativo de seleção de alvos.",
+                "Label": "Configurar Seletor de Alvos"
+            },
+            "Filter": {
+                "Name": "Configurações de Filtro"
+            },
+            "Combat": {
+                "Name": "Configurações de Ações Comuns",
+                "Hint": "Configurações avançadas para Ações Comuns.",
+                "Label": "Configurar Ações Comuns"
+            },
+            "Populate": {
+                "Name": "Configurações de Preenchimento Automático",
+                "Hint": "Configurações avançadas para recurso de Preenchimento Automático.",
+                "Label": "Configurar Preenchimento Automático"
+            },
+            "Tooltip": {
+                "Name": "Configurações de Dica",
+                "Hint": "Configurações avançadas para Dicas.",
+                "Label": "Configurar Dicas"
+            },
+            "Midi": {
+                "Name": "Configuração de Sincronização Midi-QoL",
+                "Hint": "Sincronização com as funcionalidades do Midi-QoL. O módulo Midi-QoL deve estar instalado.",
+                "Label": "Configurar Sincronização Midi-QoL"
+            },
+            "CPR": {
+                "Name": "Escolher Ações CPR",
+                "Hint": "Selecione quais ações do CPR preencher automaticamente no contêiner de Ações Comuns.",
+                "Label": "Selecionar Ações CPR",
+                "UpTo6": "Selecione até 6 ações do CPR para preencher automaticamente no contêiner."
+            }
+        }
+    }
+} 
